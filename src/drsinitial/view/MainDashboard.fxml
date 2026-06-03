@@ -1,0 +1,818 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane prefHeight="1080.0" prefWidth="1800.0"
+            stylesheets="@style.css"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="drsinitial.controller.MainDashboardController">
+
+    <left>
+        <ScrollPane fitToWidth="true" fitToHeight="true" prefWidth="265.0"
+                    hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                    styleClass="sidebar-scroll">
+
+            <VBox prefWidth="265.0" spacing="10.0" styleClass="sidebar">
+
+                <VBox spacing="4.0" styleClass="brand-box">
+                    <Label text="DRS" styleClass="brand-title" />
+                    <Label text="Disaster Response System" styleClass="brand-subtitle" />
+                    <Label text="Initial Prototype" styleClass="brand-badge" />
+                </VBox>
+
+                <Button fx:id="dashboardButton" text="Dashboard"
+                        onAction="#showDashboard"
+                        maxWidth="Infinity"
+                        styleClass="nav-button-active" />
+
+                <Button fx:id="reportButton" text="Report Disaster"
+                        onAction="#showReportDisaster"
+                        maxWidth="Infinity"
+                        styleClass="nav-button" />
+
+                <TitledPane text="Incident Management" expanded="false" collapsible="true"
+                             styleClass="sidebar-section">
+                    <VBox spacing="7.0" styleClass="submenu-box">
+
+                        <Button fx:id="registerIncidentButton" text="Register Incident"
+                                onAction="#showRegisterIncident"
+                                maxWidth="Infinity"
+                                styleClass="sub-nav-button" />
+
+                        <Button fx:id="severityPriorityButton" text="Severity and Priority"
+                                onAction="#showSeverityPriority"
+                                maxWidth="Infinity"
+                                styleClass="sub-nav-button" />
+
+                        <Button fx:id="updateIncidentStatusButton" text="Update Incident Status"
+                                onAction="#showUpdateIncidentStatus"
+                                maxWidth="Infinity"
+                                styleClass="sub-nav-button" />
+
+                    </VBox>
+                </TitledPane>
+
+                <TitledPane text="Response Coordination" expanded="false" collapsible="true"
+                             styleClass="sidebar-section">
+                    <VBox spacing="7.0" styleClass="submenu-box">
+
+                        <Button fx:id="emergencyDispatchButton" text="Emergency Dispatch"
+                                onAction="#showEmergencyDispatch"
+                                maxWidth="Infinity"
+                                styleClass="sub-nav-button" />
+
+                        <Button fx:id="responseLogButton" text="Response Log"
+                                onAction="#showResponseLog"
+                                maxWidth="Infinity"
+                                styleClass="sub-nav-button" />
+
+                    </VBox>
+                </TitledPane>
+
+                <TitledPane text="Decision Support Tools" expanded="false" collapsible="true"
+                             styleClass="sidebar-section">
+                    <VBox spacing="7.0" styleClass="submenu-box">
+
+                        <Button fx:id="searchFilterButton" text="Incident Search and Filter"
+                                onAction="#showSearchFilter"
+                                maxWidth="Infinity"
+                                styleClass="sub-nav-button" />
+
+                        <Button fx:id="resourceCountersButton" text="Resource Availability"
+                                onAction="#showResourceCounters"
+                                maxWidth="Infinity"
+                                styleClass="sub-nav-button" />
+
+                    </VBox>
+                </TitledPane>
+
+                <Region VBox.vgrow="ALWAYS" />
+
+                <VBox spacing="8.0" styleClass="sidebar-footer-box">
+                    <Label text="Logged in as" styleClass="sidebar-muted-text" />
+                    <Label fx:id="loggedInRoleLabel"
+                           text="System User"
+                           styleClass="sidebar-user-text" />
+
+                    <Button text="Logout"
+                            onAction="#handleLogout"
+                            maxWidth="Infinity"
+                            styleClass="logout-button" />
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </left>
+
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="topbar">
+
+            <VBox spacing="2.0">
+                <Label text="DRS-Initial Disaster Response System" styleClass="page-title" />
+                <Label fx:id="pageSubtitleLabel" text="Dashboard Overview" styleClass="page-subtitle" />
+            </VBox>
+
+            <Region HBox.hgrow="ALWAYS" />
+
+            <Label text="Role:" styleClass="topbar-label" />
+            <ComboBox fx:id="roleComboBox" prefWidth="250.0" promptText="Select role" />
+
+            <Button text="Apply Role"
+                    onAction="#handleApplyRole"
+                    styleClass="primary-button" />
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" fitToHeight="true"
+                    hbarPolicy="AS_NEEDED" vbarPolicy="AS_NEEDED"
+                    styleClass="main-scroll">
+
+            <StackPane styleClass="content-area">
+
+                <VBox fx:id="dashboardPane" spacing="18.0" styleClass="page-pane">
+
+                    <TilePane hgap="18.0" vgap="18.0" prefColumns="4">
+
+                        <VBox styleClass="metric-card" prefWidth="215.0">
+                            <Label text="Disaster Reports" styleClass="metric-title" />
+                            <Label fx:id="dashboardReportsCountLabel" text="0" styleClass="metric-number" />
+                            <Label text="Submitted reports" styleClass="metric-note" />
+                        </VBox>
+
+                        <VBox styleClass="metric-card" prefWidth="215.0">
+                            <Label text="Registered Incidents" styleClass="metric-title" />
+                            <Label fx:id="dashboardIncidentsCountLabel" text="0" styleClass="metric-number" />
+                            <Label text="Validated incidents" styleClass="metric-note" />
+                        </VBox>
+
+                        <VBox styleClass="metric-card" prefWidth="215.0">
+                            <Label text="High Priority" styleClass="metric-title" />
+                            <Label fx:id="dashboardHighPriorityCountLabel" text="0" styleClass="metric-number" />
+                            <Label text="Urgent responses" styleClass="metric-note" />
+                        </VBox>
+
+                        <VBox styleClass="metric-card" prefWidth="215.0">
+                            <Label text="Available Resources" styleClass="metric-title" />
+                            <Label fx:id="dashboardAvailableResourcesCountLabel" text="0" styleClass="metric-number" />
+                            <Label text="Ready to assign units" styleClass="metric-note" />
+                        </VBox>
+
+                    </TilePane>
+
+                    <HBox spacing="18.0">
+
+                        <VBox spacing="12.0" styleClass="card" minWidth="760.0" HBox.hgrow="ALWAYS">
+                            <Label text="Incident Queue" styleClass="section-title" />
+
+                            <TableView fx:id="incidentQueueTableView"
+                                       prefHeight="450.0"
+                                       minWidth="900.0">
+                                <columns>
+                                    <TableColumn text="Incident ID" prefWidth="120.0" />
+                                    <TableColumn text="Disaster Type" prefWidth="150.0" />
+                                    <TableColumn text="Severity" prefWidth="130.0" />
+                                    <TableColumn text="Location" prefWidth="230.0" />
+                                    <TableColumn text="Priority" prefWidth="130.0" />
+                                    <TableColumn text="Status" prefWidth="140.0" />
+                                </columns>
+                            </TableView>
+                        </VBox>
+
+                        <VBox spacing="12.0" styleClass="card" prefWidth="390.0" minWidth="390.0">
+                            <Label text="Selected Incident Report Details" styleClass="section-title" />
+
+                            <Label text="Report / Incident Description" styleClass="mini-heading" />
+
+                            <TextArea fx:id="selectedDescriptionArea"
+                                      editable="false"
+                                      wrapText="true"
+                                      prefHeight="250.0"
+                                      promptText="Select an incident or report to view details." />
+
+                            <Label text="Selected Record" styleClass="mini-heading" />
+
+                            <Label fx:id="selectedRecordLabel"
+                                   text="No record selected."
+                                   wrapText="true"
+                                   styleClass="body-text" />
+                        </VBox>
+
+                    </HBox>
+                </VBox>
+
+                <VBox fx:id="reportPane" visible="false" managed="false" spacing="18.0" styleClass="page-pane">
+
+                    <HBox spacing="18.0">
+
+                        <VBox spacing="12.0" styleClass="card"
+                              minWidth="460.0" prefWidth="460.0" maxWidth="460.0">
+
+                            <Label text="Report Disaster" styleClass="section-title" />
+
+                            <GridPane hgap="10.0" vgap="10.0">
+
+                                <Label text="Report ID" prefWidth="120.0"
+                                       GridPane.columnIndex="0"
+                                       GridPane.rowIndex="0" />
+
+                                <TextField fx:id="reportIdField"
+                                           promptText="Auto-generated"
+                                           editable="false"
+                                           prefWidth="240.0"
+                                           GridPane.columnIndex="1"
+                                           GridPane.rowIndex="0" />
+
+                                <Label text="Reporter Name" prefWidth="120.0"
+                                       GridPane.columnIndex="0"
+                                       GridPane.rowIndex="1" />
+
+                                <TextField fx:id="reporterNameField"
+                                           promptText="Reporter name"
+                                           prefWidth="240.0"
+                                           GridPane.columnIndex="1"
+                                           GridPane.rowIndex="1" />
+
+                                <Label text="Disaster Type" prefWidth="120.0"
+                                       GridPane.columnIndex="0"
+                                       GridPane.rowIndex="2" />
+
+                                <ComboBox fx:id="disasterTypeComboBox"
+                                          prefWidth="240.0"
+                                          promptText="Select type"
+                                          GridPane.columnIndex="1"
+                                          GridPane.rowIndex="2" />
+
+                                <Label text="Location" prefWidth="120.0"
+                                       GridPane.columnIndex="0"
+                                       GridPane.rowIndex="3" />
+
+                                <TextField fx:id="locationField"
+                                           promptText="Location"
+                                           prefWidth="240.0"
+                                           GridPane.columnIndex="1"
+                                           GridPane.rowIndex="3" />
+
+                                <Label text="Initial Severity" prefWidth="120.0"
+                                       GridPane.columnIndex="0"
+                                       GridPane.rowIndex="4" />
+
+                                <ComboBox fx:id="initialSeverityComboBox"
+                                          prefWidth="240.0"
+                                          promptText="Select severity"
+                                          GridPane.columnIndex="1"
+                                          GridPane.rowIndex="4" />
+
+                            </GridPane>
+
+                            <Label text="Description" />
+
+                            <TextArea fx:id="descriptionArea"
+                                      prefRowCount="5"
+                                      prefWidth="420.0"
+                                      promptText="Describe the disaster..." />
+
+                            <Button text="Submit Report"
+                                    onAction="#handleSubmitReport"
+                                    styleClass="primary-button" />
+
+                            <Label fx:id="reportStatusLabel"
+                                   text="No report submitted."
+                                   styleClass="status-label" />
+                        </VBox>
+
+                        <VBox spacing="12.0" styleClass="card" minWidth="920.0" HBox.hgrow="ALWAYS">
+                            <Label text="Submitted Reports" styleClass="section-title" />
+
+                            <TableView fx:id="submittedReportsTableView"
+                                       prefHeight="620.0"
+                                       minWidth="920.0">
+                                <columns>
+                                    <TableColumn text="Report ID" prefWidth="110.0" />
+                                    <TableColumn text="Reporter" prefWidth="150.0" />
+                                    <TableColumn text="Type" prefWidth="130.0" />
+                                    <TableColumn text="Location" prefWidth="190.0" />
+                                    <TableColumn text="Severity" prefWidth="120.0" />
+                                    <TableColumn text="Status" prefWidth="120.0" />
+                                    <TableColumn text="Description" prefWidth="290.0" />
+                                </columns>
+                            </TableView>
+                        </VBox>
+
+                    </HBox>
+                </VBox>
+
+                <VBox fx:id="registerIncidentPane" visible="false" managed="false" spacing="18.0" styleClass="page-pane">
+
+                    <VBox spacing="12.0" styleClass="card" prefWidth="650.0" minWidth="650.0">
+                        <Label text="Validate and Register Incident" styleClass="section-title" />
+
+                        <GridPane hgap="10.0" vgap="10.0">
+
+                            <Label text="Report ID" prefWidth="160.0"
+                                   GridPane.columnIndex="0"
+                                   GridPane.rowIndex="0" />
+
+                            <ComboBox fx:id="incidentReportIdComboBox"
+                                      prefWidth="280.0"
+                                      promptText="Select report ID"
+                                      GridPane.columnIndex="1"
+                                      GridPane.rowIndex="0" />
+
+                            <Label text="Incident ID" prefWidth="160.0"
+                                   GridPane.columnIndex="0"
+                                   GridPane.rowIndex="1" />
+
+                            <TextField fx:id="incidentIdField"
+                                       promptText="Auto-generated"
+                                       editable="false"
+                                       prefWidth="280.0"
+                                       GridPane.columnIndex="1"
+                                       GridPane.rowIndex="1" />
+
+                            <Label text="Disaster Type" prefWidth="160.0"
+                                   GridPane.columnIndex="0"
+                                   GridPane.rowIndex="2" />
+
+                            <Label fx:id="selectedReportTypeLabel"
+                                   text="Select a report first."
+                                   styleClass="body-text"
+                                   GridPane.columnIndex="1"
+                                   GridPane.rowIndex="2" />
+
+                            <Label text="Location" prefWidth="160.0"
+                                   GridPane.columnIndex="0"
+                                   GridPane.rowIndex="3" />
+
+                            <Label fx:id="selectedReportLocationLabel"
+                                   text="Select a report first."
+                                   styleClass="body-text"
+                                   GridPane.columnIndex="1"
+                                   GridPane.rowIndex="3" />
+
+                            <Label text="Initial Severity" prefWidth="160.0"
+                                   GridPane.columnIndex="0"
+                                   GridPane.rowIndex="4" />
+
+                            <Label fx:id="selectedReportSeverityLabel"
+                                   text="Select a report first."
+                                   styleClass="body-text"
+                                   GridPane.columnIndex="1"
+                                   GridPane.rowIndex="4" />
+
+                            <Label text="Affected People" prefWidth="160.0"
+                                   GridPane.columnIndex="0"
+                                   GridPane.rowIndex="5" />
+
+                            <TextField fx:id="affectedPeopleField"
+                                       promptText="0"
+                                       prefWidth="280.0"
+                                       GridPane.columnIndex="1"
+                                       GridPane.rowIndex="5" />
+
+                            <Label text="Affected Area" prefWidth="160.0"
+                                   GridPane.columnIndex="0"
+                                   GridPane.rowIndex="6" />
+
+                            <TextField fx:id="affectedAreaField"
+                                       promptText="Affected area"
+                                       prefWidth="280.0"
+                                       GridPane.columnIndex="1"
+                                       GridPane.rowIndex="6" />
+
+                        </GridPane>
+
+                        <Label text="Report Description" styleClass="mini-heading" />
+
+                        <TextArea fx:id="selectedReportDescriptionArea"
+                                  editable="false"
+                                  wrapText="true"
+                                  prefRowCount="4"
+                                  prefWidth="590.0"
+                                  promptText="Select a report to view description." />
+
+                        <Button text="Register Incident"
+                                onAction="#handleRegisterIncident"
+                                styleClass="primary-button" />
+
+                        <Label fx:id="incidentStatusLabel"
+                               text="No incident registered."
+                               styleClass="status-label" />
+                    </VBox>
+                </VBox>
+
+                <VBox fx:id="severityPriorityPane" visible="false" managed="false" spacing="18.0" styleClass="page-pane">
+
+                    <VBox spacing="12.0" styleClass="card" prefWidth="620.0" minWidth="620.0">
+                        <Label text="Severity and Priority" styleClass="section-title" />
+
+                        <GridPane hgap="10.0" vgap="10.0">
+
+                            <Label text="Incident ID" prefWidth="160.0"
+                                   GridPane.columnIndex="0"
+                                   GridPane.rowIndex="0" />
+
+                            <ComboBox fx:id="severityIncidentIdComboBox"
+                                      prefWidth="280.0"
+                                      promptText="Select incident ID"
+                                      GridPane.columnIndex="1"
+                                      GridPane.rowIndex="0" />
+
+                            <Label text="Severity Level" prefWidth="160.0"
+                                   GridPane.columnIndex="0"
+                                   GridPane.rowIndex="1" />
+
+                            <Label fx:id="severityLevelDisplayLabel"
+                                   text="Select an incident first."
+                                   styleClass="body-text"
+                                   GridPane.columnIndex="1"
+                                   GridPane.rowIndex="1" />
+
+                            <Label text="Risk Score" prefWidth="160.0"
+                                   GridPane.columnIndex="0"
+                                   GridPane.rowIndex="2" />
+
+                            <Label fx:id="riskScoreLabel"
+                                   text="0"
+                                   styleClass="result-label"
+                                   GridPane.columnIndex="1"
+                                   GridPane.rowIndex="2" />
+
+                            <Label text="Recommended Priority" prefWidth="160.0"
+                                   GridPane.columnIndex="0"
+                                   GridPane.rowIndex="3" />
+
+                            <Label fx:id="recommendedPriorityLabel"
+                                   text="Not calculated"
+                                   styleClass="result-label"
+                                   GridPane.columnIndex="1"
+                                   GridPane.rowIndex="3" />
+
+                        </GridPane>
+
+                        <Button text="Assess and Prioritise"
+                                onAction="#handleAssessAndPrioritise"
+                                styleClass="primary-button" />
+
+                        <Label fx:id="assessmentStatusLabel"
+                               text="Assessment pending."
+                               styleClass="status-label" />
+                    </VBox>
+                </VBox>
+
+                <VBox fx:id="updateIncidentStatusPane" visible="false" managed="false" spacing="18.0" styleClass="page-pane">
+
+                    <HBox spacing="18.0">
+
+                        <VBox spacing="12.0" styleClass="card" prefWidth="560.0" minWidth="560.0">
+                            <Label text="Update Incident Status" styleClass="section-title" />
+
+                            <GridPane hgap="10.0" vgap="10.0">
+
+                                <Label text="Update ID" prefWidth="140.0"
+                                       GridPane.columnIndex="0"
+                                       GridPane.rowIndex="0" />
+
+                                <TextField fx:id="updateIdField"
+                                           promptText="Auto-generated"
+                                           editable="false"
+                                           prefWidth="250.0"
+                                           GridPane.columnIndex="1"
+                                           GridPane.rowIndex="0" />
+
+                                <Label text="Incident ID" prefWidth="140.0"
+                                       GridPane.columnIndex="0"
+                                       GridPane.rowIndex="1" />
+
+                                <ComboBox fx:id="updateIncidentIdComboBox"
+                                          prefWidth="250.0"
+                                          promptText="Select incident ID"
+                                          GridPane.columnIndex="1"
+                                          GridPane.rowIndex="1" />
+
+                                <Label text="New Status" prefWidth="140.0"
+                                       GridPane.columnIndex="0"
+                                       GridPane.rowIndex="2" />
+
+                                <ComboBox fx:id="updateStatusComboBox"
+                                          prefWidth="250.0"
+                                          promptText="Select status"
+                                          GridPane.columnIndex="1"
+                                          GridPane.rowIndex="2" />
+
+                                <Label text="Updated By" prefWidth="140.0"
+                                       GridPane.columnIndex="0"
+                                       GridPane.rowIndex="3" />
+
+                                <TextField fx:id="updatedByField"
+                                           promptText="Emergency Control Centre"
+                                           prefWidth="250.0"
+                                           GridPane.columnIndex="1"
+                                           GridPane.rowIndex="3" />
+
+                            </GridPane>
+
+                            <Label text="Update Notes" styleClass="mini-heading" />
+
+                            <TextArea fx:id="updateNotesArea"
+                                      prefRowCount="5"
+                                      prefWidth="500.0"
+                                      promptText="Enter update notes." />
+
+                            <Button text="Save Status Update"
+                                    onAction="#handleUpdateIncidentStatus"
+                                    styleClass="primary-button" />
+
+                            <Label fx:id="updateStatusLabel"
+                                   text="No status update saved."
+                                   styleClass="status-label" />
+                        </VBox>
+
+                        <VBox spacing="12.0" styleClass="card" minWidth="900.0" HBox.hgrow="ALWAYS">
+                            <Label text="Incident Update Log" styleClass="section-title" />
+
+                            <TableView fx:id="incidentUpdateTableView"
+                                       prefHeight="560.0"
+                                       minWidth="900.0">
+                                <columns>
+                                    <TableColumn text="Update ID" prefWidth="110.0" />
+                                    <TableColumn text="Incident ID" prefWidth="120.0" />
+                                    <TableColumn text="Status" prefWidth="140.0" />
+                                    <TableColumn text="Updated By" prefWidth="180.0" />
+                                    <TableColumn text="Date Time" prefWidth="220.0" />
+                                    <TableColumn text="Notes" prefWidth="320.0" />
+                                </columns>
+                            </TableView>
+                        </VBox>
+
+                    </HBox>
+                </VBox>
+
+                <VBox fx:id="emergencyDispatchPane" visible="false" managed="false" spacing="18.0" styleClass="page-pane">
+
+                    <VBox spacing="12.0" styleClass="card" prefWidth="620.0" minWidth="620.0">
+                        <Label text="Emergency Dispatch" styleClass="section-title" />
+
+                        <GridPane hgap="10.0" vgap="10.0">
+
+                            <Label text="Response ID" prefWidth="140.0"
+                                   GridPane.columnIndex="0"
+                                   GridPane.rowIndex="0" />
+
+                            <TextField fx:id="responseIdField"
+                                       promptText="Auto-generated"
+                                       editable="false"
+                                       prefWidth="260.0"
+                                       GridPane.columnIndex="1"
+                                       GridPane.rowIndex="0" />
+
+                            <Label text="Incident ID" prefWidth="140.0"
+                                   GridPane.columnIndex="0"
+                                   GridPane.rowIndex="1" />
+
+                            <ComboBox fx:id="dispatchIncidentIdComboBox"
+                                      prefWidth="260.0"
+                                      promptText="Select incident ID"
+                                      GridPane.columnIndex="1"
+                                      GridPane.rowIndex="1" />
+
+                            <Label text="Agency" prefWidth="140.0"
+                                   GridPane.columnIndex="0"
+                                   GridPane.rowIndex="2" />
+
+                            <ComboBox fx:id="agencyComboBox"
+                                      prefWidth="260.0"
+                                      promptText="Select agency"
+                                      GridPane.columnIndex="1"
+                                      GridPane.rowIndex="2" />
+
+                            <Label text="Resource" prefWidth="140.0"
+                                   GridPane.columnIndex="0"
+                                   GridPane.rowIndex="3" />
+
+                            <ComboBox fx:id="resourceComboBox"
+                                      prefWidth="260.0"
+                                      promptText="Select resource"
+                                      GridPane.columnIndex="1"
+                                      GridPane.rowIndex="3" />
+
+                        </GridPane>
+
+                        <TextArea fx:id="dispatchNotesArea"
+                                  prefRowCount="4"
+                                  prefWidth="540.0"
+                                  promptText="Dispatch notes..." />
+
+                        <Button text="Dispatch Response"
+                                onAction="#handleDispatchResponse"
+                                styleClass="primary-button" />
+
+                        <Label fx:id="dispatchStatusLabel"
+                               text="No response dispatched."
+                               styleClass="status-label" />
+                    </VBox>
+                </VBox>
+
+                <VBox fx:id="responseLogPane" visible="false" managed="false" spacing="18.0" styleClass="page-pane">
+
+                    <VBox spacing="12.0" styleClass="card" minWidth="1100.0">
+                        <Label text="Emergency Response Log" styleClass="section-title" />
+
+                        <TableView fx:id="responseLogTableView"
+                                   prefHeight="620.0"
+                                   minWidth="1100.0">
+                            <columns>
+                                <TableColumn text="Response ID" prefWidth="120.0" />
+                                <TableColumn text="Incident ID" prefWidth="130.0" />
+                                <TableColumn text="Agency" prefWidth="240.0" />
+                                <TableColumn text="Resource" prefWidth="200.0" />
+                                <TableColumn text="Status" prefWidth="140.0" />
+                                <TableColumn text="Dispatch Time" prefWidth="220.0" />
+                                <TableColumn text="Dispatch Notes" prefWidth="300.0" />
+                            </columns>
+                        </TableView>
+                    </VBox>
+                </VBox>
+
+                <VBox fx:id="searchFilterPane" visible="false" managed="false" spacing="18.0" styleClass="page-pane">
+
+                    <VBox spacing="12.0" styleClass="card" minWidth="1100.0">
+                        <Label text="Decision Support Tool 1: Incident Search and Filter" styleClass="section-title" />
+
+                        <HBox spacing="10.0">
+                            <TextField fx:id="filterKeywordField"
+                                       promptText="Keyword: incident ID or location"
+                                       prefWidth="240.0" />
+
+                            <ComboBox fx:id="filterDisasterTypeComboBox"
+                                      promptText="Disaster Type"
+                                      prefWidth="170.0" />
+
+                            <ComboBox fx:id="filterSeverityComboBox"
+                                      promptText="Severity"
+                                      prefWidth="150.0" />
+
+                            <ComboBox fx:id="filterPriorityComboBox"
+                                      promptText="Priority"
+                                      prefWidth="150.0" />
+
+                            <ComboBox fx:id="filterStatusComboBox"
+                                      promptText="Status"
+                                      prefWidth="160.0" />
+
+                            <Button text="Apply Filter"
+                                    onAction="#handleApplyFilter"
+                                    styleClass="primary-button" />
+
+                            <Button text="Reset"
+                                    onAction="#handleResetFilter"
+                                    styleClass="secondary-button" />
+                        </HBox>
+
+                        <TableView fx:id="filteredIncidentsTableView"
+                                   prefHeight="550.0"
+                                   minWidth="1100.0">
+                            <columns>
+                                <TableColumn text="Incident ID" prefWidth="120.0" />
+                                <TableColumn text="Disaster Type" prefWidth="160.0" />
+                                <TableColumn text="Severity" prefWidth="130.0" />
+                                <TableColumn text="Location" prefWidth="260.0" />
+                                <TableColumn text="Priority" prefWidth="140.0" />
+                                <TableColumn text="Status" prefWidth="140.0" />
+                            </columns>
+                        </TableView>
+
+                        <Label fx:id="filterStatusLabel"
+                               text="No filter applied."
+                               styleClass="status-label" />
+                    </VBox>
+                </VBox>
+
+                <VBox fx:id="resourceCountersPane" visible="false" managed="false" spacing="18.0" styleClass="page-pane">
+
+                    <Label text="Decision Support Tool 2: Emergency Resource Availability Tracker"
+                           styleClass="section-title" />
+
+                    <TilePane hgap="18.0" vgap="18.0" prefColumns="4">
+
+                        <VBox styleClass="metric-card" prefWidth="190.0">
+                            <Label text="Available Units" styleClass="metric-title" />
+                            <Label fx:id="availableResourceCountLabel" text="0" styleClass="metric-number" />
+                        </VBox>
+
+                        <VBox styleClass="metric-card" prefWidth="190.0">
+                            <Label text="Assigned Units" styleClass="metric-title" />
+                            <Label fx:id="assignedResourceCountLabel" text="0" styleClass="metric-number" />
+                        </VBox>
+
+                        <VBox styleClass="metric-card" prefWidth="190.0">
+                            <Label text="Unavailable Units" styleClass="metric-title" />
+                            <Label fx:id="unavailableResourceCountLabel" text="0" styleClass="metric-number" />
+                        </VBox>
+
+                        <VBox styleClass="metric-card" prefWidth="190.0">
+                            <Label text="Maintenance Units" styleClass="metric-title" />
+                            <Label fx:id="maintenanceResourceCountLabel" text="0" styleClass="metric-number" />
+                        </VBox>
+
+                    </TilePane>
+
+                    <VBox spacing="18.0" maxWidth="980.0">
+
+                        <VBox spacing="12.0" styleClass="card" prefWidth="980.0" maxWidth="980.0">
+                            <Label text="Emergency Resources" styleClass="section-title" />
+
+                            <TableView fx:id="resourceTableView"
+                                       prefHeight="260.0"
+                                       prefWidth="930.0"
+                                       maxWidth="930.0">
+                                <columns>
+                                    <TableColumn text="Resource ID" prefWidth="105.0" />
+                                    <TableColumn text="Resource Name" prefWidth="165.0" />
+                                    <TableColumn text="Type" prefWidth="145.0" />
+                                    <TableColumn text="Total" prefWidth="75.0" />
+                                    <TableColumn text="Available" prefWidth="100.0" />
+                                    <TableColumn text="Assigned" prefWidth="100.0" />
+                                    <TableColumn text="Unavailable" prefWidth="115.0" />
+                                    <TableColumn text="Maintenance" prefWidth="125.0" />
+                                </columns>
+                            </TableView>
+
+                            <VBox spacing="10.0" styleClass="resource-action-panel">
+
+                                <Label text="Resource Actions" styleClass="mini-heading" />
+
+                                <HBox spacing="10.0">
+                                    <Button fx:id="releaseResourceButton"
+                                            text="Release 1 Assigned Unit"
+                                            onAction="#handleReleaseResource"
+                                            prefWidth="210.0"
+                                            styleClass="primary-button" />
+
+                                    <Button fx:id="markUnavailableButton"
+                                            text="Mark 1 Unavailable"
+                                            onAction="#handleMarkResourceUnavailable"
+                                            prefWidth="180.0"
+                                            styleClass="secondary-button" />
+
+                                    <Button fx:id="markMaintenanceButton"
+                                            text="Mark 1 Maintenance"
+                                            onAction="#handleMarkResourceMaintenance"
+                                            prefWidth="180.0"
+                                            styleClass="secondary-button" />
+                                </HBox>
+
+                                <HBox spacing="10.0">
+                                    <Button fx:id="restoreUnavailableButton"
+                                            text="Restore 1 Unavailable"
+                                            onAction="#handleRestoreUnavailableResource"
+                                            prefWidth="210.0"
+                                            styleClass="secondary-button" />
+
+                                    <Button fx:id="restoreMaintenanceButton"
+                                            text="Restore 1 Maintenance"
+                                            onAction="#handleRestoreMaintenanceResource"
+                                            prefWidth="210.0"
+                                            styleClass="secondary-button" />
+                                </HBox>
+
+                            </VBox>
+                        </VBox>
+
+                        <VBox spacing="12.0" styleClass="card" prefWidth="980.0" maxWidth="980.0">
+                            <Label text="Response Agencies" styleClass="section-title" />
+
+                            <TableView fx:id="agencyTableView"
+                                       prefHeight="190.0"
+                                       prefWidth="930.0"
+                                       maxWidth="930.0">
+                                <columns>
+                                    <TableColumn text="Agency ID" prefWidth="110.0" />
+                                    <TableColumn text="Agency Name" prefWidth="330.0" />
+                                    <TableColumn text="Agency Type" prefWidth="250.0" />
+                                    <TableColumn text="Status" prefWidth="160.0" />
+                                </columns>
+                            </TableView>
+                        </VBox>
+
+                    </VBox>
+
+                    <Label fx:id="counterStatusLabel"
+                           text="Resource tracker ready."
+                           styleClass="status-label" />
+
+                </VBox>
+
+            </StackPane>
+        </ScrollPane>
+    </center>
+
+    <bottom>
+        <HBox alignment="CENTER_LEFT" styleClass="footer">
+            <Label fx:id="globalStatusLabel" text="System Status: Ready" />
+        </HBox>
+    </bottom>
+
+</BorderPane>
