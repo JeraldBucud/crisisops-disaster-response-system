@@ -19,7 +19,7 @@
                 <VBox spacing="4.0" styleClass="brand-box">
                     <Label text="DRS" styleClass="brand-title" />
                     <Label text="Disaster Response System" styleClass="brand-subtitle" />
-                    <Label text="Initial Prototype" styleClass="brand-badge" />
+                    <Label text="Enhanced Prototype" styleClass="brand-badge" />
                 </VBox>
 
                 <Button fx:id="dashboardButton" text="Dashboard"
@@ -130,7 +130,7 @@
         <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="topbar">
 
             <VBox spacing="2.0">
-                <Label text="DRS-Initial Disaster Response System" styleClass="page-title" />
+                <Label text="DRS-Enhanced Disaster Response System" styleClass="page-title" />
                 <Label fx:id="pageSubtitleLabel" text="Dashboard Overview" styleClass="page-subtitle" />
             </VBox>
 
