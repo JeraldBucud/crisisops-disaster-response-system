@@ -59,6 +59,9 @@ public class MainDashboardController {
     private final ObservableList<PublicAlert> publicAlerts
             = FXCollections.observableArrayList();
 
+    private final ObservableList<PublicAlert> filteredPublicAlerts
+            = FXCollections.observableArrayList();
+
     private final ObservableList<User> systemUsers
             = FXCollections.observableArrayList();
 
@@ -129,6 +132,14 @@ public class MainDashboardController {
     private Button clearAlertButton;
     @FXML
     private Button userManagementButton;
+    @FXML
+    private Button addShelterButton;
+    @FXML
+    private Button updateShelterButton;
+    @FXML
+    private Button clearShelterButton;
+    @FXML
+    private Button expireAlertButton;
 
     @FXML
     private Label pageSubtitleLabel;
@@ -200,6 +211,8 @@ public class MainDashboardController {
     private Label publicAlertStatusLabel;
     @FXML
     private Label userManagementStatusLabel;
+    @FXML
+    private Label publicAlertTitleLabel;
 
     @FXML
     private ComboBox<DisasterType> disasterTypeComboBox;
@@ -244,6 +257,8 @@ public class MainDashboardController {
     private ComboBox<String> adminUserRoleComboBox;
     @FXML
     private ComboBox<String> adminAccountStatusComboBox;
+    @FXML
+    private ComboBox<String> publicAlertStatusFilterComboBox;
 
     @FXML
     private TextField reportIdField;
@@ -290,6 +305,8 @@ public class MainDashboardController {
     private TextField alertIdField;
     @FXML
     private TextField alertAffectedAreaField;
+    @FXML
+    private TextField publicAlertSearchField;
 
     @FXML
     private TextArea descriptionArea;
@@ -746,6 +763,8 @@ public class MainDashboardController {
         loadSampleShelters();
         prepareShelterId();
         refreshShelterCounters();
+        setShelterAddMode();
+
     }
 
     /**
@@ -774,8 +793,27 @@ public class MainDashboardController {
                 .addListener((observable, oldValue, shelter) -> {
                     if (shelter != null) {
                         showSelectedShelter(shelter);
+                        setShelterEditMode();
+                    } else {
+                        setShelterAddMode();
                     }
                 });
+    }
+
+    /**
+     * Sets the shelter form to add mode.
+     */
+    private void setShelterAddMode() {
+        addShelterButton.setDisable(false);
+        updateShelterButton.setDisable(true);
+    }
+
+    /**
+     * Sets the shelter form to edit mode.
+     */
+    private void setShelterEditMode() {
+        addShelterButton.setDisable(true);
+        updateShelterButton.setDisable(false);
     }
 
     /**
@@ -804,11 +842,104 @@ public class MainDashboardController {
                 "EXPIRED"
         );
 
+        publicAlertStatusFilterComboBox.getItems().setAll(
+                "ALL",
+                "DRAFT",
+                "PUBLISHED",
+                "EXPIRED",
+                "CANCELLED"
+        );
+        publicAlertStatusFilterComboBox.setValue("ALL");
+
         refreshAlertIncidentComboBox();
-        publicAlertTableView.setItems(publicAlerts);
+        publicAlertTableView.setItems(filteredPublicAlerts);
         setupPublicAlertTable();
         loadSamplePublicAlerts();
+        refreshPublicAlertDisplay();
         prepareAlertId();
+    }
+
+    /**
+     * Refreshes the public alert table based on role and filters.
+     */
+    private void refreshPublicAlertDisplay() {
+        filteredPublicAlerts.clear();
+
+        String keyword = "";
+
+        if (publicAlertSearchField != null) {
+            keyword = publicAlertSearchField.getText().trim().toLowerCase();
+        }
+
+        String selectedStatus = "ALL";
+
+        if (publicAlertStatusFilterComboBox != null
+                && publicAlertStatusFilterComboBox.getValue() != null) {
+            selectedStatus = publicAlertStatusFilterComboBox.getValue();
+        }
+
+        boolean publicUser
+                = UserSession.getCurrentRole() == UserRole.PUBLIC_USER;
+
+        for (PublicAlert alert : publicAlerts) {
+            if (publicUser
+                    && !"PUBLISHED".equalsIgnoreCase(alert.getAlertStatus())) {
+                continue;
+            }
+
+            if (!publicUser
+                    && !"ALL".equals(selectedStatus)
+                    && !selectedStatus.equalsIgnoreCase(alert.getAlertStatus())) {
+                continue;
+            }
+
+            if (!matchesPublicAlertKeyword(alert, keyword)) {
+                continue;
+            }
+
+            filteredPublicAlerts.add(alert);
+        }
+
+        publicAlertTableView.refresh();
+    }
+
+    /**
+     * Checks whether an alert matches the keyword filter.
+     *
+     * @param alert public alert
+     * @param keyword search keyword
+     * @return true if matched
+     */
+    private boolean matchesPublicAlertKeyword(PublicAlert alert, String keyword) {
+        if (keyword == null || keyword.isEmpty()) {
+            return true;
+        }
+
+        return alert.getAlertId().toLowerCase().contains(keyword)
+                || alert.getIncidentId().toLowerCase().contains(keyword)
+                || alert.getAlertType().toLowerCase().contains(keyword)
+                || alert.getAffectedArea().toLowerCase().contains(keyword)
+                || alert.getSeverityLevel().toLowerCase().contains(keyword)
+                || alert.getAlertMessage().toLowerCase().contains(keyword)
+                || alert.getAlertStatus().toLowerCase().contains(keyword);
+    }
+
+    /**
+     * Applies search and filter to public alerts.
+     */
+    @FXML
+    private void handleSearchPublicAlerts() {
+        refreshPublicAlertDisplay();
+    }
+
+    /**
+     * Resets public alert search and filter.
+     */
+    @FXML
+    private void handleResetPublicAlertSearch() {
+        publicAlertSearchField.clear();
+        publicAlertStatusFilterComboBox.setValue("ALL");
+        refreshPublicAlertDisplay();
     }
 
     /**
@@ -1980,22 +2111,22 @@ public class MainDashboardController {
         resourceTableView.refresh();
         refreshResourceCounters();
     }
-    
-    /**
- * Shows the admin user management pane.
- */
-@FXML
-private void showUserManagement() {
-    if (!isSystemAdministrator()) {
-        globalStatusLabel.setText("System Status: Admin access required.");
-        return;
-    }
 
-    showOnlyPane(userManagementPane);
-    pageSubtitleLabel.setText("Admin User Management");
-    setActiveButton(userManagementButton);
-    userManagementTableView.refresh();
-}
+    /**
+     * Shows the admin user management pane.
+     */
+    @FXML
+    private void showUserManagement() {
+        if (!isSystemAdministrator()) {
+            globalStatusLabel.setText("System Status: Admin access required.");
+            return;
+        }
+
+        showOnlyPane(userManagementPane);
+        pageSubtitleLabel.setText("Admin User Management");
+        setActiveButton(userManagementButton);
+        userManagementTableView.refresh();
+    }
 
     /**
      * Adds a new evacuation shelter record.
@@ -2084,8 +2215,13 @@ private void showUserManagement() {
         shelterCapacityField.clear();
         shelterCurrentOccupantsField.clear();
         shelterStatusComboBox.getSelectionModel().clearSelection();
+
         shelterTableView.getSelectionModel().clearSelection();
+
         prepareShelterId();
+        setShelterAddMode();
+
+        shelterStatusLabel.setText("Shelter form cleared.");
     }
 
     /**
@@ -2150,15 +2286,21 @@ private void showUserManagement() {
     }
 
     /**
-     * Shows the public alert notification manager pane.
+     * Shows the public alert notification screen.
      */
     @FXML
     private void showPublicAlerts() {
         showOnlyPane(publicAlertPane);
-        pageSubtitleLabel.setText("Public Alert Notification Manager");
         setActiveButton(publicAlertButton);
         applyPublicAlertScreenAccess();
-        publicAlertTableView.refresh();
+
+        if (UserSession.getCurrentRole() == UserRole.PUBLIC_USER) {
+            pageSubtitleLabel.setText("Public Alerts");
+        } else {
+            pageSubtitleLabel.setText("Public Alert Notification Manager");
+        }
+
+        refreshPublicAlertDisplay();
     }
 
     /**
@@ -2188,7 +2330,7 @@ private void showUserManagement() {
         );
 
         publicAlerts.add(alert);
-        publicAlertTableView.refresh();
+        refreshPublicAlertDisplay();
         handleClearAlertForm();
 
         publicAlertStatusLabel.setText("Public alert created successfully.");
@@ -2216,10 +2358,37 @@ private void showUserManagement() {
         selectedAlert.setAlertStatus("PUBLISHED");
         selectedAlert.setCreatedTime(LocalDateTime.now().toString());
 
-        publicAlertTableView.refresh();
+        refreshPublicAlertDisplay();
 
         publicAlertStatusLabel.setText("Public alert published.");
         globalStatusLabel.setText("System Status: Public alert published.");
+    }
+
+    /**
+     * Expires the selected public alert.
+     */
+    @FXML
+    private void handleExpireAlert() {
+        if (!hasOperationalAccess()) {
+            globalStatusLabel.setText("System Status: Access denied.");
+            return;
+        }
+
+        PublicAlert selectedAlert
+                = publicAlertTableView.getSelectionModel().getSelectedItem();
+
+        if (selectedAlert == null) {
+            publicAlertStatusLabel.setText("Select an alert to expire.");
+            return;
+        }
+
+        selectedAlert.setAlertStatus("EXPIRED");
+        selectedAlert.setCreatedTime(LocalDateTime.now().toString());
+
+        refreshPublicAlertDisplay();
+
+        publicAlertStatusLabel.setText("Public alert expired.");
+        globalStatusLabel.setText("System Status: Public alert expired.");
     }
 
     /**
@@ -2280,14 +2449,25 @@ private void showUserManagement() {
         publishAlertButton.setManaged(hasManagementAccess);
         publishAlertButton.setDisable(!hasManagementAccess);
 
+        expireAlertButton.setVisible(hasManagementAccess);
+        expireAlertButton.setManaged(hasManagementAccess);
+        expireAlertButton.setDisable(!hasManagementAccess);
+
         clearAlertButton.setVisible(hasManagementAccess);
         clearAlertButton.setManaged(hasManagementAccess);
         clearAlertButton.setDisable(!hasManagementAccess);
 
+        publicAlertStatusFilterComboBox.setVisible(hasManagementAccess);
+        publicAlertStatusFilterComboBox.setManaged(hasManagementAccess);
+
         if (!hasManagementAccess) {
-            publicAlertStatusLabel.setText(
-                    "Public alerts are available for viewing only.");
+            publicAlertTitleLabel.setText("Public Alerts");
+        } else {
+            publicAlertTitleLabel.setText("Public Alert Notification Manager");
+            publicAlertStatusLabel.setText("Public alert manager ready.");
         }
+
+        refreshPublicAlertDisplay();
     }
 
     /**

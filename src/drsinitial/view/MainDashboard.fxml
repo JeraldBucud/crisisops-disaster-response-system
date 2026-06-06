@@ -738,15 +738,20 @@
 
                     </TilePane>
 
-                    <VBox spacing="18.0" maxWidth="980.0">
+                    <HBox spacing="18.0">
 
-                        <VBox spacing="12.0" styleClass="card" prefWidth="980.0" maxWidth="980.0">
+                        <VBox spacing="12.0"
+                              styleClass="card"
+                              prefWidth="900.0"
+                              minWidth="760.0"
+                              HBox.hgrow="ALWAYS">
+
                             <Label text="Emergency Resources" styleClass="section-title" />
 
                             <TableView fx:id="resourceTableView"
-                                       prefHeight="260.0"
-                                       prefWidth="930.0"
-                                       maxWidth="930.0">
+                                       prefHeight="330.0"
+                                       minWidth="760.0"
+                                       maxWidth="Infinity">
                                 <columns>
                                     <TableColumn text="Resource ID" prefWidth="105.0" />
                                     <TableColumn text="Resource Name" prefWidth="165.0" />
@@ -759,68 +764,84 @@
                                 </columns>
                             </TableView>
 
-                            <VBox spacing="10.0" styleClass="resource-action-panel">
+                            <VBox spacing="8.0"
+                                  styleClass="resource-action-panel"
+                                  maxWidth="760.0">
 
                                 <Label text="Resource Actions" styleClass="mini-heading" />
 
-                                <HBox spacing="10.0">
+                                <GridPane hgap="12.0" vgap="12.0">
+
                                     <Button fx:id="releaseResourceButton"
-                                            text="Release 1 Assigned Unit"
+                                            text="Release 1 Assigned"
                                             onAction="#handleReleaseResource"
-                                            prefWidth="210.0"
-                                            styleClass="primary-button" />
+                                            styleClass="compact-primary-button"
+                                            GridPane.columnIndex="0"
+                                            GridPane.rowIndex="0" />
 
                                     <Button fx:id="markUnavailableButton"
                                             text="Mark 1 Unavailable"
                                             onAction="#handleMarkResourceUnavailable"
-                                            prefWidth="180.0"
-                                            styleClass="secondary-button" />
+                                            styleClass="compact-secondary-button"
+                                            GridPane.columnIndex="1"
+                                            GridPane.rowIndex="0" />
 
                                     <Button fx:id="markMaintenanceButton"
                                             text="Mark 1 Maintenance"
                                             onAction="#handleMarkResourceMaintenance"
-                                            prefWidth="180.0"
-                                            styleClass="secondary-button" />
-                                </HBox>
+                                            styleClass="compact-secondary-button"
+                                            GridPane.columnIndex="2"
+                                            GridPane.rowIndex="0" />
 
-                                <HBox spacing="10.0">
                                     <Button fx:id="restoreUnavailableButton"
                                             text="Restore 1 Unavailable"
                                             onAction="#handleRestoreUnavailableResource"
-                                            prefWidth="210.0"
-                                            styleClass="secondary-button" />
+                                            styleClass="compact-secondary-button"
+                                            GridPane.columnIndex="3"
+                                            GridPane.rowIndex="0" />
 
                                     <Button fx:id="restoreMaintenanceButton"
                                             text="Restore 1 Maintenance"
                                             onAction="#handleRestoreMaintenanceResource"
-                                            prefWidth="210.0"
-                                            styleClass="secondary-button" />
-                                </HBox>
+                                            styleClass="compact-secondary-button"
+                                            GridPane.columnIndex="4"
+                                            GridPane.rowIndex="0" />
+
+                                </GridPane>
 
                             </VBox>
+                            
+                            <Label fx:id="counterStatusLabel"
+                                   text="Resource tracker ready."
+                                   styleClass="status-label" />
+
                         </VBox>
 
-                        <VBox spacing="12.0" styleClass="card" prefWidth="980.0" maxWidth="980.0">
+                        <VBox spacing="12.0"
+                              styleClass="card"
+                              prefWidth="540.0"
+                              minWidth="480.0"
+                              HBox.hgrow="ALWAYS">
+
                             <Label text="Response Agencies" styleClass="section-title" />
 
                             <TableView fx:id="agencyTableView"
-                                       prefHeight="190.0"
-                                       prefWidth="930.0"
-                                       maxWidth="930.0">
+                                       prefHeight="330.0"
+                                       minWidth="480.0"
+                                       maxWidth="Infinity">
                                 <columns>
                                     <TableColumn text="Agency ID" prefWidth="110.0" />
-                                    <TableColumn text="Agency Name" prefWidth="330.0" />
-                                    <TableColumn text="Agency Type" prefWidth="250.0" />
-                                    <TableColumn text="Status" prefWidth="160.0" />
+                                    <TableColumn text="Agency Name" prefWidth="260.0" />
+                                    <TableColumn text="Agency Type" prefWidth="220.0" />
+                                    <TableColumn text="Status" prefWidth="140.0" />
                                 </columns>
                             </TableView>
+
+
+
                         </VBox>
 
-                    </VBox>
-
-                    <Label fx:id="counterStatusLabel"
-                           text="Resource tracker ready."
-                           styleClass="status-label" />
+                    </HBox>
 
                 </VBox>
                 
@@ -909,15 +930,18 @@
                             </GridPane>
 
                             <HBox spacing="10.0">
-                                <Button text="Add Shelter"
+                                <Button fx:id="addShelterButton"
+                                        text="Add Shelter"
                                         onAction="#handleAddShelter"
                                         styleClass="primary-button" />
 
-                                <Button text="Update Shelter"
+                                <Button fx:id="updateShelterButton"
+                                        text="Update Shelter"
                                         onAction="#handleUpdateShelter"
                                         styleClass="secondary-button" />
 
-                                <Button text="Clear Form"
+                                <Button fx:id="clearShelterButton"
+                                        text="Clear Form"
                                         onAction="#handleClearShelterForm"
                                         styleClass="secondary-button" />
                             </HBox>
@@ -957,7 +981,8 @@
                 <VBox fx:id="publicAlertPane" visible="false" managed="false"
                       spacing="18.0" styleClass="page-pane">
 
-                    <Label text="Public Alert Notification Manager"
+                    <Label fx:id="publicAlertTitleLabel"
+                           text="Public Alert Notification Manager"
                            styleClass="section-title" />
 
                     <HBox spacing="18.0">
@@ -1035,6 +1060,11 @@
                                         onAction="#handlePublishAlert"
                                         styleClass="secondary-button" />
 
+                                <Button fx:id="expireAlertButton"
+                                        text="Expire Alert"
+                                        onAction="#handleExpireAlert"
+                                        styleClass="secondary-button" />
+
                                 <Button fx:id="clearAlertButton"
                                         text="Clear Form"
                                         onAction="#handleClearAlertForm"
@@ -1051,6 +1081,24 @@
                               minWidth="950.0" HBox.hgrow="ALWAYS">
 
                             <Label text="Public Alerts" styleClass="section-title" />
+
+                            <HBox spacing="10.0">
+                                <TextField fx:id="publicAlertSearchField"
+                                           promptText="Search alerts by area, type, severity, or message"
+                                           prefWidth="360.0" />
+
+                                <ComboBox fx:id="publicAlertStatusFilterComboBox"
+                                          promptText="Filter status"
+                                          prefWidth="170.0" />
+
+                                <Button text="Search"
+                                        onAction="#handleSearchPublicAlerts"
+                                        styleClass="primary-button" />
+
+                                <Button text="Reset"
+                                        onAction="#handleResetPublicAlertSearch"
+                                        styleClass="secondary-button" />
+                            </HBox>
 
                             <TableView fx:id="publicAlertTableView"
                                        prefHeight="610.0"
@@ -1075,108 +1123,108 @@
                 </VBox>
                 
                 <VBox fx:id="userManagementPane" visible="false" managed="false"
-      spacing="18.0" styleClass="page-pane">
+                      spacing="18.0" styleClass="page-pane">
 
-    <Label text="Admin User Management"
-           styleClass="section-title" />
+                    <Label text="Admin User Management"
+                           styleClass="section-title" />
 
-    <HBox spacing="18.0">
+                    <HBox spacing="18.0">
 
-        <VBox spacing="12.0" styleClass="card"
-              prefWidth="520.0" minWidth="520.0">
+                        <VBox spacing="12.0" styleClass="card"
+                              prefWidth="520.0" minWidth="520.0">
 
-            <Label text="User Account Details" styleClass="section-title" />
+                            <Label text="User Account Details" styleClass="section-title" />
 
-            <GridPane hgap="10.0" vgap="10.0">
+                            <GridPane hgap="10.0" vgap="10.0">
 
-                <Label text="User ID" prefWidth="140.0"
-                       GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                <TextField fx:id="adminUserIdField"
-                           promptText="Auto-generated"
-                           editable="false"
-                           prefWidth="260.0"
-                           GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                <Label text="User ID" prefWidth="140.0"
+                                       GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                <TextField fx:id="adminUserIdField"
+                                           promptText="Auto-generated"
+                                           editable="false"
+                                           prefWidth="260.0"
+                                           GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                <Label text="Full Name" prefWidth="140.0"
-                       GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                <TextField fx:id="adminFullNameField"
-                           promptText="Enter full name"
-                           prefWidth="260.0"
-                           GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                <Label text="Full Name" prefWidth="140.0"
+                                       GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                <TextField fx:id="adminFullNameField"
+                                           promptText="Enter full name"
+                                           prefWidth="260.0"
+                                           GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                <Label text="Email" prefWidth="140.0"
-                       GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                <TextField fx:id="adminEmailField"
-                           promptText="Enter email"
-                           prefWidth="260.0"
-                           GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                <Label text="Email" prefWidth="140.0"
+                                       GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                <TextField fx:id="adminEmailField"
+                                           promptText="Enter email"
+                                           prefWidth="260.0"
+                                           GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
-                <Label text="Username" prefWidth="140.0"
-                       GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                <TextField fx:id="adminUsernameField"
-                           promptText="Enter username"
-                           prefWidth="260.0"
-                           GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                <Label text="Username" prefWidth="140.0"
+                                       GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                <TextField fx:id="adminUsernameField"
+                                           promptText="Enter username"
+                                           prefWidth="260.0"
+                                           GridPane.columnIndex="1" GridPane.rowIndex="3" />
 
-                <Label text="Role" prefWidth="140.0"
-                       GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                <ComboBox fx:id="adminUserRoleComboBox"
-                          promptText="Select role"
-                          prefWidth="260.0"
-                          GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                <Label text="Role" prefWidth="140.0"
+                                       GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                <ComboBox fx:id="adminUserRoleComboBox"
+                                          promptText="Select role"
+                                          prefWidth="260.0"
+                                          GridPane.columnIndex="1" GridPane.rowIndex="4" />
 
-                <Label text="Account Status" prefWidth="140.0"
-                       GridPane.columnIndex="0" GridPane.rowIndex="5" />
-                <ComboBox fx:id="adminAccountStatusComboBox"
-                          promptText="Select status"
-                          prefWidth="260.0"
-                          GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                <Label text="Account Status" prefWidth="140.0"
+                                       GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                <ComboBox fx:id="adminAccountStatusComboBox"
+                                          promptText="Select status"
+                                          prefWidth="260.0"
+                                          GridPane.columnIndex="1" GridPane.rowIndex="5" />
 
-            </GridPane>
+                            </GridPane>
 
-            <HBox spacing="10.0">
-                <Button text="Add User"
-                        onAction="#handleAddSystemUser"
-                        styleClass="primary-button" />
+                            <HBox spacing="10.0">
+                                <Button text="Add User"
+                                        onAction="#handleAddSystemUser"
+                                        styleClass="primary-button" />
 
-                <Button text="Update User"
-                        onAction="#handleUpdateSystemUser"
-                        styleClass="secondary-button" />
+                                <Button text="Update User"
+                                        onAction="#handleUpdateSystemUser"
+                                        styleClass="secondary-button" />
 
-                <Button text="Clear Form"
-                        onAction="#handleClearSystemUserForm"
-                        styleClass="secondary-button" />
-            </HBox>
+                                <Button text="Clear Form"
+                                        onAction="#handleClearSystemUserForm"
+                                        styleClass="secondary-button" />
+                            </HBox>
 
-            <Label fx:id="userManagementStatusLabel"
-                   text="User management ready."
-                   styleClass="status-label" />
+                            <Label fx:id="userManagementStatusLabel"
+                                   text="User management ready."
+                                   styleClass="status-label" />
 
-        </VBox>
+                        </VBox>
 
-        <VBox spacing="12.0" styleClass="card"
-              minWidth="900.0" HBox.hgrow="ALWAYS">
+                        <VBox spacing="12.0" styleClass="card"
+                              minWidth="900.0" HBox.hgrow="ALWAYS">
 
-            <Label text="System Users" styleClass="section-title" />
+                            <Label text="System Users" styleClass="section-title" />
 
-            <TableView fx:id="userManagementTableView"
-                       prefHeight="560.0"
-                       minWidth="900.0">
-                <columns>
-                    <TableColumn text="User ID" prefWidth="100.0" />
-                    <TableColumn text="Full Name" prefWidth="200.0" />
-                    <TableColumn text="Email" prefWidth="230.0" />
-                    <TableColumn text="Username" prefWidth="150.0" />
-                    <TableColumn text="Role" prefWidth="220.0" />
-                    <TableColumn text="Status" prefWidth="120.0" />
-                </columns>
-            </TableView>
+                            <TableView fx:id="userManagementTableView"
+                                       prefHeight="560.0"
+                                       minWidth="900.0">
+                                <columns>
+                                    <TableColumn text="User ID" prefWidth="100.0" />
+                                    <TableColumn text="Full Name" prefWidth="200.0" />
+                                    <TableColumn text="Email" prefWidth="230.0" />
+                                    <TableColumn text="Username" prefWidth="150.0" />
+                                    <TableColumn text="Role" prefWidth="220.0" />
+                                    <TableColumn text="Status" prefWidth="120.0" />
+                                </columns>
+                            </TableView>
 
-        </VBox>
+                        </VBox>
 
-    </HBox>
+                    </HBox>
 
-</VBox>
+                </VBox>
 
             </StackPane>
         </ScrollPane>
