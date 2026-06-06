@@ -32,6 +32,7 @@ import javafx.scene.control.TitledPane;
 import drsinitial.model.EvacuationShelter;
 import java.time.LocalDateTime;
 import drsinitial.model.PublicAlert;
+import drsinitial.model.User;
 
 /**
  * Controls the main dashboard screen of the Disaster Response System.
@@ -58,6 +59,9 @@ public class MainDashboardController {
     private final ObservableList<PublicAlert> publicAlerts
             = FXCollections.observableArrayList();
 
+    private final ObservableList<User> systemUsers
+            = FXCollections.observableArrayList();
+
     @FXML
     private VBox dashboardPane;
     @FXML
@@ -82,6 +86,8 @@ public class MainDashboardController {
     private VBox publicAlertPane;
     @FXML
     private VBox publicAlertFormPane;
+    @FXML
+    private VBox userManagementPane;
 
     @FXML
     private Button dashboardButton;
@@ -121,6 +127,8 @@ public class MainDashboardController {
     private Button publishAlertButton;
     @FXML
     private Button clearAlertButton;
+    @FXML
+    private Button userManagementButton;
 
     @FXML
     private Label pageSubtitleLabel;
@@ -190,6 +198,8 @@ public class MainDashboardController {
     private Label shelterStatusLabel;
     @FXML
     private Label publicAlertStatusLabel;
+    @FXML
+    private Label userManagementStatusLabel;
 
     @FXML
     private ComboBox<DisasterType> disasterTypeComboBox;
@@ -230,6 +240,10 @@ public class MainDashboardController {
     private ComboBox<String> alertSeverityComboBox;
     @FXML
     private ComboBox<String> alertStatusComboBox;
+    @FXML
+    private ComboBox<String> adminUserRoleComboBox;
+    @FXML
+    private ComboBox<String> adminAccountStatusComboBox;
 
     @FXML
     private TextField reportIdField;
@@ -253,17 +267,13 @@ public class MainDashboardController {
     private TextField filterKeywordField;
 
     @FXML
-    private TextArea descriptionArea;
+    private TextField adminUserIdField;
     @FXML
-    private TextArea selectedDescriptionArea;
+    private TextField adminFullNameField;
     @FXML
-    private TextArea selectedReportDescriptionArea;
+    private TextField adminEmailField;
     @FXML
-    private TextArea dispatchNotesArea;
-    @FXML
-    private TextArea updateNotesArea;
-    @FXML
-    private TextArea alertMessageArea;
+    private TextField adminUsernameField;
 
     @FXML
     private TextField shelterIdField;
@@ -280,6 +290,19 @@ public class MainDashboardController {
     private TextField alertIdField;
     @FXML
     private TextField alertAffectedAreaField;
+
+    @FXML
+    private TextArea descriptionArea;
+    @FXML
+    private TextArea selectedDescriptionArea;
+    @FXML
+    private TextArea selectedReportDescriptionArea;
+    @FXML
+    private TextArea dispatchNotesArea;
+    @FXML
+    private TextArea updateNotesArea;
+    @FXML
+    private TextArea alertMessageArea;
 
     @FXML
     private TableView<Incident> incidentQueueTableView;
@@ -302,6 +325,9 @@ public class MainDashboardController {
     private TableView<EvacuationShelter> shelterTableView;
 
     @FXML
+    private TableView<User> userManagementTableView;
+
+    @FXML
     private TitledPane incidentManagementPane;
     @FXML
     private TitledPane responseCoordinationPane;
@@ -319,6 +345,7 @@ public class MainDashboardController {
         setupTables();
         setupEvacuationShelterFeature();
         setupPublicAlertFeature();
+        setupUserManagementFeature();
         setupSelectionListeners();
         prepareGeneratedIds();
         refreshDashboardCounters();
@@ -817,6 +844,111 @@ public class MainDashboardController {
                 .setCellValueFactory(new PropertyValueFactory<>("createdTime"));
         publicAlertTableView.getColumns().get(8)
                 .setCellValueFactory(new PropertyValueFactory<>("alertMessage"));
+    }
+
+    /**
+     * Sets up the admin user management feature.
+     */
+    private void setupUserManagementFeature() {
+        adminUserRoleComboBox.getItems().setAll(
+                "PUBLIC_USER",
+                "EMERGENCY_CONTROL_CENTRE",
+                "SYSTEM_ADMINISTRATOR"
+        );
+
+        adminAccountStatusComboBox.getItems().setAll(
+                "ACTIVE",
+                "INACTIVE"
+        );
+
+        userManagementTableView.setItems(systemUsers);
+        setupUserManagementTable();
+        loadSampleSystemUsers();
+        prepareSystemUserId();
+    }
+
+    /**
+     * Sets up the user management table columns.
+     */
+    private void setupUserManagementTable() {
+        userManagementTableView.getColumns().get(0)
+                .setCellValueFactory(new PropertyValueFactory<>("userId"));
+        userManagementTableView.getColumns().get(1)
+                .setCellValueFactory(new PropertyValueFactory<>("fullName"));
+        userManagementTableView.getColumns().get(2)
+                .setCellValueFactory(new PropertyValueFactory<>("email"));
+        userManagementTableView.getColumns().get(3)
+                .setCellValueFactory(new PropertyValueFactory<>("username"));
+        userManagementTableView.getColumns().get(4)
+                .setCellValueFactory(new PropertyValueFactory<>("role"));
+        userManagementTableView.getColumns().get(5)
+                .setCellValueFactory(new PropertyValueFactory<>("accountStatus"));
+
+        userManagementTableView.getSelectionModel()
+                .selectedItemProperty()
+                .addListener((observable, oldValue, user) -> {
+                    if (user != null) {
+                        showSelectedSystemUser(user);
+                    }
+                });
+    }
+
+    /**
+     * Loads temporary system users for frontend testing.
+     */
+    private void loadSampleSystemUsers() {
+        if (!systemUsers.isEmpty()) {
+            return;
+        }
+
+        systemUsers.add(new User(
+                "U001",
+                "System Administrator",
+                "admin@drs.local",
+                "admin",
+                "SYSTEM_ADMINISTRATOR",
+                "ACTIVE"
+        ));
+
+        systemUsers.add(new User(
+                "U002",
+                "Emergency Control Centre",
+                "ecc@drs.local",
+                "ecc",
+                "EMERGENCY_CONTROL_CENTRE",
+                "ACTIVE"
+        ));
+
+        systemUsers.add(new User(
+                "U003",
+                "Public User",
+                "public@drs.local",
+                "public",
+                "PUBLIC_USER",
+                "ACTIVE"
+        ));
+    }
+
+    /**
+     * Prepares the next system user ID.
+     */
+    private void prepareSystemUserId() {
+        int nextNumber = systemUsers.size() + 1;
+        adminUserIdField.setText(String.format("U%03d", nextNumber));
+    }
+
+    /**
+     * Shows selected user details in the form.
+     *
+     * @param user selected user
+     */
+    private void showSelectedSystemUser(User user) {
+        adminUserIdField.setText(user.getUserId());
+        adminFullNameField.setText(user.getFullName());
+        adminEmailField.setText(user.getEmail());
+        adminUsernameField.setText(user.getUsername());
+        adminUserRoleComboBox.setValue(user.getRole());
+        adminAccountStatusComboBox.setValue(user.getAccountStatus());
     }
 
     /**
@@ -1358,6 +1490,126 @@ public class MainDashboardController {
     }
 
     /**
+     * Adds a system user record.
+     */
+    @FXML
+    private void handleAddSystemUser() {
+        if (!isSystemAdministrator()) {
+            globalStatusLabel.setText("System Status: Admin access required.");
+            return;
+        }
+
+        if (!validateSystemUserForm()) {
+            return;
+        }
+
+        User user = new User(
+                adminUserIdField.getText(),
+                adminFullNameField.getText().trim(),
+                adminEmailField.getText().trim(),
+                adminUsernameField.getText().trim(),
+                adminUserRoleComboBox.getValue(),
+                adminAccountStatusComboBox.getValue()
+        );
+
+        systemUsers.add(user);
+        userManagementTableView.refresh();
+        handleClearSystemUserForm();
+
+        userManagementStatusLabel.setText("User added successfully.");
+        globalStatusLabel.setText("System Status: User account added.");
+    }
+
+    /**
+     * Updates selected system user record.
+     */
+    @FXML
+    private void handleUpdateSystemUser() {
+        if (!isSystemAdministrator()) {
+            globalStatusLabel.setText("System Status: Admin access required.");
+            return;
+        }
+
+        User selectedUser
+                = userManagementTableView.getSelectionModel().getSelectedItem();
+
+        if (selectedUser == null) {
+            userManagementStatusLabel.setText("Select a user to update.");
+            return;
+        }
+
+        if (!validateSystemUserForm()) {
+            return;
+        }
+
+        selectedUser.setFullName(adminFullNameField.getText().trim());
+        selectedUser.setEmail(adminEmailField.getText().trim());
+        selectedUser.setUsername(adminUsernameField.getText().trim());
+        selectedUser.setRole(adminUserRoleComboBox.getValue());
+        selectedUser.setAccountStatus(adminAccountStatusComboBox.getValue());
+
+        userManagementTableView.refresh();
+
+        userManagementStatusLabel.setText("User updated successfully.");
+        globalStatusLabel.setText("System Status: User account updated.");
+    }
+
+    /**
+     * Clears the user management form.
+     */
+    @FXML
+    private void handleClearSystemUserForm() {
+        adminFullNameField.clear();
+        adminEmailField.clear();
+        adminUsernameField.clear();
+        adminUserRoleComboBox.getSelectionModel().clearSelection();
+        adminAccountStatusComboBox.getSelectionModel().clearSelection();
+        userManagementTableView.getSelectionModel().clearSelection();
+        prepareSystemUserId();
+    }
+
+    /**
+     * Validates system user form input.
+     *
+     * @return true if valid
+     */
+    private boolean validateSystemUserForm() {
+        if (adminFullNameField.getText().trim().isEmpty()
+                || adminEmailField.getText().trim().isEmpty()
+                || adminUsernameField.getText().trim().isEmpty()
+                || adminUserRoleComboBox.getValue() == null
+                || adminAccountStatusComboBox.getValue() == null) {
+
+            userManagementStatusLabel.setText("Complete all user fields.");
+            return false;
+        }
+
+        if (!adminEmailField.getText().trim()
+                .matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
+
+            userManagementStatusLabel.setText("Enter a valid email address.");
+            return false;
+        }
+
+        if (adminUsernameField.getText().trim().length() < 4) {
+            userManagementStatusLabel.setText(
+                    "Username must be at least 4 characters.");
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Checks whether the current user is the system administrator.
+     *
+     * @return true if current user is system administrator
+     */
+    private boolean isSystemAdministrator() {
+        return UserSession.getCurrentRole() == UserRole.SYSTEM_ADMINISTRATOR;
+    }
+
+    /**
      * Applies incident search and filter criteria.
      */
     @FXML
@@ -1728,6 +1980,22 @@ public class MainDashboardController {
         resourceTableView.refresh();
         refreshResourceCounters();
     }
+    
+    /**
+ * Shows the admin user management pane.
+ */
+@FXML
+private void showUserManagement() {
+    if (!isSystemAdministrator()) {
+        globalStatusLabel.setText("System Status: Admin access required.");
+        return;
+    }
+
+    showOnlyPane(userManagementPane);
+    pageSubtitleLabel.setText("Admin User Management");
+    setActiveButton(userManagementButton);
+    userManagementTableView.refresh();
+}
 
     /**
      * Adds a new evacuation shelter record.
@@ -1994,33 +2262,33 @@ public class MainDashboardController {
 
         return true;
     }
-    
+
     /**
- * Applies public alert screen permissions based on user role.
- */
-private void applyPublicAlertScreenAccess() {
-    boolean hasManagementAccess = hasOperationalAccess();
+     * Applies public alert screen permissions based on user role.
+     */
+    private void applyPublicAlertScreenAccess() {
+        boolean hasManagementAccess = hasOperationalAccess();
 
-    publicAlertFormPane.setVisible(hasManagementAccess);
-    publicAlertFormPane.setManaged(hasManagementAccess);
+        publicAlertFormPane.setVisible(hasManagementAccess);
+        publicAlertFormPane.setManaged(hasManagementAccess);
 
-    createAlertButton.setVisible(hasManagementAccess);
-    createAlertButton.setManaged(hasManagementAccess);
-    createAlertButton.setDisable(!hasManagementAccess);
+        createAlertButton.setVisible(hasManagementAccess);
+        createAlertButton.setManaged(hasManagementAccess);
+        createAlertButton.setDisable(!hasManagementAccess);
 
-    publishAlertButton.setVisible(hasManagementAccess);
-    publishAlertButton.setManaged(hasManagementAccess);
-    publishAlertButton.setDisable(!hasManagementAccess);
+        publishAlertButton.setVisible(hasManagementAccess);
+        publishAlertButton.setManaged(hasManagementAccess);
+        publishAlertButton.setDisable(!hasManagementAccess);
 
-    clearAlertButton.setVisible(hasManagementAccess);
-    clearAlertButton.setManaged(hasManagementAccess);
-    clearAlertButton.setDisable(!hasManagementAccess);
+        clearAlertButton.setVisible(hasManagementAccess);
+        clearAlertButton.setManaged(hasManagementAccess);
+        clearAlertButton.setDisable(!hasManagementAccess);
 
-    if (!hasManagementAccess) {
-        publicAlertStatusLabel.setText(
-                "Public alerts are available for viewing only.");
+        if (!hasManagementAccess) {
+            publicAlertStatusLabel.setText(
+                    "Public alerts are available for viewing only.");
+        }
     }
-}
 
     /**
      * Shows only the selected page pane.
@@ -2039,7 +2307,8 @@ private void applyPublicAlertScreenAccess() {
             searchFilterPane,
             resourceCountersPane,
             evacuationShelterPane,
-            publicAlertPane
+            publicAlertPane,
+            userManagementPane
         };
 
         for (VBox pane : panes) {
@@ -2068,7 +2337,8 @@ private void applyPublicAlertScreenAccess() {
             searchFilterButton,
             resourceCountersButton,
             evacuationShelterButton,
-            publicAlertButton
+            publicAlertButton,
+            userManagementButton
         };
 
         for (Button button : buttons) {
@@ -2079,7 +2349,8 @@ private void applyPublicAlertScreenAccess() {
 
             if (button == dashboardButton
                     || button == publicAlertButton
-                    || button == reportButton) {
+                    || button == reportButton
+                    || button == userManagementButton) {
                 button.getStyleClass().add("nav-button");
             } else {
                 button.getStyleClass().add("sub-nav-button");
@@ -2092,7 +2363,8 @@ private void applyPublicAlertScreenAccess() {
 
         if (activeButton == dashboardButton
                 || activeButton == publicAlertButton
-                || activeButton == reportButton) {
+                || activeButton == reportButton
+                || activeButton == userManagementButton) {
             activeButton.getStyleClass().add("nav-button-active");
         } else {
             activeButton.getStyleClass().add("sub-nav-button-active");
@@ -2144,6 +2416,7 @@ private void applyPublicAlertScreenAccess() {
         setButtonAccess(searchFilterButton, false);
         setButtonAccess(resourceCountersButton, false);
         setButtonAccess(evacuationShelterButton, false);
+        setButtonAccess(userManagementButton, false);
 
         globalStatusLabel.setText(
                 "System Status: Public User access applied.");
@@ -2169,6 +2442,7 @@ private void applyPublicAlertScreenAccess() {
         setTitledPaneAccess(decisionSupportPane, true);
         setButtonAccess(evacuationShelterButton, true);
         setButtonAccess(publicAlertButton, true);
+        setButtonAccess(userManagementButton, false);
 
         globalStatusLabel.setText(
                 "System Status: Emergency Control Centre access applied.");
@@ -2194,6 +2468,7 @@ private void applyPublicAlertScreenAccess() {
         setTitledPaneAccess(decisionSupportPane, true);
         setButtonAccess(evacuationShelterButton, true);
         setButtonAccess(publicAlertButton, true);
+        setButtonAccess(userManagementButton, true);
 
         globalStatusLabel.setText(
                 "System Status: System Administrator access applied.");
