@@ -19,21 +19,29 @@
                 <VBox spacing="4.0" styleClass="brand-box">
                     <Label text="DRS" styleClass="brand-title" />
                     <Label text="Disaster Response System" styleClass="brand-subtitle" />
-                    <Label text="Initial Prototype" styleClass="brand-badge" />
+                    <Label text="Enhanced Prototype" styleClass="brand-badge" />
                 </VBox>
 
                 <Button fx:id="dashboardButton" text="Dashboard"
                         onAction="#showDashboard"
                         maxWidth="Infinity"
                         styleClass="nav-button-active" />
+                
+                <Button fx:id="publicAlertButton" text="Public Alerts"
+                        onAction="#showPublicAlerts"
+                        maxWidth="Infinity"
+                        styleClass="sub-nav-button" />
 
                 <Button fx:id="reportButton" text="Report Disaster"
                         onAction="#showReportDisaster"
                         maxWidth="Infinity"
                         styleClass="nav-button" />
-
-                <TitledPane text="Incident Management" expanded="false" collapsible="true"
-                             styleClass="sidebar-section">
+                
+                <TitledPane fx:id="incidentManagementPane"
+                            text="Incident Management"
+                            expanded="false"
+                            collapsible="true"
+                            styleClass="sidebar-section">
                     <VBox spacing="7.0" styleClass="submenu-box">
 
                         <Button fx:id="registerIncidentButton" text="Register Incident"
@@ -54,8 +62,11 @@
                     </VBox>
                 </TitledPane>
 
-                <TitledPane text="Response Coordination" expanded="false" collapsible="true"
-                             styleClass="sidebar-section">
+                <TitledPane fx:id="responseCoordinationPane"
+                            text="Response Coordination"
+                            expanded="false"
+                            collapsible="true"
+                            styleClass="sidebar-section">
                     <VBox spacing="7.0" styleClass="submenu-box">
 
                         <Button fx:id="emergencyDispatchButton" text="Emergency Dispatch"
@@ -71,8 +82,11 @@
                     </VBox>
                 </TitledPane>
 
-                <TitledPane text="Decision Support Tools" expanded="false" collapsible="true"
-                             styleClass="sidebar-section">
+                <TitledPane fx:id="decisionSupportPane"
+                            text="Decision Support Tools"
+                            expanded="false"
+                            collapsible="true"
+                            styleClass="sidebar-section">
                     <VBox spacing="7.0" styleClass="submenu-box">
 
                         <Button fx:id="searchFilterButton" text="Incident Search and Filter"
@@ -84,6 +98,12 @@
                                 onAction="#showResourceCounters"
                                 maxWidth="Infinity"
                                 styleClass="sub-nav-button" />
+                        
+                        <Button fx:id="evacuationShelterButton" text="Evacuation Shelters"
+                                onAction="#showEvacuationShelters"
+                                maxWidth="Infinity"
+                                styleClass="sub-nav-button" />
+                        
 
                     </VBox>
                 </TitledPane>
@@ -110,18 +130,12 @@
         <HBox alignment="CENTER_LEFT" spacing="15.0" styleClass="topbar">
 
             <VBox spacing="2.0">
-                <Label text="DRS-Initial Disaster Response System" styleClass="page-title" />
+                <Label text="DRS-Enhanced Disaster Response System" styleClass="page-title" />
                 <Label fx:id="pageSubtitleLabel" text="Dashboard Overview" styleClass="page-subtitle" />
             </VBox>
 
             <Region HBox.hgrow="ALWAYS" />
-
-            <Label text="Role:" styleClass="topbar-label" />
-            <ComboBox fx:id="roleComboBox" prefWidth="250.0" promptText="Select role" />
-
-            <Button text="Apply Role"
-                    onAction="#handleApplyRole"
-                    styleClass="primary-button" />
+            
         </HBox>
     </top>
 
@@ -802,6 +816,256 @@
                     <Label fx:id="counterStatusLabel"
                            text="Resource tracker ready."
                            styleClass="status-label" />
+
+                </VBox>
+                
+                <VBox fx:id="evacuationShelterPane" visible="false" managed="false"
+                      spacing="18.0" styleClass="page-pane">
+
+                    <Label text="Evacuation Shelter Availability Tracker"
+                           styleClass="section-title" />
+
+                    <TilePane hgap="18.0" vgap="18.0" prefColumns="4">
+
+                        <VBox styleClass="metric-card" prefWidth="190.0">
+                            <Label text="Total Shelters" styleClass="metric-title" />
+                            <Label fx:id="totalShelterCountLabel" text="0" styleClass="metric-number" />
+                        </VBox>
+
+                        <VBox styleClass="metric-card" prefWidth="190.0">
+                            <Label text="Available Shelters" styleClass="metric-title" />
+                            <Label fx:id="availableShelterCountLabel" text="0" styleClass="metric-number" />
+                        </VBox>
+
+                        <VBox styleClass="metric-card" prefWidth="190.0">
+                            <Label text="Full Shelters" styleClass="metric-title" />
+                            <Label fx:id="fullShelterCountLabel" text="0" styleClass="metric-number" />
+                        </VBox>
+
+                        <VBox styleClass="metric-card" prefWidth="190.0">
+                            <Label text="Total Free Spaces" styleClass="metric-title" />
+                            <Label fx:id="freeShelterSpaceCountLabel" text="0" styleClass="metric-number" />
+                        </VBox>
+
+                    </TilePane>
+
+                    <HBox spacing="18.0">
+
+                        <VBox spacing="12.0" styleClass="card"
+                              prefWidth="520.0" minWidth="520.0">
+
+                            <Label text="Shelter Details" styleClass="section-title" />
+
+                            <GridPane hgap="10.0" vgap="10.0">
+
+                                <Label text="Shelter ID" prefWidth="150.0"
+                                       GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                <TextField fx:id="shelterIdField"
+                                           promptText="Auto-generated"
+                                           editable="false"
+                                           prefWidth="260.0"
+                                           GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                                <Label text="Shelter Name" prefWidth="150.0"
+                                       GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                <TextField fx:id="shelterNameField"
+                                           promptText="Enter shelter name"
+                                           prefWidth="260.0"
+                                           GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                                <Label text="Location" prefWidth="150.0"
+                                       GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                <TextField fx:id="shelterLocationField"
+                                           promptText="Enter location"
+                                           prefWidth="260.0"
+                                           GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                                <Label text="Total Capacity" prefWidth="150.0"
+                                       GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                <TextField fx:id="shelterCapacityField"
+                                           promptText="Enter total capacity"
+                                           prefWidth="260.0"
+                                           GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                                <Label text="Current Occupants" prefWidth="150.0"
+                                       GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                <TextField fx:id="shelterCurrentOccupantsField"
+                                           promptText="Enter current occupants"
+                                           prefWidth="260.0"
+                                           GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+                                <Label text="Shelter Status" prefWidth="150.0"
+                                       GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                <ComboBox fx:id="shelterStatusComboBox"
+                                          promptText="Select status"
+                                          prefWidth="260.0"
+                                          GridPane.columnIndex="1" GridPane.rowIndex="5" />
+
+                            </GridPane>
+
+                            <HBox spacing="10.0">
+                                <Button text="Add Shelter"
+                                        onAction="#handleAddShelter"
+                                        styleClass="primary-button" />
+
+                                <Button text="Update Shelter"
+                                        onAction="#handleUpdateShelter"
+                                        styleClass="secondary-button" />
+
+                                <Button text="Clear Form"
+                                        onAction="#handleClearShelterForm"
+                                        styleClass="secondary-button" />
+                            </HBox>
+
+                            <Label fx:id="shelterStatusLabel"
+                                   text="Shelter tracker ready."
+                                   styleClass="status-label" />
+
+                        </VBox>
+
+                        <VBox spacing="12.0" styleClass="card"
+                              minWidth="950.0" HBox.hgrow="ALWAYS">
+
+                            <Label text="Evacuation Shelters" styleClass="section-title" />
+
+                            <TableView fx:id="shelterTableView"
+                                       prefHeight="560.0"
+                                       minWidth="950.0">
+                                <columns>
+                                    <TableColumn text="Shelter ID" prefWidth="110.0" />
+                                    <TableColumn text="Shelter Name" prefWidth="190.0" />
+                                    <TableColumn text="Location" prefWidth="190.0" />
+                                    <TableColumn text="Capacity" prefWidth="100.0" />
+                                    <TableColumn text="Occupants" prefWidth="110.0" />
+                                    <TableColumn text="Available" prefWidth="110.0" />
+                                    <TableColumn text="Status" prefWidth="130.0" />
+                                    <TableColumn text="Last Updated" prefWidth="180.0" />
+                                </columns>
+                            </TableView>
+
+                        </VBox>
+
+                    </HBox>
+
+                </VBox>
+                
+                <VBox fx:id="publicAlertPane" visible="false" managed="false"
+                      spacing="18.0" styleClass="page-pane">
+
+                    <Label text="Public Alert Notification Manager"
+                           styleClass="section-title" />
+
+                    <HBox spacing="18.0">
+
+                        <VBox fx:id="publicAlertFormPane"
+                              spacing="12.0"
+                              styleClass="card"
+                              prefWidth="540.0"
+                              minWidth="540.0">
+
+                            <Label text="Create Public Alert" styleClass="section-title" />
+
+                            <GridPane hgap="10.0" vgap="10.0">
+
+                                <Label text="Alert ID" prefWidth="150.0"
+                                       GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                <TextField fx:id="alertIdField"
+                                           promptText="Auto-generated"
+                                           editable="false"
+                                           prefWidth="280.0"
+                                           GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                                <Label text="Incident ID" prefWidth="150.0"
+                                       GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                <ComboBox fx:id="alertIncidentIdComboBox"
+                                          promptText="Select incident ID"
+                                          prefWidth="280.0"
+                                          GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                                <Label text="Alert Type" prefWidth="150.0"
+                                       GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                <ComboBox fx:id="alertTypeComboBox"
+                                          promptText="Select alert type"
+                                          prefWidth="280.0"
+                                          GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                                <Label text="Affected Area" prefWidth="150.0"
+                                       GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                <TextField fx:id="alertAffectedAreaField"
+                                           promptText="Enter affected area"
+                                           prefWidth="280.0"
+                                           GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                                <Label text="Severity Level" prefWidth="150.0"
+                                       GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                <ComboBox fx:id="alertSeverityComboBox"
+                                          promptText="Select severity"
+                                          prefWidth="280.0"
+                                          GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+                                <Label text="Alert Status" prefWidth="150.0"
+                                       GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                <ComboBox fx:id="alertStatusComboBox"
+                                          promptText="Select status"
+                                          prefWidth="280.0"
+                                          GridPane.columnIndex="1" GridPane.rowIndex="5" />
+
+                            </GridPane>
+
+                            <Label text="Alert Message" styleClass="mini-heading" />
+
+                            <TextArea fx:id="alertMessageArea"
+                                      prefRowCount="5"
+                                      prefWidth="480.0"
+                                      promptText="Enter public alert message..." />
+
+                            <HBox spacing="10.0">
+                                <Button fx:id="createAlertButton"
+                                        text="Create Alert"
+                                        onAction="#handleCreateAlert"
+                                        styleClass="primary-button" />
+
+                                <Button fx:id="publishAlertButton"
+                                        text="Publish Alert"
+                                        onAction="#handlePublishAlert"
+                                        styleClass="secondary-button" />
+
+                                <Button fx:id="clearAlertButton"
+                                        text="Clear Form"
+                                        onAction="#handleClearAlertForm"
+                                        styleClass="secondary-button" />
+                            </HBox>
+
+                            <Label fx:id="publicAlertStatusLabel"
+                                   text="Public alert manager ready."
+                                   styleClass="status-label" />
+
+                        </VBox>
+
+                        <VBox spacing="12.0" styleClass="card"
+                              minWidth="950.0" HBox.hgrow="ALWAYS">
+
+                            <Label text="Public Alerts" styleClass="section-title" />
+
+                            <TableView fx:id="publicAlertTableView"
+                                       prefHeight="610.0"
+                                       minWidth="950.0">
+                                <columns>
+                                    <TableColumn text="Alert ID" prefWidth="100.0" />
+                                    <TableColumn text="Incident ID" prefWidth="110.0" />
+                                    <TableColumn text="Type" prefWidth="170.0" />
+                                    <TableColumn text="Affected Area" prefWidth="180.0" />
+                                    <TableColumn text="Severity" prefWidth="110.0" />
+                                    <TableColumn text="Status" prefWidth="110.0" />
+                                    <TableColumn text="Created By" prefWidth="170.0" />
+                                    <TableColumn text="Created Time" prefWidth="180.0" />
+                                    <TableColumn text="Message" prefWidth="280.0" />
+                                </columns>
+                            </TableView>
+
+                        </VBox>
+
+                    </HBox>
 
                 </VBox>
 
