@@ -32,6 +32,8 @@ public class LoginController {
 
     @FXML
     private Label loginStatusLabel;
+    
+    
 
     /**
      * Handles login button action.
@@ -61,7 +63,21 @@ public class LoginController {
      */
     @FXML
     private void handleOpenRegistration() {
-        showError("Public user registration screen will be added next.");
+         try {
+        Parent root = FXMLLoader.load(
+                getClass().getResource(
+                        "/drsinitial/view/PublicUserRegistrationView.fxml"));
+
+        Scene scene = new Scene(root);
+
+        Stage stage = (Stage) usernameField.getScene().getWindow();
+        stage.setTitle("Public User Registration");
+        stage.setScene(scene);
+        stage.show();
+
+    } catch (IOException exception) {
+        showError("Unable to open registration screen.");
+        }
     }
 
     /**

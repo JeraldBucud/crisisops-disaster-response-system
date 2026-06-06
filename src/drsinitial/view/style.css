@@ -558,3 +558,9 @@
     -fx-text-fill: #dc2626;
     -fx-font-weight: bold;
 }
+
+.registration-brand-title {
+    -fx-font-size: 34px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
