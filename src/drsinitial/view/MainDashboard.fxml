@@ -26,12 +26,17 @@
                         onAction="#showDashboard"
                         maxWidth="Infinity"
                         styleClass="nav-button-active" />
+                
+                <Button fx:id="publicAlertButton" text="Public Alerts"
+                        onAction="#showPublicAlerts"
+                        maxWidth="Infinity"
+                        styleClass="sub-nav-button" />
 
                 <Button fx:id="reportButton" text="Report Disaster"
                         onAction="#showReportDisaster"
                         maxWidth="Infinity"
                         styleClass="nav-button" />
-
+                
                 <TitledPane fx:id="incidentManagementPane"
                             text="Incident Management"
                             expanded="false"
@@ -98,6 +103,7 @@
                                 onAction="#showEvacuationShelters"
                                 maxWidth="Infinity"
                                 styleClass="sub-nav-button" />
+                        
 
                     </VBox>
                 </TitledPane>
@@ -934,6 +940,126 @@
                                     <TableColumn text="Available" prefWidth="110.0" />
                                     <TableColumn text="Status" prefWidth="130.0" />
                                     <TableColumn text="Last Updated" prefWidth="180.0" />
+                                </columns>
+                            </TableView>
+
+                        </VBox>
+
+                    </HBox>
+
+                </VBox>
+                
+                <VBox fx:id="publicAlertPane" visible="false" managed="false"
+                      spacing="18.0" styleClass="page-pane">
+
+                    <Label text="Public Alert Notification Manager"
+                           styleClass="section-title" />
+
+                    <HBox spacing="18.0">
+
+                        <VBox fx:id="publicAlertFormPane"
+                              spacing="12.0"
+                              styleClass="card"
+                              prefWidth="540.0"
+                              minWidth="540.0">
+
+                            <Label text="Create Public Alert" styleClass="section-title" />
+
+                            <GridPane hgap="10.0" vgap="10.0">
+
+                                <Label text="Alert ID" prefWidth="150.0"
+                                       GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                <TextField fx:id="alertIdField"
+                                           promptText="Auto-generated"
+                                           editable="false"
+                                           prefWidth="280.0"
+                                           GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                                <Label text="Incident ID" prefWidth="150.0"
+                                       GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                <ComboBox fx:id="alertIncidentIdComboBox"
+                                          promptText="Select incident ID"
+                                          prefWidth="280.0"
+                                          GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                                <Label text="Alert Type" prefWidth="150.0"
+                                       GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                <ComboBox fx:id="alertTypeComboBox"
+                                          promptText="Select alert type"
+                                          prefWidth="280.0"
+                                          GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                                <Label text="Affected Area" prefWidth="150.0"
+                                       GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                                <TextField fx:id="alertAffectedAreaField"
+                                           promptText="Enter affected area"
+                                           prefWidth="280.0"
+                                           GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                                <Label text="Severity Level" prefWidth="150.0"
+                                       GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                                <ComboBox fx:id="alertSeverityComboBox"
+                                          promptText="Select severity"
+                                          prefWidth="280.0"
+                                          GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+                                <Label text="Alert Status" prefWidth="150.0"
+                                       GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                                <ComboBox fx:id="alertStatusComboBox"
+                                          promptText="Select status"
+                                          prefWidth="280.0"
+                                          GridPane.columnIndex="1" GridPane.rowIndex="5" />
+
+                            </GridPane>
+
+                            <Label text="Alert Message" styleClass="mini-heading" />
+
+                            <TextArea fx:id="alertMessageArea"
+                                      prefRowCount="5"
+                                      prefWidth="480.0"
+                                      promptText="Enter public alert message..." />
+
+                            <HBox spacing="10.0">
+                                <Button fx:id="createAlertButton"
+                                        text="Create Alert"
+                                        onAction="#handleCreateAlert"
+                                        styleClass="primary-button" />
+
+                                <Button fx:id="publishAlertButton"
+                                        text="Publish Alert"
+                                        onAction="#handlePublishAlert"
+                                        styleClass="secondary-button" />
+
+                                <Button fx:id="clearAlertButton"
+                                        text="Clear Form"
+                                        onAction="#handleClearAlertForm"
+                                        styleClass="secondary-button" />
+                            </HBox>
+
+                            <Label fx:id="publicAlertStatusLabel"
+                                   text="Public alert manager ready."
+                                   styleClass="status-label" />
+
+                        </VBox>
+
+                        <VBox spacing="12.0" styleClass="card"
+                              minWidth="950.0" HBox.hgrow="ALWAYS">
+
+                            <Label text="Public Alerts" styleClass="section-title" />
+
+                            <TableView fx:id="publicAlertTableView"
+                                       prefHeight="610.0"
+                                       minWidth="950.0">
+                                <columns>
+                                    <TableColumn text="Alert ID" prefWidth="100.0" />
+                                    <TableColumn text="Incident ID" prefWidth="110.0" />
+                                    <TableColumn text="Type" prefWidth="170.0" />
+                                    <TableColumn text="Affected Area" prefWidth="180.0" />
+                                    <TableColumn text="Severity" prefWidth="110.0" />
+                                    <TableColumn text="Status" prefWidth="110.0" />
+                                    <TableColumn text="Created By" prefWidth="170.0" />
+                                    <TableColumn text="Created Time" prefWidth="180.0" />
+                                    <TableColumn text="Message" prefWidth="280.0" />
                                 </columns>
                             </TableView>
 

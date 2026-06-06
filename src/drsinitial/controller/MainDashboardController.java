@@ -31,6 +31,7 @@ import drsinitial.model.enums.UserRole;
 import javafx.scene.control.TitledPane;
 import drsinitial.model.EvacuationShelter;
 import java.time.LocalDateTime;
+import drsinitial.model.PublicAlert;
 
 /**
  * Controls the main dashboard screen of the Disaster Response System.
@@ -54,6 +55,9 @@ public class MainDashboardController {
     private final ObservableList<EvacuationShelter> evacuationShelters
             = FXCollections.observableArrayList();
 
+    private final ObservableList<PublicAlert> publicAlerts
+            = FXCollections.observableArrayList();
+
     @FXML
     private VBox dashboardPane;
     @FXML
@@ -74,6 +78,10 @@ public class MainDashboardController {
     private VBox resourceCountersPane;
     @FXML
     private VBox evacuationShelterPane;
+    @FXML
+    private VBox publicAlertPane;
+    @FXML
+    private VBox publicAlertFormPane;
 
     @FXML
     private Button dashboardButton;
@@ -105,6 +113,14 @@ public class MainDashboardController {
     private Button restoreMaintenanceButton;
     @FXML
     private Button evacuationShelterButton;
+    @FXML
+    private Button publicAlertButton;
+    @FXML
+    private Button createAlertButton;
+    @FXML
+    private Button publishAlertButton;
+    @FXML
+    private Button clearAlertButton;
 
     @FXML
     private Label pageSubtitleLabel;
@@ -172,6 +188,8 @@ public class MainDashboardController {
     private Label freeShelterSpaceCountLabel;
     @FXML
     private Label shelterStatusLabel;
+    @FXML
+    private Label publicAlertStatusLabel;
 
     @FXML
     private ComboBox<DisasterType> disasterTypeComboBox;
@@ -205,6 +223,15 @@ public class MainDashboardController {
     private ComboBox<String> shelterStatusComboBox;
 
     @FXML
+    private ComboBox<String> alertIncidentIdComboBox;
+    @FXML
+    private ComboBox<String> alertTypeComboBox;
+    @FXML
+    private ComboBox<String> alertSeverityComboBox;
+    @FXML
+    private ComboBox<String> alertStatusComboBox;
+
+    @FXML
     private TextField reportIdField;
     @FXML
     private TextField reporterNameField;
@@ -235,6 +262,8 @@ public class MainDashboardController {
     private TextArea dispatchNotesArea;
     @FXML
     private TextArea updateNotesArea;
+    @FXML
+    private TextArea alertMessageArea;
 
     @FXML
     private TextField shelterIdField;
@@ -246,6 +275,11 @@ public class MainDashboardController {
     private TextField shelterCapacityField;
     @FXML
     private TextField shelterCurrentOccupantsField;
+
+    @FXML
+    private TextField alertIdField;
+    @FXML
+    private TextField alertAffectedAreaField;
 
     @FXML
     private TableView<Incident> incidentQueueTableView;
@@ -261,6 +295,8 @@ public class MainDashboardController {
     private TableView<EmergencyResource> resourceTableView;
     @FXML
     private TableView<ResponseAgency> agencyTableView;
+    @FXML
+    private TableView<PublicAlert> publicAlertTableView;
 
     @FXML
     private TableView<EvacuationShelter> shelterTableView;
@@ -282,6 +318,7 @@ public class MainDashboardController {
         setupComboBoxes();
         setupTables();
         setupEvacuationShelterFeature();
+        setupPublicAlertFeature();
         setupSelectionListeners();
         prepareGeneratedIds();
         refreshDashboardCounters();
@@ -712,6 +749,115 @@ public class MainDashboardController {
                         showSelectedShelter(shelter);
                     }
                 });
+    }
+
+    /**
+     * Sets up the public alert feature.
+     */
+    private void setupPublicAlertFeature() {
+        alertTypeComboBox.getItems().setAll(
+                "Evacuation Warning",
+                "Fire Alert",
+                "Flood Warning",
+                "Road Closure",
+                "Shelter Update"
+        );
+
+        alertSeverityComboBox.getItems().setAll(
+                "LOW",
+                "MEDIUM",
+                "HIGH",
+                "CRITICAL"
+        );
+
+        alertStatusComboBox.getItems().setAll(
+                "DRAFT",
+                "PUBLISHED",
+                "CANCELLED",
+                "EXPIRED"
+        );
+
+        refreshAlertIncidentComboBox();
+        publicAlertTableView.setItems(publicAlerts);
+        setupPublicAlertTable();
+        loadSamplePublicAlerts();
+        prepareAlertId();
+    }
+
+    /**
+     * Refreshes incident IDs for public alert creation.
+     */
+    private void refreshAlertIncidentComboBox() {
+        alertIncidentIdComboBox.getItems().clear();
+
+        for (Incident incident : ApplicationRepository.getIncidents()) {
+            alertIncidentIdComboBox.getItems().add(incident.getIncidentId());
+        }
+    }
+
+    /**
+     * Sets up the public alert table columns.
+     */
+    private void setupPublicAlertTable() {
+        publicAlertTableView.getColumns().get(0)
+                .setCellValueFactory(new PropertyValueFactory<>("alertId"));
+        publicAlertTableView.getColumns().get(1)
+                .setCellValueFactory(new PropertyValueFactory<>("incidentId"));
+        publicAlertTableView.getColumns().get(2)
+                .setCellValueFactory(new PropertyValueFactory<>("alertType"));
+        publicAlertTableView.getColumns().get(3)
+                .setCellValueFactory(new PropertyValueFactory<>("affectedArea"));
+        publicAlertTableView.getColumns().get(4)
+                .setCellValueFactory(new PropertyValueFactory<>("severityLevel"));
+        publicAlertTableView.getColumns().get(5)
+                .setCellValueFactory(new PropertyValueFactory<>("alertStatus"));
+        publicAlertTableView.getColumns().get(6)
+                .setCellValueFactory(new PropertyValueFactory<>("createdBy"));
+        publicAlertTableView.getColumns().get(7)
+                .setCellValueFactory(new PropertyValueFactory<>("createdTime"));
+        publicAlertTableView.getColumns().get(8)
+                .setCellValueFactory(new PropertyValueFactory<>("alertMessage"));
+    }
+
+    /**
+     * Loads temporary public alert records for frontend testing.
+     */
+    private void loadSamplePublicAlerts() {
+        if (!publicAlerts.isEmpty()) {
+            return;
+        }
+
+        publicAlerts.add(new PublicAlert(
+                "AL001",
+                "I001",
+                "Fire Alert",
+                "Brisbane CBD",
+                "HIGH",
+                "Avoid the Brisbane CBD area due to an active fire incident.",
+                "Emergency Control Centre",
+                "2026-06-06 17:20",
+                "PUBLISHED"
+        ));
+
+        publicAlerts.add(new PublicAlert(
+                "AL002",
+                "I002",
+                "Flood Warning",
+                "South Bank",
+                "CRITICAL",
+                "Flood water is rising near South Bank. Move to higher ground.",
+                "Emergency Control Centre",
+                "2026-06-06 17:25",
+                "PUBLISHED"
+        ));
+    }
+
+    /**
+     * Prepares the next alert ID.
+     */
+    private void prepareAlertId() {
+        int nextNumber = publicAlerts.size() + 1;
+        alertIdField.setText(String.format("AL%03d", nextNumber));
     }
 
     /**
@@ -1736,6 +1882,147 @@ public class MainDashboardController {
     }
 
     /**
+     * Shows the public alert notification manager pane.
+     */
+    @FXML
+    private void showPublicAlerts() {
+        showOnlyPane(publicAlertPane);
+        pageSubtitleLabel.setText("Public Alert Notification Manager");
+        setActiveButton(publicAlertButton);
+        applyPublicAlertScreenAccess();
+        publicAlertTableView.refresh();
+    }
+
+    /**
+     * Creates a new public alert.
+     */
+    @FXML
+    private void handleCreateAlert() {
+        if (!hasOperationalAccess()) {
+            globalStatusLabel.setText("System Status: Access denied.");
+            return;
+        }
+
+        if (!validatePublicAlertForm()) {
+            return;
+        }
+
+        PublicAlert alert = new PublicAlert(
+                alertIdField.getText(),
+                alertIncidentIdComboBox.getValue(),
+                alertTypeComboBox.getValue(),
+                alertAffectedAreaField.getText().trim(),
+                alertSeverityComboBox.getValue(),
+                alertMessageArea.getText().trim(),
+                UserSession.getCurrentRoleDisplayName(),
+                LocalDateTime.now().toString(),
+                alertStatusComboBox.getValue()
+        );
+
+        publicAlerts.add(alert);
+        publicAlertTableView.refresh();
+        handleClearAlertForm();
+
+        publicAlertStatusLabel.setText("Public alert created successfully.");
+        globalStatusLabel.setText("System Status: Public alert created.");
+    }
+
+    /**
+     * Publishes the selected public alert.
+     */
+    @FXML
+    private void handlePublishAlert() {
+        if (!hasOperationalAccess()) {
+            globalStatusLabel.setText("System Status: Access denied.");
+            return;
+        }
+
+        PublicAlert selectedAlert
+                = publicAlertTableView.getSelectionModel().getSelectedItem();
+
+        if (selectedAlert == null) {
+            publicAlertStatusLabel.setText("Select an alert to publish.");
+            return;
+        }
+
+        selectedAlert.setAlertStatus("PUBLISHED");
+        selectedAlert.setCreatedTime(LocalDateTime.now().toString());
+
+        publicAlertTableView.refresh();
+
+        publicAlertStatusLabel.setText("Public alert published.");
+        globalStatusLabel.setText("System Status: Public alert published.");
+    }
+
+    /**
+     * Clears the public alert form.
+     */
+    @FXML
+    private void handleClearAlertForm() {
+        alertIncidentIdComboBox.getSelectionModel().clearSelection();
+        alertTypeComboBox.getSelectionModel().clearSelection();
+        alertAffectedAreaField.clear();
+        alertSeverityComboBox.getSelectionModel().clearSelection();
+        alertStatusComboBox.getSelectionModel().clearSelection();
+        alertMessageArea.clear();
+        publicAlertTableView.getSelectionModel().clearSelection();
+        prepareAlertId();
+    }
+
+    /**
+     * Validates public alert form input.
+     *
+     * @return true if valid
+     */
+    private boolean validatePublicAlertForm() {
+        if (alertIncidentIdComboBox.getValue() == null
+                || alertTypeComboBox.getValue() == null
+                || alertAffectedAreaField.getText().trim().isEmpty()
+                || alertSeverityComboBox.getValue() == null
+                || alertStatusComboBox.getValue() == null
+                || alertMessageArea.getText().trim().isEmpty()) {
+
+            publicAlertStatusLabel.setText("Complete all public alert fields.");
+            return false;
+        }
+
+        if (alertMessageArea.getText().trim().length() < 10) {
+            publicAlertStatusLabel.setText(
+                    "Alert message must be at least 10 characters.");
+            return false;
+        }
+
+        return true;
+    }
+    
+    /**
+ * Applies public alert screen permissions based on user role.
+ */
+private void applyPublicAlertScreenAccess() {
+    boolean hasManagementAccess = hasOperationalAccess();
+
+    publicAlertFormPane.setVisible(hasManagementAccess);
+    publicAlertFormPane.setManaged(hasManagementAccess);
+
+    createAlertButton.setVisible(hasManagementAccess);
+    createAlertButton.setManaged(hasManagementAccess);
+    createAlertButton.setDisable(!hasManagementAccess);
+
+    publishAlertButton.setVisible(hasManagementAccess);
+    publishAlertButton.setManaged(hasManagementAccess);
+    publishAlertButton.setDisable(!hasManagementAccess);
+
+    clearAlertButton.setVisible(hasManagementAccess);
+    clearAlertButton.setManaged(hasManagementAccess);
+    clearAlertButton.setDisable(!hasManagementAccess);
+
+    if (!hasManagementAccess) {
+        publicAlertStatusLabel.setText(
+                "Public alerts are available for viewing only.");
+    }
+}
+
+    /**
      * Shows only the selected page pane.
      *
      * @param activePane pane to show
@@ -1751,7 +2038,8 @@ public class MainDashboardController {
             responseLogPane,
             searchFilterPane,
             resourceCountersPane,
-            evacuationShelterPane
+            evacuationShelterPane,
+            publicAlertPane
         };
 
         for (VBox pane : panes) {
@@ -1779,16 +2067,19 @@ public class MainDashboardController {
             responseLogButton,
             searchFilterButton,
             resourceCountersButton,
-            evacuationShelterButton
+            evacuationShelterButton,
+            publicAlertButton
         };
-        
+
         for (Button button : buttons) {
             button.getStyleClass().remove("nav-button-active");
             button.getStyleClass().remove("sub-nav-button-active");
             button.getStyleClass().remove("nav-button");
             button.getStyleClass().remove("sub-nav-button");
 
-            if (button == dashboardButton || button == reportButton) {
+            if (button == dashboardButton
+                    || button == publicAlertButton
+                    || button == reportButton) {
                 button.getStyleClass().add("nav-button");
             } else {
                 button.getStyleClass().add("sub-nav-button");
@@ -1799,7 +2090,9 @@ public class MainDashboardController {
                 .remove("nav-button");
         activeButton.getStyleClass().remove("sub-nav-button");
 
-        if (activeButton == dashboardButton || activeButton == reportButton) {
+        if (activeButton == dashboardButton
+                || activeButton == publicAlertButton
+                || activeButton == reportButton) {
             activeButton.getStyleClass().add("nav-button-active");
         } else {
             activeButton.getStyleClass().add("sub-nav-button-active");
@@ -1835,6 +2128,7 @@ public class MainDashboardController {
      */
     private void applyPublicUserAccess() {
         setButtonAccess(dashboardButton, false);
+        setButtonAccess(publicAlertButton, true);
         setButtonAccess(reportButton, true);
 
         setTitledPaneAccess(incidentManagementPane, false);
@@ -1874,6 +2168,7 @@ public class MainDashboardController {
         setTitledPaneAccess(responseCoordinationPane, true);
         setTitledPaneAccess(decisionSupportPane, true);
         setButtonAccess(evacuationShelterButton, true);
+        setButtonAccess(publicAlertButton, true);
 
         globalStatusLabel.setText(
                 "System Status: Emergency Control Centre access applied.");
@@ -1898,6 +2193,7 @@ public class MainDashboardController {
         setTitledPaneAccess(responseCoordinationPane, true);
         setTitledPaneAccess(decisionSupportPane, true);
         setButtonAccess(evacuationShelterButton, true);
+        setButtonAccess(publicAlertButton, true);
 
         globalStatusLabel.setText(
                 "System Status: System Administrator access applied.");
@@ -1934,7 +2230,7 @@ public class MainDashboardController {
         UserRole currentRole = UserSession.getCurrentRole();
 
         if (currentRole == UserRole.PUBLIC_USER) {
-            showReportDisaster();
+            showPublicAlerts();
             return;
         }
 
