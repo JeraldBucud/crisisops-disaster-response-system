@@ -29,6 +29,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import drsinitial.model.enums.UserRole;
 import javafx.scene.control.TitledPane;
+import drsinitial.model.EvacuationShelter;
+import java.time.LocalDateTime;
 
 /**
  * Controls the main dashboard screen of the Disaster Response System.
@@ -49,6 +51,9 @@ public class MainDashboardController {
 
     private final UserSession userSession = new UserSession();
 
+    private final ObservableList<EvacuationShelter> evacuationShelters
+            = FXCollections.observableArrayList();
+
     @FXML
     private VBox dashboardPane;
     @FXML
@@ -67,6 +72,8 @@ public class MainDashboardController {
     private VBox searchFilterPane;
     @FXML
     private VBox resourceCountersPane;
+    @FXML
+    private VBox evacuationShelterPane;
 
     @FXML
     private Button dashboardButton;
@@ -96,6 +103,8 @@ public class MainDashboardController {
     private Button restoreUnavailableButton;
     @FXML
     private Button restoreMaintenanceButton;
+    @FXML
+    private Button evacuationShelterButton;
 
     @FXML
     private Label pageSubtitleLabel;
@@ -154,6 +163,17 @@ public class MainDashboardController {
     private Label recommendedPriorityLabel;
 
     @FXML
+    private Label totalShelterCountLabel;
+    @FXML
+    private Label availableShelterCountLabel;
+    @FXML
+    private Label fullShelterCountLabel;
+    @FXML
+    private Label freeShelterSpaceCountLabel;
+    @FXML
+    private Label shelterStatusLabel;
+
+    @FXML
     private ComboBox<DisasterType> disasterTypeComboBox;
     @FXML
     private ComboBox<SeverityLevel> initialSeverityComboBox;
@@ -180,6 +200,9 @@ public class MainDashboardController {
     private ComboBox<PriorityLevel> filterPriorityComboBox;
     @FXML
     private ComboBox<IncidentStatus> filterStatusComboBox;
+
+    @FXML
+    private ComboBox<String> shelterStatusComboBox;
 
     @FXML
     private TextField reportIdField;
@@ -214,6 +237,17 @@ public class MainDashboardController {
     private TextArea updateNotesArea;
 
     @FXML
+    private TextField shelterIdField;
+    @FXML
+    private TextField shelterNameField;
+    @FXML
+    private TextField shelterLocationField;
+    @FXML
+    private TextField shelterCapacityField;
+    @FXML
+    private TextField shelterCurrentOccupantsField;
+
+    @FXML
     private TableView<Incident> incidentQueueTableView;
     @FXML
     private TableView<DisasterReport> submittedReportsTableView;
@@ -227,6 +261,9 @@ public class MainDashboardController {
     private TableView<EmergencyResource> resourceTableView;
     @FXML
     private TableView<ResponseAgency> agencyTableView;
+
+    @FXML
+    private TableView<EvacuationShelter> shelterTableView;
 
     @FXML
     private TitledPane incidentManagementPane;
@@ -244,6 +281,7 @@ public class MainDashboardController {
 
         setupComboBoxes();
         setupTables();
+        setupEvacuationShelterFeature();
         setupSelectionListeners();
         prepareGeneratedIds();
         refreshDashboardCounters();
@@ -626,6 +664,143 @@ public class MainDashboardController {
                         }
                     }
                 });
+    }
+
+    /**
+     * Sets up the evacuation shelter feature.
+     */
+    private void setupEvacuationShelterFeature() {
+        shelterStatusComboBox.getItems().setAll(
+                "AVAILABLE",
+                "NEAR_CAPACITY",
+                "FULL",
+                "CLOSED"
+        );
+
+        shelterTableView.setItems(evacuationShelters);
+        setupShelterTable();
+        loadSampleShelters();
+        prepareShelterId();
+        refreshShelterCounters();
+    }
+
+    /**
+     * Sets up evacuation shelter table columns.
+     */
+    private void setupShelterTable() {
+        shelterTableView.getColumns().get(0)
+                .setCellValueFactory(new PropertyValueFactory<>("shelterId"));
+        shelterTableView.getColumns().get(1)
+                .setCellValueFactory(new PropertyValueFactory<>("shelterName"));
+        shelterTableView.getColumns().get(2)
+                .setCellValueFactory(new PropertyValueFactory<>("location"));
+        shelterTableView.getColumns().get(3)
+                .setCellValueFactory(new PropertyValueFactory<>("totalCapacity"));
+        shelterTableView.getColumns().get(4)
+                .setCellValueFactory(new PropertyValueFactory<>("currentOccupants"));
+        shelterTableView.getColumns().get(5)
+                .setCellValueFactory(new PropertyValueFactory<>("availableSpaces"));
+        shelterTableView.getColumns().get(6)
+                .setCellValueFactory(new PropertyValueFactory<>("shelterStatus"));
+        shelterTableView.getColumns().get(7)
+                .setCellValueFactory(new PropertyValueFactory<>("lastUpdated"));
+
+        shelterTableView.getSelectionModel()
+                .selectedItemProperty()
+                .addListener((observable, oldValue, shelter) -> {
+                    if (shelter != null) {
+                        showSelectedShelter(shelter);
+                    }
+                });
+    }
+
+    /**
+     * Loads temporary shelter records for frontend testing.
+     */
+    private void loadSampleShelters() {
+        if (!evacuationShelters.isEmpty()) {
+            return;
+        }
+
+        evacuationShelters.add(new EvacuationShelter(
+                "SH001",
+                "Brisbane Community Hall",
+                "Brisbane CBD",
+                250,
+                80,
+                "AVAILABLE",
+                "2026-06-06 17:00"
+        ));
+
+        evacuationShelters.add(new EvacuationShelter(
+                "SH002",
+                "South Bank School Gym",
+                "South Bank",
+                180,
+                165,
+                "NEAR_CAPACITY",
+                "2026-06-06 17:05"
+        ));
+
+        evacuationShelters.add(new EvacuationShelter(
+                "SH003",
+                "Fortitude Valley Centre",
+                "Fortitude Valley",
+                120,
+                120,
+                "FULL",
+                "2026-06-06 17:10"
+        ));
+    }
+
+    /**
+     * Prepares the next shelter ID.
+     */
+    private void prepareShelterId() {
+        int nextNumber = evacuationShelters.size() + 1;
+        shelterIdField.setText(String.format("SH%03d", nextNumber));
+    }
+
+    /**
+     * Shows the selected shelter in the form.
+     *
+     * @param shelter selected shelter
+     */
+    private void showSelectedShelter(EvacuationShelter shelter) {
+        shelterIdField.setText(shelter.getShelterId());
+        shelterNameField.setText(shelter.getShelterName());
+        shelterLocationField.setText(shelter.getLocation());
+        shelterCapacityField.setText(String.valueOf(shelter.getTotalCapacity()));
+        shelterCurrentOccupantsField.setText(
+                String.valueOf(shelter.getCurrentOccupants()));
+        shelterStatusComboBox.setValue(shelter.getShelterStatus());
+    }
+
+    /**
+     * Refreshes shelter summary counters.
+     */
+    private void refreshShelterCounters() {
+        int availableShelters = 0;
+        int fullShelters = 0;
+        int freeSpaces = 0;
+
+        for (EvacuationShelter shelter : evacuationShelters) {
+            if ("AVAILABLE".equals(shelter.getShelterStatus())
+                    || "NEAR_CAPACITY".equals(shelter.getShelterStatus())) {
+                availableShelters++;
+            }
+
+            if ("FULL".equals(shelter.getShelterStatus())) {
+                fullShelters++;
+            }
+
+            freeSpaces += shelter.getAvailableSpaces();
+        }
+
+        totalShelterCountLabel.setText(String.valueOf(evacuationShelters.size()));
+        availableShelterCountLabel.setText(String.valueOf(availableShelters));
+        fullShelterCountLabel.setText(String.valueOf(fullShelters));
+        freeShelterSpaceCountLabel.setText(String.valueOf(freeSpaces));
     }
 
     /**
@@ -1409,6 +1584,158 @@ public class MainDashboardController {
     }
 
     /**
+     * Adds a new evacuation shelter record.
+     */
+    @FXML
+    private void handleAddShelter() {
+        if (!hasOperationalAccess()) {
+            globalStatusLabel.setText("System Status: Access denied.");
+            return;
+        }
+
+        if (!validateShelterForm()) {
+            return;
+        }
+
+        int totalCapacity = Integer.parseInt(shelterCapacityField.getText().trim());
+        int currentOccupants = Integer.parseInt(
+                shelterCurrentOccupantsField.getText().trim());
+
+        EvacuationShelter shelter = new EvacuationShelter(
+                shelterIdField.getText(),
+                shelterNameField.getText().trim(),
+                shelterLocationField.getText().trim(),
+                totalCapacity,
+                currentOccupants,
+                shelterStatusComboBox.getValue(),
+                LocalDateTime.now().toString()
+        );
+
+        evacuationShelters.add(shelter);
+        shelterTableView.refresh();
+        refreshShelterCounters();
+        handleClearShelterForm();
+
+        shelterStatusLabel.setText("Shelter added successfully.");
+        globalStatusLabel.setText("System Status: Shelter record added.");
+    }
+
+    /**
+     * Updates the selected evacuation shelter record.
+     */
+    @FXML
+    private void handleUpdateShelter() {
+        if (!hasOperationalAccess()) {
+            globalStatusLabel.setText("System Status: Access denied.");
+            return;
+        }
+
+        EvacuationShelter selectedShelter
+                = shelterTableView.getSelectionModel().getSelectedItem();
+
+        if (selectedShelter == null) {
+            shelterStatusLabel.setText("Select a shelter to update.");
+            return;
+        }
+
+        if (!validateShelterForm()) {
+            return;
+        }
+
+        int totalCapacity = Integer.parseInt(shelterCapacityField.getText().trim());
+        int currentOccupants = Integer.parseInt(
+                shelterCurrentOccupantsField.getText().trim());
+
+        selectedShelter.setShelterName(shelterNameField.getText().trim());
+        selectedShelter.setLocation(shelterLocationField.getText().trim());
+        selectedShelter.setTotalCapacity(totalCapacity);
+        selectedShelter.setCurrentOccupants(currentOccupants);
+        selectedShelter.setShelterStatus(shelterStatusComboBox.getValue());
+        selectedShelter.setLastUpdated(LocalDateTime.now().toString());
+
+        shelterTableView.refresh();
+        refreshShelterCounters();
+
+        shelterStatusLabel.setText("Shelter updated successfully.");
+        globalStatusLabel.setText("System Status: Shelter record updated.");
+    }
+
+    /**
+     * Clears the shelter input form.
+     */
+    @FXML
+    private void handleClearShelterForm() {
+        shelterNameField.clear();
+        shelterLocationField.clear();
+        shelterCapacityField.clear();
+        shelterCurrentOccupantsField.clear();
+        shelterStatusComboBox.getSelectionModel().clearSelection();
+        shelterTableView.getSelectionModel().clearSelection();
+        prepareShelterId();
+    }
+
+    /**
+     * Validates evacuation shelter form input.
+     *
+     * @return true if valid
+     */
+    private boolean validateShelterForm() {
+        if (shelterNameField.getText().trim().isEmpty()
+                || shelterLocationField.getText().trim().isEmpty()
+                || shelterCapacityField.getText().trim().isEmpty()
+                || shelterCurrentOccupantsField.getText().trim().isEmpty()
+                || shelterStatusComboBox.getValue() == null) {
+
+            shelterStatusLabel.setText("Complete all shelter fields.");
+            return false;
+        }
+
+        int totalCapacity;
+        int currentOccupants;
+
+        try {
+            totalCapacity = Integer.parseInt(
+                    shelterCapacityField.getText().trim());
+            currentOccupants = Integer.parseInt(
+                    shelterCurrentOccupantsField.getText().trim());
+        } catch (NumberFormatException exception) {
+            shelterStatusLabel.setText(
+                    "Capacity and occupants must be numeric.");
+            return false;
+        }
+
+        if (totalCapacity <= 0) {
+            shelterStatusLabel.setText("Total capacity must be greater than zero.");
+            return false;
+        }
+
+        if (currentOccupants < 0) {
+            shelterStatusLabel.setText("Current occupants cannot be negative.");
+            return false;
+        }
+
+        if (currentOccupants > totalCapacity) {
+            shelterStatusLabel.setText(
+                    "Current occupants cannot exceed total capacity.");
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Shows the evacuation shelter availability tracker pane.
+     */
+    @FXML
+    private void showEvacuationShelters() {
+        showOnlyPane(evacuationShelterPane);
+        pageSubtitleLabel.setText("Evacuation Shelter Availability Tracker");
+        setActiveButton(evacuationShelterButton);
+        shelterTableView.refresh();
+        refreshShelterCounters();
+    }
+
+    /**
      * Shows only the selected page pane.
      *
      * @param activePane pane to show
@@ -1423,7 +1750,8 @@ public class MainDashboardController {
             emergencyDispatchPane,
             responseLogPane,
             searchFilterPane,
-            resourceCountersPane
+            resourceCountersPane,
+            evacuationShelterPane
         };
 
         for (VBox pane : panes) {
@@ -1450,9 +1778,10 @@ public class MainDashboardController {
             emergencyDispatchButton,
             responseLogButton,
             searchFilterButton,
-            resourceCountersButton
+            resourceCountersButton,
+            evacuationShelterButton
         };
-
+        
         for (Button button : buttons) {
             button.getStyleClass().remove("nav-button-active");
             button.getStyleClass().remove("sub-nav-button-active");
@@ -1466,7 +1795,8 @@ public class MainDashboardController {
             }
         }
 
-        activeButton.getStyleClass().remove("nav-button");
+        activeButton.getStyleClass()
+                .remove("nav-button");
         activeButton.getStyleClass().remove("sub-nav-button");
 
         if (activeButton == dashboardButton || activeButton == reportButton) {
@@ -1519,6 +1849,7 @@ public class MainDashboardController {
         setTitledPaneAccess(decisionSupportPane, false);
         setButtonAccess(searchFilterButton, false);
         setButtonAccess(resourceCountersButton, false);
+        setButtonAccess(evacuationShelterButton, false);
 
         globalStatusLabel.setText(
                 "System Status: Public User access applied.");
@@ -1542,6 +1873,7 @@ public class MainDashboardController {
         setTitledPaneAccess(incidentManagementPane, true);
         setTitledPaneAccess(responseCoordinationPane, true);
         setTitledPaneAccess(decisionSupportPane, true);
+        setButtonAccess(evacuationShelterButton, true);
 
         globalStatusLabel.setText(
                 "System Status: Emergency Control Centre access applied.");
@@ -1565,6 +1897,7 @@ public class MainDashboardController {
         setTitledPaneAccess(incidentManagementPane, true);
         setTitledPaneAccess(responseCoordinationPane, true);
         setTitledPaneAccess(decisionSupportPane, true);
+        setButtonAccess(evacuationShelterButton, true);
 
         globalStatusLabel.setText(
                 "System Status: System Administrator access applied.");
