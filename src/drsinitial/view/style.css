@@ -564,3 +564,41 @@
     -fx-font-weight: bold;
     -fx-text-fill: white;
 }
+
+.compact-primary-button {
+    -fx-min-width: 175px;
+    -fx-pref-width: 175px;
+    -fx-max-width: 175px;
+    -fx-padding: 11px 12px;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 12px;
+    -fx-border-radius: 12px;
+    -fx-background-color: #2F6FED;
+    -fx-text-fill: white;
+    -fx-border-color: transparent;
+    -fx-cursor: hand;
+}
+
+.compact-primary-button:hover {
+    -fx-background-color: #1F5EDB;
+}
+
+.compact-secondary-button {
+    -fx-min-width: 175px;
+    -fx-pref-width: 175px;
+    -fx-max-width: 175px;
+    -fx-padding: 11px 12px;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 12px;
+    -fx-border-radius: 12px;
+    -fx-background-color: #E6ECF4;
+    -fx-text-fill: #0F172A;
+    -fx-border-color: transparent;
+    -fx-cursor: hand;
+}
+
+.compact-secondary-button:hover {
+    -fx-background-color: #D7E0EC;
+}
