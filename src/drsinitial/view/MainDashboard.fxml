@@ -107,6 +107,11 @@
 
                     </VBox>
                 </TitledPane>
+                
+                <Button fx:id="userManagementButton" text="User Management"
+                        onAction="#showUserManagement"
+                        maxWidth="Infinity"
+                        styleClass="nav-button" />
 
                 <Region VBox.vgrow="ALWAYS" />
 
@@ -1068,6 +1073,110 @@
                     </HBox>
 
                 </VBox>
+                
+                <VBox fx:id="userManagementPane" visible="false" managed="false"
+      spacing="18.0" styleClass="page-pane">
+
+    <Label text="Admin User Management"
+           styleClass="section-title" />
+
+    <HBox spacing="18.0">
+
+        <VBox spacing="12.0" styleClass="card"
+              prefWidth="520.0" minWidth="520.0">
+
+            <Label text="User Account Details" styleClass="section-title" />
+
+            <GridPane hgap="10.0" vgap="10.0">
+
+                <Label text="User ID" prefWidth="140.0"
+                       GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                <TextField fx:id="adminUserIdField"
+                           promptText="Auto-generated"
+                           editable="false"
+                           prefWidth="260.0"
+                           GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                <Label text="Full Name" prefWidth="140.0"
+                       GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                <TextField fx:id="adminFullNameField"
+                           promptText="Enter full name"
+                           prefWidth="260.0"
+                           GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                <Label text="Email" prefWidth="140.0"
+                       GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                <TextField fx:id="adminEmailField"
+                           promptText="Enter email"
+                           prefWidth="260.0"
+                           GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                <Label text="Username" prefWidth="140.0"
+                       GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                <TextField fx:id="adminUsernameField"
+                           promptText="Enter username"
+                           prefWidth="260.0"
+                           GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                <Label text="Role" prefWidth="140.0"
+                       GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                <ComboBox fx:id="adminUserRoleComboBox"
+                          promptText="Select role"
+                          prefWidth="260.0"
+                          GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+                <Label text="Account Status" prefWidth="140.0"
+                       GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                <ComboBox fx:id="adminAccountStatusComboBox"
+                          promptText="Select status"
+                          prefWidth="260.0"
+                          GridPane.columnIndex="1" GridPane.rowIndex="5" />
+
+            </GridPane>
+
+            <HBox spacing="10.0">
+                <Button text="Add User"
+                        onAction="#handleAddSystemUser"
+                        styleClass="primary-button" />
+
+                <Button text="Update User"
+                        onAction="#handleUpdateSystemUser"
+                        styleClass="secondary-button" />
+
+                <Button text="Clear Form"
+                        onAction="#handleClearSystemUserForm"
+                        styleClass="secondary-button" />
+            </HBox>
+
+            <Label fx:id="userManagementStatusLabel"
+                   text="User management ready."
+                   styleClass="status-label" />
+
+        </VBox>
+
+        <VBox spacing="12.0" styleClass="card"
+              minWidth="900.0" HBox.hgrow="ALWAYS">
+
+            <Label text="System Users" styleClass="section-title" />
+
+            <TableView fx:id="userManagementTableView"
+                       prefHeight="560.0"
+                       minWidth="900.0">
+                <columns>
+                    <TableColumn text="User ID" prefWidth="100.0" />
+                    <TableColumn text="Full Name" prefWidth="200.0" />
+                    <TableColumn text="Email" prefWidth="230.0" />
+                    <TableColumn text="Username" prefWidth="150.0" />
+                    <TableColumn text="Role" prefWidth="220.0" />
+                    <TableColumn text="Status" prefWidth="120.0" />
+                </columns>
+            </TableView>
+
+        </VBox>
+
+    </HBox>
+
+</VBox>
 
             </StackPane>
         </ScrollPane>
