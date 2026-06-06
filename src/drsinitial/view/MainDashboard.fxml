@@ -115,13 +115,7 @@
             </VBox>
 
             <Region HBox.hgrow="ALWAYS" />
-
-            <Label text="Role:" styleClass="topbar-label" />
-            <ComboBox fx:id="roleComboBox" prefWidth="250.0" promptText="Select role" />
-
-            <Button text="Apply Role"
-                    onAction="#handleApplyRole"
-                    styleClass="primary-button" />
+            
         </HBox>
     </top>
 

@@ -103,7 +103,6 @@ public class MainDashboardController {
     @FXML private Label riskScoreLabel;
     @FXML private Label recommendedPriorityLabel;
 
-    @FXML private ComboBox<String> roleComboBox;
     @FXML private ComboBox<DisasterType> disasterTypeComboBox;
     @FXML private ComboBox<SeverityLevel> initialSeverityComboBox;
     @FXML private ComboBox<String> incidentReportIdComboBox;
@@ -157,7 +156,9 @@ public class MainDashboardController {
         prepareGeneratedIds();
         refreshDashboardCounters();
         refreshResourceCounters();
-
+        
+        loggedInRoleLabel.setText(UserSession.getCurrentRoleDisplayName());
+        
         showDashboard();
     }
 
@@ -165,11 +166,6 @@ public class MainDashboardController {
      * Sets up all combo box values used by the GUI.
      */
     private void setupComboBoxes() {
-        roleComboBox.setItems(FXCollections.observableArrayList(
-                "Public User",
-                "Emergency Control Centre",
-                "System Administrator"
-        ));
 
         disasterTypeComboBox.getItems().setAll(DisasterType.values());
         initialSeverityComboBox.getItems().setAll(SeverityLevel.values());
@@ -658,21 +654,6 @@ public class MainDashboardController {
         maintenanceResourceCountLabel.setText(String.valueOf(maintenance));
     }
 
-    /**
-     * Applies the selected prototype user role.
-     */
-    @FXML
-    private void handleApplyRole() {
-        String role = roleComboBox.getValue();
-
-        if (role == null) {
-            globalStatusLabel.setText("System Status: Select a role first.");
-            return;
-        }
-
-        loggedInRoleLabel.setText(role);
-        globalStatusLabel.setText("System Status: Role updated to " + role);
-    }
 
     /**
      * Handles disaster report submission.

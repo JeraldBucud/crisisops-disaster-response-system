@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane prefHeight="720.0" prefWidth="1150.0"
+            stylesheets="@style.css"
+            xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="drsinitial.controller.LoginController">
+
+    <center>
+        <HBox alignment="CENTER" spacing="0.0" styleClass="login-root">
+
+            <VBox alignment="CENTER_LEFT" spacing="18.0"
+                  prefWidth="520.0"
+                  styleClass="login-brand-panel">
+
+                <Label text="DRS-Enhanced"
+                       styleClass="login-brand-title" />
+
+                <Label text="Disaster Response System"
+                       styleClass="login-brand-subtitle" />
+
+                <Label text="Secure access for disaster reporting, incident management, and public alerts."
+                       wrapText="true"
+                       styleClass="login-brand-description" />
+
+                <VBox spacing="8.0" styleClass="login-info-box">
+                    <Label text="Temporary test accounts"
+                           styleClass="login-info-title" />
+                    <Label text="admin / admin123"
+                           styleClass="login-info-text" />
+                    <Label text="ecc / ecc123"
+                           styleClass="login-info-text" />
+                    <Label text="public / public123"
+                           styleClass="login-info-text" />
+                </VBox>
+
+            </VBox>
+
+            <VBox alignment="CENTER" spacing="16.0"
+                  prefWidth="430.0"
+                  styleClass="login-card">
+
+                <Label text="Login"
+                       styleClass="login-title" />
+
+                <Label text="Enter your account details to continue."
+                       styleClass="login-subtitle" />
+
+                <VBox spacing="8.0" maxWidth="330.0">
+                    <Label text="Username" styleClass="form-label" />
+                    <TextField fx:id="usernameField"
+                               promptText="Enter username"
+                               styleClass="login-field" />
+                </VBox>
+
+                <VBox spacing="8.0" maxWidth="330.0">
+                    <Label text="Password" styleClass="form-label" />
+                    <PasswordField fx:id="passwordField"
+                                   promptText="Enter password"
+                                   styleClass="login-field" />
+                </VBox>
+
+                <Button text="Login"
+                        maxWidth="330.0"
+                        onAction="#handleLogin"
+                        styleClass="login-primary-button" />
+
+                <Button text="Register as Public User"
+                        maxWidth="330.0"
+                        onAction="#handleOpenRegistration"
+                        styleClass="login-secondary-button" />
+
+                <Label fx:id="loginStatusLabel"
+                       text=""
+                       wrapText="true"
+                       maxWidth="330.0"
+                       styleClass="login-status-label" />
+
+            </VBox>
+
+        </HBox>
+    </center>
+
+</BorderPane>

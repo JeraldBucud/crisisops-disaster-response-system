@@ -3,10 +3,11 @@ package drsinitial.session;
 import drsinitial.model.enums.UserRole;
 
 /**
- * Stores the selected prototype user role during the running session.
+ * Stores the selected user role and login details during the
+ * running session.
  *
- * This class supports role selection for the Disaster Response System
- * prototype. It does not perform authentication or access control.
+ * This class supports role-based access control in
+ * DRS-Enhanced.
  *
  * @author Jerald Christopher Bucud
  * @studentId 12301099
@@ -14,8 +15,12 @@ import drsinitial.model.enums.UserRole;
  */
 public class UserSession {
 
+    private static String currentUsername = "public";
+    private static String currentDisplayName = "Public User";
+    private static UserRole currentRole = UserRole.PUBLIC_USER;
+
     /**
-     * Stores the selected user role for the current session.
+     * Stores the selected user role for object-based usage.
      */
     private UserRole selectedRole;
 
@@ -23,7 +28,76 @@ public class UserSession {
      * Creates a user session with public user role by default.
      */
     public UserSession() {
-        this.selectedRole = UserRole.PUBLIC_USER;
+        this.selectedRole = currentRole;
+    }
+
+    /**
+     * Stores successful login details.
+     *
+     * @param username logged-in username
+     * @param displayName user display name
+     * @param role user role
+     */
+    public static void login(String username,
+            String displayName,
+            UserRole role) {
+
+        currentUsername = username;
+        currentDisplayName = displayName;
+        currentRole = role;
+    }
+
+    /**
+     * Clears the active session.
+     */
+    public static void logout() {
+        currentUsername = "public";
+        currentDisplayName = "Public User";
+        currentRole = UserRole.PUBLIC_USER;
+    }
+
+    /**
+     * Returns the current username.
+     *
+     * @return current username
+     */
+    public static String getCurrentUsername() {
+        return currentUsername;
+    }
+
+    /**
+     * Returns the current display name.
+     *
+     * @return current display name
+     */
+    public static String getCurrentDisplayName() {
+        return currentDisplayName;
+    }
+
+    /**
+     * Returns the current logged-in role.
+     *
+     * @return current user role
+     */
+    public static UserRole getCurrentRole() {
+        return currentRole;
+    }
+
+    /**
+     * Returns a readable version of the current role.
+     *
+     * @return readable role name
+     */
+    public static String getCurrentRoleDisplayName() {
+        if (currentRole == UserRole.SYSTEM_ADMINISTRATOR) {
+            return "System Administrator";
+        }
+
+        if (currentRole == UserRole.EMERGENCY_CONTROL_CENTRE) {
+            return "Emergency Control Centre";
+        }
+
+        return "Public User";
     }
 
     /**
@@ -33,6 +107,7 @@ public class UserSession {
      */
     public void setRole(UserRole role) {
         this.selectedRole = role;
+        currentRole = role;
     }
 
     /**

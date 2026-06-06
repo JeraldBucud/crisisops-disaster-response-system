@@ -6,10 +6,10 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 /**
- * Starts the DRS-Initial Disaster Response System application.
+ * Starts the DRS-Enhanced Disaster Response System application.
  *
- * This class loads the main dashboard FXML file, creates the
- * JavaFX scene, and displays the main application window.
+ * This class loads the login screen first. After successful login,
+ * the user is directed to the main dashboard.
  *
  * @author Jerald Christopher Bucud
  * @studentId 12301099
@@ -20,9 +20,6 @@ public class Main extends Application {
     /**
      * Starts the JavaFX application window.
      *
-     * This method loads the main dashboard view from the FXML file,
-     * creates the scene, sets the application title, and shows the stage.
-     *
      * @param stage primary JavaFX application stage
      * @throws Exception if the FXML file cannot be loaded
      */
@@ -30,12 +27,13 @@ public class Main extends Application {
     public void start(Stage stage) throws Exception {
 
         FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/drsinitial/view/MainDashboard.fxml"));
+                getClass().getResource("/drsinitial/view/LoginView.fxml"));
 
         Scene scene = new Scene(loader.load());
 
-        stage.setTitle("DRS-Initial Disaster Response System");
+        stage.setTitle("DRS-Enhanced Login");
         stage.setScene(scene);
+        stage.setResizable(true);
         stage.show();
     }
 
