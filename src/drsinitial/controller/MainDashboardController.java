@@ -27,6 +27,8 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
+import drsinitial.model.enums.UserRole;
+import javafx.scene.control.TitledPane;
 
 /**
  * Controls the main dashboard screen of the Disaster Response System.
@@ -42,106 +44,196 @@ public class MainDashboardController {
 
     private final IncidentService incidentService = new IncidentService();
 
-    private final PriorityRecommendationService priorityService =
-            new PriorityRecommendationService();
+    private final PriorityRecommendationService priorityService
+            = new PriorityRecommendationService();
 
     private final UserSession userSession = new UserSession();
 
-    @FXML private VBox dashboardPane;
-    @FXML private VBox reportPane;
-    @FXML private VBox registerIncidentPane;
-    @FXML private VBox severityPriorityPane;
-    @FXML private VBox updateIncidentStatusPane;
-    @FXML private VBox emergencyDispatchPane;
-    @FXML private VBox responseLogPane;
-    @FXML private VBox searchFilterPane;
-    @FXML private VBox resourceCountersPane;
+    @FXML
+    private VBox dashboardPane;
+    @FXML
+    private VBox reportPane;
+    @FXML
+    private VBox registerIncidentPane;
+    @FXML
+    private VBox severityPriorityPane;
+    @FXML
+    private VBox updateIncidentStatusPane;
+    @FXML
+    private VBox emergencyDispatchPane;
+    @FXML
+    private VBox responseLogPane;
+    @FXML
+    private VBox searchFilterPane;
+    @FXML
+    private VBox resourceCountersPane;
 
-    @FXML private Button dashboardButton;
-    @FXML private Button reportButton;
-    @FXML private Button registerIncidentButton;
-    @FXML private Button severityPriorityButton;
-    @FXML private Button updateIncidentStatusButton;
-    @FXML private Button emergencyDispatchButton;
-    @FXML private Button responseLogButton;
-    @FXML private Button searchFilterButton;
-    @FXML private Button resourceCountersButton;
-    @FXML private Button releaseResourceButton;
-    @FXML private Button markUnavailableButton;
-    @FXML private Button markMaintenanceButton;
-    @FXML private Button restoreUnavailableButton;
-    @FXML private Button restoreMaintenanceButton;
+    @FXML
+    private Button dashboardButton;
+    @FXML
+    private Button reportButton;
+    @FXML
+    private Button registerIncidentButton;
+    @FXML
+    private Button severityPriorityButton;
+    @FXML
+    private Button updateIncidentStatusButton;
+    @FXML
+    private Button emergencyDispatchButton;
+    @FXML
+    private Button responseLogButton;
+    @FXML
+    private Button searchFilterButton;
+    @FXML
+    private Button resourceCountersButton;
+    @FXML
+    private Button releaseResourceButton;
+    @FXML
+    private Button markUnavailableButton;
+    @FXML
+    private Button markMaintenanceButton;
+    @FXML
+    private Button restoreUnavailableButton;
+    @FXML
+    private Button restoreMaintenanceButton;
 
-    @FXML private Label pageSubtitleLabel;
-    @FXML private Label globalStatusLabel;
-    @FXML private Label loggedInRoleLabel;
+    @FXML
+    private Label pageSubtitleLabel;
+    @FXML
+    private Label globalStatusLabel;
+    @FXML
+    private Label loggedInRoleLabel;
 
-    @FXML private Label dashboardReportsCountLabel;
-    @FXML private Label dashboardIncidentsCountLabel;
-    @FXML private Label dashboardHighPriorityCountLabel;
-    @FXML private Label dashboardAvailableResourcesCountLabel;
+    @FXML
+    private Label dashboardReportsCountLabel;
+    @FXML
+    private Label dashboardIncidentsCountLabel;
+    @FXML
+    private Label dashboardHighPriorityCountLabel;
+    @FXML
+    private Label dashboardAvailableResourcesCountLabel;
 
-    @FXML private Label availableResourceCountLabel;
-    @FXML private Label assignedResourceCountLabel;
-    @FXML private Label unavailableResourceCountLabel;
-    @FXML private Label maintenanceResourceCountLabel;
+    @FXML
+    private Label availableResourceCountLabel;
+    @FXML
+    private Label assignedResourceCountLabel;
+    @FXML
+    private Label unavailableResourceCountLabel;
+    @FXML
+    private Label maintenanceResourceCountLabel;
 
-    @FXML private Label selectedRecordLabel;
-    @FXML private Label reportStatusLabel;
-    @FXML private Label incidentStatusLabel;
-    @FXML private Label assessmentStatusLabel;
-    @FXML private Label dispatchStatusLabel;
-    @FXML private Label updateStatusLabel;
-    @FXML private Label filterStatusLabel;
-    @FXML private Label counterStatusLabel;
+    @FXML
+    private Label selectedRecordLabel;
+    @FXML
+    private Label reportStatusLabel;
+    @FXML
+    private Label incidentStatusLabel;
+    @FXML
+    private Label assessmentStatusLabel;
+    @FXML
+    private Label dispatchStatusLabel;
+    @FXML
+    private Label updateStatusLabel;
+    @FXML
+    private Label filterStatusLabel;
+    @FXML
+    private Label counterStatusLabel;
 
-    @FXML private Label selectedReportTypeLabel;
-    @FXML private Label selectedReportLocationLabel;
-    @FXML private Label selectedReportSeverityLabel;
+    @FXML
+    private Label selectedReportTypeLabel;
+    @FXML
+    private Label selectedReportLocationLabel;
+    @FXML
+    private Label selectedReportSeverityLabel;
 
-    @FXML private Label severityLevelDisplayLabel;
-    @FXML private Label riskScoreLabel;
-    @FXML private Label recommendedPriorityLabel;
+    @FXML
+    private Label severityLevelDisplayLabel;
+    @FXML
+    private Label riskScoreLabel;
+    @FXML
+    private Label recommendedPriorityLabel;
 
-    @FXML private ComboBox<DisasterType> disasterTypeComboBox;
-    @FXML private ComboBox<SeverityLevel> initialSeverityComboBox;
-    @FXML private ComboBox<String> incidentReportIdComboBox;
-    @FXML private ComboBox<String> severityIncidentIdComboBox;
-    @FXML private ComboBox<String> dispatchIncidentIdComboBox;
-    @FXML private ComboBox<String> updateIncidentIdComboBox;
-    @FXML private ComboBox<IncidentStatus> updateStatusComboBox;
-    @FXML private ComboBox<ResponseAgency> agencyComboBox;
-    @FXML private ComboBox<EmergencyResource> resourceComboBox;
+    @FXML
+    private ComboBox<DisasterType> disasterTypeComboBox;
+    @FXML
+    private ComboBox<SeverityLevel> initialSeverityComboBox;
+    @FXML
+    private ComboBox<String> incidentReportIdComboBox;
+    @FXML
+    private ComboBox<String> severityIncidentIdComboBox;
+    @FXML
+    private ComboBox<String> dispatchIncidentIdComboBox;
+    @FXML
+    private ComboBox<String> updateIncidentIdComboBox;
+    @FXML
+    private ComboBox<IncidentStatus> updateStatusComboBox;
+    @FXML
+    private ComboBox<ResponseAgency> agencyComboBox;
+    @FXML
+    private ComboBox<EmergencyResource> resourceComboBox;
 
-    @FXML private ComboBox<DisasterType> filterDisasterTypeComboBox;
-    @FXML private ComboBox<SeverityLevel> filterSeverityComboBox;
-    @FXML private ComboBox<PriorityLevel> filterPriorityComboBox;
-    @FXML private ComboBox<IncidentStatus> filterStatusComboBox;
+    @FXML
+    private ComboBox<DisasterType> filterDisasterTypeComboBox;
+    @FXML
+    private ComboBox<SeverityLevel> filterSeverityComboBox;
+    @FXML
+    private ComboBox<PriorityLevel> filterPriorityComboBox;
+    @FXML
+    private ComboBox<IncidentStatus> filterStatusComboBox;
 
-    @FXML private TextField reportIdField;
-    @FXML private TextField reporterNameField;
-    @FXML private TextField locationField;
-    @FXML private TextField incidentIdField;
-    @FXML private TextField affectedPeopleField;
-    @FXML private TextField affectedAreaField;
-    @FXML private TextField responseIdField;
-    @FXML private TextField updateIdField;
-    @FXML private TextField updatedByField;
-    @FXML private TextField filterKeywordField;
+    @FXML
+    private TextField reportIdField;
+    @FXML
+    private TextField reporterNameField;
+    @FXML
+    private TextField locationField;
+    @FXML
+    private TextField incidentIdField;
+    @FXML
+    private TextField affectedPeopleField;
+    @FXML
+    private TextField affectedAreaField;
+    @FXML
+    private TextField responseIdField;
+    @FXML
+    private TextField updateIdField;
+    @FXML
+    private TextField updatedByField;
+    @FXML
+    private TextField filterKeywordField;
 
-    @FXML private TextArea descriptionArea;
-    @FXML private TextArea selectedDescriptionArea;
-    @FXML private TextArea selectedReportDescriptionArea;
-    @FXML private TextArea dispatchNotesArea;
-    @FXML private TextArea updateNotesArea;
+    @FXML
+    private TextArea descriptionArea;
+    @FXML
+    private TextArea selectedDescriptionArea;
+    @FXML
+    private TextArea selectedReportDescriptionArea;
+    @FXML
+    private TextArea dispatchNotesArea;
+    @FXML
+    private TextArea updateNotesArea;
 
-    @FXML private TableView<Incident> incidentQueueTableView;
-    @FXML private TableView<DisasterReport> submittedReportsTableView;
-    @FXML private TableView<IncidentUpdate> incidentUpdateTableView;
-    @FXML private TableView<EmergencyResponse> responseLogTableView;
-    @FXML private TableView<Incident> filteredIncidentsTableView;
-    @FXML private TableView<EmergencyResource> resourceTableView;
-    @FXML private TableView<ResponseAgency> agencyTableView;
+    @FXML
+    private TableView<Incident> incidentQueueTableView;
+    @FXML
+    private TableView<DisasterReport> submittedReportsTableView;
+    @FXML
+    private TableView<IncidentUpdate> incidentUpdateTableView;
+    @FXML
+    private TableView<EmergencyResponse> responseLogTableView;
+    @FXML
+    private TableView<Incident> filteredIncidentsTableView;
+    @FXML
+    private TableView<EmergencyResource> resourceTableView;
+    @FXML
+    private TableView<ResponseAgency> agencyTableView;
+
+    @FXML
+    private TitledPane incidentManagementPane;
+    @FXML
+    private TitledPane responseCoordinationPane;
+    @FXML
+    private TitledPane decisionSupportPane;
 
     /**
      * Initializes the dashboard screen.
@@ -156,10 +248,12 @@ public class MainDashboardController {
         prepareGeneratedIds();
         refreshDashboardCounters();
         refreshResourceCounters();
-        
+
         loggedInRoleLabel.setText(UserSession.getCurrentRoleDisplayName());
-        
-        showDashboard();
+
+        applyRoleAccess();
+
+        showDefaultPaneForRole();
     }
 
     /**
@@ -253,21 +347,21 @@ public class MainDashboardController {
      */
     @SuppressWarnings("unchecked")
     private void setupIncidentTable(TableView<Incident> tableView) {
-        TableColumn<Incident, String> idColumn =
-                (TableColumn<Incident, String>) tableView.getColumns().get(0);
-        TableColumn<Incident, String> typeColumn =
-                (TableColumn<Incident, String>) tableView.getColumns().get(1);
-        TableColumn<Incident, String> severityColumn =
-                (TableColumn<Incident, String>) tableView.getColumns().get(2);
-        TableColumn<Incident, String> locationColumn =
-                (TableColumn<Incident, String>) tableView.getColumns().get(3);
-        TableColumn<Incident, String> priorityColumn =
-                (TableColumn<Incident, String>) tableView.getColumns().get(4);
-        TableColumn<Incident, String> statusColumn =
-                (TableColumn<Incident, String>) tableView.getColumns().get(5);
+        TableColumn<Incident, String> idColumn
+                = (TableColumn<Incident, String>) tableView.getColumns().get(0);
+        TableColumn<Incident, String> typeColumn
+                = (TableColumn<Incident, String>) tableView.getColumns().get(1);
+        TableColumn<Incident, String> severityColumn
+                = (TableColumn<Incident, String>) tableView.getColumns().get(2);
+        TableColumn<Incident, String> locationColumn
+                = (TableColumn<Incident, String>) tableView.getColumns().get(3);
+        TableColumn<Incident, String> priorityColumn
+                = (TableColumn<Incident, String>) tableView.getColumns().get(4);
+        TableColumn<Incident, String> statusColumn
+                = (TableColumn<Incident, String>) tableView.getColumns().get(5);
 
-        idColumn.setCellValueFactory(cellData ->
-                new SimpleStringProperty(
+        idColumn.setCellValueFactory(cellData
+                -> new SimpleStringProperty(
                         cellData.getValue().getIncidentId()
                 ));
 
@@ -354,8 +448,8 @@ public class MainDashboardController {
     /**
      * Sets up incident update table columns.
      *
-     * Expected FXML column order:
-     * Update ID, Incident ID, Status, Updated By, Date Time, Notes.
+     * Expected FXML column order: Update ID, Incident ID, Status, Updated By,
+     * Date Time, Notes.
      */
     private void setupIncidentUpdateTable() {
         incidentUpdateTableView.getColumns().get(0)
@@ -377,32 +471,25 @@ public class MainDashboardController {
     /**
      * Sets up response log table columns.
      *
-     * Expected FXML column order:
-     * Response ID, Incident ID, Agency, Resource, Status, Dispatch Time, Notes.
+     * Expected FXML column order: Response ID, Incident ID, Agency, Resource,
+     * Status, Dispatch Time, Notes.
      */
     @SuppressWarnings("unchecked")
     private void setupResponseLogTable() {
-        TableColumn<EmergencyResponse, String> responseIdColumn =
-                (TableColumn<EmergencyResponse, String>)
-                responseLogTableView.getColumns().get(0);
-        TableColumn<EmergencyResponse, String> incidentIdColumn =
-                (TableColumn<EmergencyResponse, String>)
-                responseLogTableView.getColumns().get(1);
-        TableColumn<EmergencyResponse, String> agencyColumn =
-                (TableColumn<EmergencyResponse, String>)
-                responseLogTableView.getColumns().get(2);
-        TableColumn<EmergencyResponse, String> resourceColumn =
-                (TableColumn<EmergencyResponse, String>)
-                responseLogTableView.getColumns().get(3);
-        TableColumn<EmergencyResponse, String> statusColumn =
-                (TableColumn<EmergencyResponse, String>)
-                responseLogTableView.getColumns().get(4);
-        TableColumn<EmergencyResponse, String> dateTimeColumn =
-                (TableColumn<EmergencyResponse, String>)
-                responseLogTableView.getColumns().get(5);
-        TableColumn<EmergencyResponse, String> notesColumn =
-                (TableColumn<EmergencyResponse, String>)
-                responseLogTableView.getColumns().get(6);
+        TableColumn<EmergencyResponse, String> responseIdColumn
+                = (TableColumn<EmergencyResponse, String>) responseLogTableView.getColumns().get(0);
+        TableColumn<EmergencyResponse, String> incidentIdColumn
+                = (TableColumn<EmergencyResponse, String>) responseLogTableView.getColumns().get(1);
+        TableColumn<EmergencyResponse, String> agencyColumn
+                = (TableColumn<EmergencyResponse, String>) responseLogTableView.getColumns().get(2);
+        TableColumn<EmergencyResponse, String> resourceColumn
+                = (TableColumn<EmergencyResponse, String>) responseLogTableView.getColumns().get(3);
+        TableColumn<EmergencyResponse, String> statusColumn
+                = (TableColumn<EmergencyResponse, String>) responseLogTableView.getColumns().get(4);
+        TableColumn<EmergencyResponse, String> dateTimeColumn
+                = (TableColumn<EmergencyResponse, String>) responseLogTableView.getColumns().get(5);
+        TableColumn<EmergencyResponse, String> notesColumn
+                = (TableColumn<EmergencyResponse, String>) responseLogTableView.getColumns().get(6);
 
         responseIdColumn.setCellValueFactory(
                 new PropertyValueFactory<>("responseId"));
@@ -420,8 +507,8 @@ public class MainDashboardController {
         });
 
         resourceColumn.setCellValueFactory(cellData -> {
-            EmergencyResource resource =
-                    cellData.getValue().getEmergencyResource();
+            EmergencyResource resource
+                    = cellData.getValue().getEmergencyResource();
             String value = resource == null ? "" : resource.getResourceName();
             return new SimpleStringProperty(value);
         });
@@ -439,9 +526,8 @@ public class MainDashboardController {
     /**
      * Sets up resource table columns.
      *
-     * Expected FXML column order:
-     * Resource ID, Resource Name, Type, Total, Available,
-     * Assigned, Unavailable, Maintenance.
+     * Expected FXML column order: Resource ID, Resource Name, Type, Total,
+     * Available, Assigned, Unavailable, Maintenance.
      */
     private void setupResourceTable() {
         resourceTableView.getColumns().get(0)
@@ -525,8 +611,8 @@ public class MainDashboardController {
         incidentReportIdComboBox.valueProperty()
                 .addListener((observable, oldValue, reportId) -> {
                     if (reportId != null) {
-                        DisasterReport report =
-                                ApplicationRepository.findReportById(reportId);
+                        DisasterReport report
+                                = ApplicationRepository.findReportById(reportId);
 
                         if (report != null) {
                             selectedReportTypeLabel.setText(
@@ -591,8 +677,8 @@ public class MainDashboardController {
         String selectedIncidentId = severityIncidentIdComboBox.getValue();
 
         if (selectedIncidentId != null) {
-            Incident selectedIncident =
-                    ApplicationRepository.findIncidentById(selectedIncidentId);
+            Incident selectedIncident
+                    = ApplicationRepository.findIncidentById(selectedIncidentId);
 
             if (selectedIncident != null) {
                 showSelectedIncidentDetails(selectedIncident);
@@ -620,8 +706,8 @@ public class MainDashboardController {
             }
         }
 
-        for (EmergencyResource resource :
-                ApplicationRepository.getEmergencyResources()) {
+        for (EmergencyResource resource
+                : ApplicationRepository.getEmergencyResources()) {
             availableUnits += resource.getAvailableQuantity();
         }
 
@@ -640,8 +726,8 @@ public class MainDashboardController {
         int unavailable = 0;
         int maintenance = 0;
 
-        for (EmergencyResource resource :
-                ApplicationRepository.getEmergencyResources()) {
+        for (EmergencyResource resource
+                : ApplicationRepository.getEmergencyResources()) {
             available += resource.getAvailableQuantity();
             assigned += resource.getAssignedQuantity();
             unavailable += resource.getUnavailableQuantity();
@@ -653,7 +739,6 @@ public class MainDashboardController {
         unavailableResourceCountLabel.setText(String.valueOf(unavailable));
         maintenanceResourceCountLabel.setText(String.valueOf(maintenance));
     }
-
 
     /**
      * Handles disaster report submission.
@@ -696,6 +781,11 @@ public class MainDashboardController {
     @FXML
     private void handleRegisterIncident() {
         String reportId = incidentReportIdComboBox.getValue();
+
+        if (!hasOperationalAccess()) {
+            globalStatusLabel.setText("System Status: Access denied.");
+            return;
+        }
 
         if (reportId == null) {
             incidentStatusLabel.setText("Select a report ID first.");
@@ -745,6 +835,11 @@ public class MainDashboardController {
     @FXML
     private void handleAssessAndPrioritise() {
         String incidentId = severityIncidentIdComboBox.getValue();
+
+        if (!hasOperationalAccess()) {
+            globalStatusLabel.setText("System Status: Access denied.");
+            return;
+        }
 
         if (incidentId == null) {
             assessmentStatusLabel.setText("Select an incident first.");
@@ -819,6 +914,11 @@ public class MainDashboardController {
         Incident incident = ApplicationRepository.findIncidentById(
                 dispatchIncidentIdComboBox.getValue());
 
+        if (!hasOperationalAccess()) {
+            globalStatusLabel.setText("System Status: Access denied.");
+            return;
+        }
+
         if (incident == null) {
             dispatchStatusLabel.setText("Incident not found.");
             return;
@@ -853,11 +953,11 @@ public class MainDashboardController {
                 ApplicationRepository.generateUpdateId(),
                 incident.getIncidentId(),
                 "Resource dispatched: "
-                        + resource.getResourceName()
-                        + " assigned by "
-                        + agencyComboBox.getValue().getAgencyName()
-                        + ". Notes: "
-                        + dispatchNotesArea.getText(),
+                + resource.getResourceName()
+                + " assigned by "
+                + agencyComboBox.getValue().getAgencyName()
+                + ". Notes: "
+                + dispatchNotesArea.getText(),
                 "Emergency Control Centre",
                 IncidentStatus.DISPATCHED
         );
@@ -898,6 +998,11 @@ public class MainDashboardController {
 
         Incident incident = ApplicationRepository.findIncidentById(
                 updateIncidentIdComboBox.getValue());
+
+        if (!hasOperationalAccess()) {
+            globalStatusLabel.setText("System Status: Access denied.");
+            return;
+        }
 
         if (incident == null) {
             updateStatusLabel.setText("Incident not found.");
@@ -948,27 +1053,27 @@ public class MainDashboardController {
                     || incident.getAffectedArea().toLowerCase()
                             .contains(keyword);
 
-            boolean matchesPriority =
-                    filterPriorityComboBox.getValue() == null
+            boolean matchesPriority
+                    = filterPriorityComboBox.getValue() == null
                     || incident.getPriorityLevel()
-                            == filterPriorityComboBox.getValue();
+                    == filterPriorityComboBox.getValue();
 
-            boolean matchesStatus =
-                    filterStatusComboBox.getValue() == null
+            boolean matchesStatus
+                    = filterStatusComboBox.getValue() == null
                     || incident.getIncidentStatus()
-                            == filterStatusComboBox.getValue();
+                    == filterStatusComboBox.getValue();
 
-            boolean matchesDisasterType =
-                    filterDisasterTypeComboBox.getValue() == null
+            boolean matchesDisasterType
+                    = filterDisasterTypeComboBox.getValue() == null
                     || (report != null
                     && report.getDisasterType()
-                            == filterDisasterTypeComboBox.getValue());
+                    == filterDisasterTypeComboBox.getValue());
 
-            boolean matchesSeverity =
-                    filterSeverityComboBox.getValue() == null
+            boolean matchesSeverity
+                    = filterSeverityComboBox.getValue() == null
                     || (report != null
                     && report.getInitialSeverity()
-                            == filterSeverityComboBox.getValue());
+                    == filterSeverityComboBox.getValue());
 
             if (matchesKeyword
                     && matchesPriority
@@ -981,6 +1086,11 @@ public class MainDashboardController {
 
         filteredIncidentsTableView.setItems(filtered);
         filterStatusLabel.setText(filtered.size() + " incidents found.");
+
+        if (!hasOperationalAccess()) {
+            globalStatusLabel.setText("System Status: Access denied.");
+            return;
+        }
     }
 
     /**
@@ -1002,8 +1112,13 @@ public class MainDashboardController {
      */
     @FXML
     private void handleReleaseResource() {
-        EmergencyResource resource =
-                resourceTableView.getSelectionModel().getSelectedItem();
+        EmergencyResource resource
+                = resourceTableView.getSelectionModel().getSelectedItem();
+
+        if (!hasOperationalAccess()) {
+            globalStatusLabel.setText("System Status: Access denied.");
+            return;
+        }
 
         if (resource == null) {
             counterStatusLabel.setText("Select a resource first.");
@@ -1033,8 +1148,13 @@ public class MainDashboardController {
      */
     @FXML
     private void handleMarkResourceUnavailable() {
-        EmergencyResource resource =
-                resourceTableView.getSelectionModel().getSelectedItem();
+        EmergencyResource resource
+                = resourceTableView.getSelectionModel().getSelectedItem();
+
+        if (!hasOperationalAccess()) {
+            globalStatusLabel.setText("System Status: Access denied.");
+            return;
+        }
 
         if (resource == null) {
             counterStatusLabel.setText("Select a resource first.");
@@ -1064,8 +1184,13 @@ public class MainDashboardController {
      */
     @FXML
     private void handleMarkResourceMaintenance() {
-        EmergencyResource resource =
-                resourceTableView.getSelectionModel().getSelectedItem();
+        EmergencyResource resource
+                = resourceTableView.getSelectionModel().getSelectedItem();
+
+        if (!hasOperationalAccess()) {
+            globalStatusLabel.setText("System Status: Access denied.");
+            return;
+        }
 
         if (resource == null) {
             counterStatusLabel.setText("Select a resource first.");
@@ -1091,13 +1216,18 @@ public class MainDashboardController {
     }
 
     /**
-     * Restores one unavailable unit from the selected resource
-     * back to available.
+     * Restores one unavailable unit from the selected resource back to
+     * available.
      */
     @FXML
     private void handleRestoreUnavailableResource() {
-        EmergencyResource resource =
-                resourceTableView.getSelectionModel().getSelectedItem();
+        EmergencyResource resource
+                = resourceTableView.getSelectionModel().getSelectedItem();
+
+        if (!hasOperationalAccess()) {
+            globalStatusLabel.setText("System Status: Access denied.");
+            return;
+        }
 
         if (resource == null) {
             counterStatusLabel.setText("Select a resource first.");
@@ -1123,13 +1253,18 @@ public class MainDashboardController {
     }
 
     /**
-     * Restores one maintenance unit from the selected resource
-     * back to available.
+     * Restores one maintenance unit from the selected resource back to
+     * available.
      */
     @FXML
     private void handleRestoreMaintenanceResource() {
-        EmergencyResource resource =
-                resourceTableView.getSelectionModel().getSelectedItem();
+        EmergencyResource resource
+                = resourceTableView.getSelectionModel().getSelectedItem();
+
+        if (!hasOperationalAccess()) {
+            globalStatusLabel.setText("System Status: Access denied.");
+            return;
+        }
 
         if (resource == null) {
             counterStatusLabel.setText("Select a resource first.");
@@ -1159,9 +1294,24 @@ public class MainDashboardController {
      */
     @FXML
     private void handleLogout() {
-        loggedInRoleLabel.setText("System User");
-        globalStatusLabel.setText("System Status: Logged out.");
-        showDashboard();
+        try {
+            UserSession.logout();
+
+            javafx.scene.Parent root = javafx.fxml.FXMLLoader.load(
+                    getClass().getResource("/drsinitial/view/LoginView.fxml"));
+
+            javafx.scene.Scene scene = new javafx.scene.Scene(root);
+
+            javafx.stage.Stage stage
+                    = (javafx.stage.Stage) dashboardPane.getScene().getWindow();
+
+            stage.setTitle("DRS-Enhanced Login");
+            stage.setScene(scene);
+            stage.show();
+
+        } catch (java.io.IOException exception) {
+            globalStatusLabel.setText("System Status: Unable to log out.");
+        }
     }
 
     /**
@@ -1324,5 +1474,149 @@ public class MainDashboardController {
         } else {
             activeButton.getStyleClass().add("sub-nav-button-active");
         }
+    }
+
+    /**
+     * Applies role-based access control to the dashboard menu.
+     */
+    private void applyRoleAccess() {
+        UserRole currentRole = UserSession.getCurrentRole();
+
+        if (currentRole == UserRole.PUBLIC_USER) {
+            applyPublicUserAccess();
+            return;
+        }
+
+        if (currentRole == UserRole.EMERGENCY_CONTROL_CENTRE) {
+            applyEmergencyControlCentreAccess();
+            return;
+        }
+
+        if (currentRole == UserRole.SYSTEM_ADMINISTRATOR) {
+            applySystemAdministratorAccess();
+        }
+    }
+
+    /**
+     * Applies Public User access.
+     *
+     * Public users can only report disasters and view public alerts. Public
+     * Alerts will be added in the next feature screen task.
+     */
+    private void applyPublicUserAccess() {
+        setButtonAccess(dashboardButton, false);
+        setButtonAccess(reportButton, true);
+
+        setTitledPaneAccess(incidentManagementPane, false);
+        setButtonAccess(registerIncidentButton, false);
+        setButtonAccess(severityPriorityButton, false);
+        setButtonAccess(updateIncidentStatusButton, false);
+
+        setTitledPaneAccess(responseCoordinationPane, false);
+        setButtonAccess(emergencyDispatchButton, false);
+        setButtonAccess(responseLogButton, false);
+
+        setTitledPaneAccess(decisionSupportPane, false);
+        setButtonAccess(searchFilterButton, false);
+        setButtonAccess(resourceCountersButton, false);
+
+        globalStatusLabel.setText(
+                "System Status: Public User access applied.");
+    }
+
+    /**
+     * Applies Emergency Control Centre access.
+     *
+     * Emergency Control Centre users can access operational screens.
+     */
+    private void applyEmergencyControlCentreAccess() {
+        setButtonAccess(dashboardButton, true);
+        setButtonAccess(reportButton, true);
+        setButtonAccess(registerIncidentButton, true);
+        setButtonAccess(severityPriorityButton, true);
+        setButtonAccess(updateIncidentStatusButton, true);
+        setButtonAccess(emergencyDispatchButton, true);
+        setButtonAccess(responseLogButton, true);
+        setButtonAccess(searchFilterButton, true);
+        setButtonAccess(resourceCountersButton, true);
+        setTitledPaneAccess(incidentManagementPane, true);
+        setTitledPaneAccess(responseCoordinationPane, true);
+        setTitledPaneAccess(decisionSupportPane, true);
+
+        globalStatusLabel.setText(
+                "System Status: Emergency Control Centre access applied.");
+    }
+
+    /**
+     * Applies System Administrator access.
+     *
+     * System administrators can access all available screens.
+     */
+    private void applySystemAdministratorAccess() {
+        setButtonAccess(dashboardButton, true);
+        setButtonAccess(reportButton, true);
+        setButtonAccess(registerIncidentButton, true);
+        setButtonAccess(severityPriorityButton, true);
+        setButtonAccess(updateIncidentStatusButton, true);
+        setButtonAccess(emergencyDispatchButton, true);
+        setButtonAccess(responseLogButton, true);
+        setButtonAccess(searchFilterButton, true);
+        setButtonAccess(resourceCountersButton, true);
+        setTitledPaneAccess(incidentManagementPane, true);
+        setTitledPaneAccess(responseCoordinationPane, true);
+        setTitledPaneAccess(decisionSupportPane, true);
+
+        globalStatusLabel.setText(
+                "System Status: System Administrator access applied.");
+    }
+
+    /**
+     * Shows or hides a navigation button.
+     *
+     * @param button navigation button
+     * @param allowed true if the button should be shown
+     */
+    private void setButtonAccess(Button button, boolean allowed) {
+        button.setVisible(allowed);
+        button.setManaged(allowed);
+        button.setDisable(!allowed);
+    }
+
+    /**
+     * Shows or hides a sidebar titled pane.
+     *
+     * @param pane sidebar titled pane
+     * @param allowed true if the pane should be shown
+     */
+    private void setTitledPaneAccess(TitledPane pane, boolean allowed) {
+        pane.setVisible(allowed);
+        pane.setManaged(allowed);
+        pane.setDisable(!allowed);
+    }
+
+    /**
+     * Shows the correct first screen after login.
+     */
+    private void showDefaultPaneForRole() {
+        UserRole currentRole = UserSession.getCurrentRole();
+
+        if (currentRole == UserRole.PUBLIC_USER) {
+            showReportDisaster();
+            return;
+        }
+
+        showDashboard();
+    }
+
+    /**
+     * Checks whether the current user is allowed to use restricted functions.
+     *
+     * @return true if the user has operational access
+     */
+    private boolean hasOperationalAccess() {
+        UserRole currentRole = UserSession.getCurrentRole();
+
+        return currentRole == UserRole.EMERGENCY_CONTROL_CENTRE
+                || currentRole == UserRole.SYSTEM_ADMINISTRATOR;
     }
 }

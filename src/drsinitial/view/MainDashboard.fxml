@@ -32,8 +32,11 @@
                         maxWidth="Infinity"
                         styleClass="nav-button" />
 
-                <TitledPane text="Incident Management" expanded="false" collapsible="true"
-                             styleClass="sidebar-section">
+                <TitledPane fx:id="incidentManagementPane"
+                            text="Incident Management"
+                            expanded="false"
+                            collapsible="true"
+                            styleClass="sidebar-section">
                     <VBox spacing="7.0" styleClass="submenu-box">
 
                         <Button fx:id="registerIncidentButton" text="Register Incident"
@@ -54,8 +57,11 @@
                     </VBox>
                 </TitledPane>
 
-                <TitledPane text="Response Coordination" expanded="false" collapsible="true"
-                             styleClass="sidebar-section">
+                <TitledPane fx:id="responseCoordinationPane"
+                            text="Response Coordination"
+                            expanded="false"
+                            collapsible="true"
+                            styleClass="sidebar-section">
                     <VBox spacing="7.0" styleClass="submenu-box">
 
                         <Button fx:id="emergencyDispatchButton" text="Emergency Dispatch"
@@ -71,8 +77,11 @@
                     </VBox>
                 </TitledPane>
 
-                <TitledPane text="Decision Support Tools" expanded="false" collapsible="true"
-                             styleClass="sidebar-section">
+                <TitledPane fx:id="decisionSupportPane"
+                            text="Decision Support Tools"
+                            expanded="false"
+                            collapsible="true"
+                            styleClass="sidebar-section">
                     <VBox spacing="7.0" styleClass="submenu-box">
 
                         <Button fx:id="searchFilterButton" text="Incident Search and Filter"
