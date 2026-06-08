@@ -2168,7 +2168,8 @@ public class MainDashboardController {
                 shelterStatusComboBox.getValue(),
                 LocalDateTime.now().toString()
         );
-
+        
+        shelterAvailabilityService.updateShelterAvailability(shelter);
         ApplicationRepository.addEvacuationShelter(shelter);
         shelterTableView.refresh();
         refreshShelterCounters();
@@ -2209,6 +2210,7 @@ public class MainDashboardController {
         selectedShelter.setTotalCapacity(totalCapacity);
         selectedShelter.setCurrentOccupants(currentOccupants);
         selectedShelter.setShelterStatus(shelterStatusComboBox.getValue());
+        shelterAvailabilityService.updateShelterAvailability(selectedShelter);
         selectedShelter.setLastUpdated(LocalDateTime.now().toString());
 
         shelterTableView.refresh();
@@ -2342,6 +2344,11 @@ public class MainDashboardController {
                 alertStatusComboBox.getValue()
         );
 
+        if (!publicAlertService.canCreateAlert(alert)) {
+            publicAlertStatusLabel.setText("Public alert validation failed.");
+            return;
+        }
+
         ApplicationRepository.addPublicAlert(alert);
         refreshPublicAlertDisplay();
         handleClearAlertForm();
@@ -2368,7 +2375,7 @@ public class MainDashboardController {
             return;
         }
 
-        selectedAlert.setAlertStatus("PUBLISHED");
+        publicAlertService.publishAlert(selectedAlert);
         selectedAlert.setCreatedTime(LocalDateTime.now().toString());
 
         refreshPublicAlertDisplay();
@@ -2395,7 +2402,7 @@ public class MainDashboardController {
             return;
         }
 
-        selectedAlert.setAlertStatus("EXPIRED");
+        publicAlertService.expireAlert(selectedAlert);
         selectedAlert.setCreatedTime(LocalDateTime.now().toString());
 
         refreshPublicAlertDisplay();
