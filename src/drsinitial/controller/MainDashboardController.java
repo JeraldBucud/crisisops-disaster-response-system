@@ -33,6 +33,11 @@ import drsinitial.model.EvacuationShelter;
 import java.time.LocalDateTime;
 import drsinitial.model.PublicAlert;
 import drsinitial.model.User;
+import drsinitial.service.IncidentService;
+import drsinitial.service.PriorityRecommendationService;
+import drsinitial.service.ShelterAvailabilityService;
+import drsinitial.service.PublicAlertService;
+
 
 /**
  * Controls the main dashboard screen of the Disaster Response System.
@@ -50,6 +55,14 @@ public class MainDashboardController {
 
     private final PriorityRecommendationService priorityService
             = new PriorityRecommendationService();
+    
+    private final ShelterAvailabilityService shelterAvailabilityService
+        = new ShelterAvailabilityService();
+
+    private final PublicAlertService publicAlertService
+        = new PublicAlertService();
+    
+    
 
     private final UserSession userSession = new UserSession();
 
