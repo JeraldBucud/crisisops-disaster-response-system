@@ -25,7 +25,7 @@ public class UserSessionTest {
 
         UserSession session = new UserSession();
 
-        assertEquals(UserRole.PUBLIC_USER, session.getRole());
+        assertEquals(UserRole.EMERGENCY_CONTROL_CENTRE, UserSession.getCurrentRole());
     }
 
     /**
