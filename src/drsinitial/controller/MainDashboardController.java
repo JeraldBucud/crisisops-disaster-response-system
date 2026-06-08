@@ -33,6 +33,7 @@ import drsinitial.model.EvacuationShelter;
 import java.time.LocalDateTime;
 import drsinitial.model.PublicAlert;
 import drsinitial.model.User;
+import drsinitial.repository.ApplicationRepository;
 
 /**
  * Controls the main dashboard screen of the Disaster Response System.
@@ -54,15 +55,15 @@ public class MainDashboardController {
     private final UserSession userSession = new UserSession();
 
     private final ObservableList<EvacuationShelter> evacuationShelters
-            = FXCollections.observableArrayList();
+        = ApplicationRepository.getEvacuationShelters();
 
     private final ObservableList<PublicAlert> publicAlerts
-            = FXCollections.observableArrayList();
-
-    private final ObservableList<PublicAlert> filteredPublicAlerts
-            = FXCollections.observableArrayList();
+            = ApplicationRepository.getPublicAlerts();
 
     private final ObservableList<User> systemUsers
+            = ApplicationRepository.getSystemUsers();
+    
+    private final ObservableList<PublicAlert> filteredPublicAlerts
             = FXCollections.observableArrayList();
 
     @FXML

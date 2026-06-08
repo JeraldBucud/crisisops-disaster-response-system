@@ -15,6 +15,10 @@ import drsinitial.model.enums.SeverityLevel;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import drsinitial.model.EvacuationShelter;
+import drsinitial.model.PublicAlert;
+import drsinitial.model.User;
+
 /**
  * Provides central in-memory storage for the DRS-Initial prototype.
  *
@@ -184,6 +188,52 @@ public class ApplicationRepository {
     public static void addResponseAgency(ResponseAgency agency) {
         responseAgencies.add(agency);
     }
+    
+    private static final ObservableList<EvacuationShelter> evacuationShelters =
+        FXCollections.observableArrayList();
+
+    private static final ObservableList<PublicAlert> publicAlerts =
+            FXCollections.observableArrayList();
+
+    private static final ObservableList<User> systemUsers =
+            FXCollections.observableArrayList();
+    
+    public static ObservableList<EvacuationShelter> getEvacuationShelters() {
+    return evacuationShelters;
+    }
+
+    public static ObservableList<PublicAlert> getPublicAlerts() {
+        return publicAlerts;
+    }
+
+    public static ObservableList<User> getSystemUsers() {
+        return systemUsers;
+    }
+
+    public static void addEvacuationShelter(EvacuationShelter shelter) {
+        evacuationShelters.add(shelter);
+    }
+
+    public static void addPublicAlert(PublicAlert alert) {
+        publicAlerts.add(alert);
+    }
+
+    public static void addSystemUser(User user) {
+        systemUsers.add(user);
+    }
+
+    public static String generateShelterId() {
+        return String.format("SH%03d", evacuationShelters.size() + 1);
+    }
+
+    public static String generateAlertId() {
+        return String.format("AL%03d", publicAlerts.size() + 1);
+    }
+
+    public static String generateUserId() {
+        return String.format("U%03d", systemUsers.size() + 1);
+    }
+
 
     /**
      * Generates the next disaster report identifier.
