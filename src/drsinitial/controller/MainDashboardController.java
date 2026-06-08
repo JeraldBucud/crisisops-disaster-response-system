@@ -33,7 +33,6 @@ import drsinitial.model.EvacuationShelter;
 import java.time.LocalDateTime;
 import drsinitial.model.PublicAlert;
 import drsinitial.model.User;
-import drsinitial.repository.ApplicationRepository;
 
 /**
  * Controls the main dashboard screen of the Disaster Response System.
@@ -1644,7 +1643,7 @@ public class MainDashboardController {
                 adminAccountStatusComboBox.getValue()
         );
 
-        systemUsers.add(user);
+        ApplicationRepository.addSystemUser(user);
         userManagementTableView.refresh();
         handleClearSystemUserForm();
 
@@ -2157,7 +2156,7 @@ public class MainDashboardController {
                 LocalDateTime.now().toString()
         );
 
-        evacuationShelters.add(shelter);
+        ApplicationRepository.addEvacuationShelter(shelter);
         shelterTableView.refresh();
         refreshShelterCounters();
         handleClearShelterForm();
@@ -2330,7 +2329,7 @@ public class MainDashboardController {
                 alertStatusComboBox.getValue()
         );
 
-        publicAlerts.add(alert);
+        ApplicationRepository.addPublicAlert(alert);
         refreshPublicAlertDisplay();
         handleClearAlertForm();
 
