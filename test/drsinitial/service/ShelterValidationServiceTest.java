@@ -5,6 +5,7 @@
 package drsinitial.service;
 
 import drsinitial.model.EvacuationShelter;
+import drsinitial.service.ShelterValidationService;
 import org.junit.Test;
 import static org.junit.Assert.*;
 

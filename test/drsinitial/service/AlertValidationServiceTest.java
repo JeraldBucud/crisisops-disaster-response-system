@@ -5,6 +5,7 @@
 package drsinitial.service;
 
 import drsinitial.model.PublicAlert;
+import drsinitial.service.AlertValidationService;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
