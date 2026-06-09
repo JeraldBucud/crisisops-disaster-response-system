@@ -94,6 +94,87 @@ public class ApplicationRepository {
     public static ObservableList<User> getSystemUsers() {
         return systemUsers;
     }
+    
+        /**
+     * Adds a disaster report to the frontend cache only.
+     *
+     * @param report disaster report
+     */
+    public static void addDisasterReport(DisasterReport report) {
+        disasterReports.add(report);
+    }
+
+    /**
+     * Adds an incident to the frontend cache only.
+     *
+     * @param incident incident
+     */
+    public static void addIncident(Incident incident) {
+        incidents.add(incident);
+    }
+
+    /**
+     * Adds an incident update to the frontend cache only.
+     *
+     * @param update incident update
+     */
+    public static void addIncidentUpdate(IncidentUpdate update) {
+        incidentUpdates.add(update);
+    }
+
+    /**
+     * Adds an emergency response to the frontend cache only.
+     *
+     * @param response emergency response
+     */
+    public static void addEmergencyResponse(EmergencyResponse response) {
+        emergencyResponses.add(response);
+    }
+
+    /**
+     * Adds an emergency resource to the frontend cache only.
+     *
+     * @param resource emergency resource
+     */
+    public static void addEmergencyResource(EmergencyResource resource) {
+        emergencyResources.add(resource);
+    }
+
+    /**
+     * Adds a response agency to the frontend cache only.
+     *
+     * @param agency response agency
+     */
+    public static void addResponseAgency(ResponseAgency agency) {
+        responseAgencies.add(agency);
+    }
+
+    /**
+     * Adds an evacuation shelter to the frontend cache only.
+     *
+     * @param shelter evacuation shelter
+     */
+    public static void addEvacuationShelter(EvacuationShelter shelter) {
+        evacuationShelters.add(shelter);
+    }
+
+    /**
+     * Adds a public alert to the frontend cache only.
+     *
+     * @param alert public alert
+     */
+    public static void addPublicAlert(PublicAlert alert) {
+        publicAlerts.add(alert);
+    }
+
+    /**
+     * Adds a system user to the frontend cache only.
+     *
+     * @param user system user
+     */
+    public static void addSystemUser(User user) {
+        systemUsers.add(user);
+    }
 
     /**
      * Finds a disaster report from the frontend cache.
