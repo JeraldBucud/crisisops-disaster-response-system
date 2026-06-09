@@ -411,13 +411,13 @@ public class MainDashboardController {
     }
 
     /**
-     * Prepares generated IDs for input forms.
+     * Clears generated ID fields until backend-generated IDs are returned.
      */
     private void prepareGeneratedIds() {
-        reportIdField.setText(ApplicationRepository.generateReportId());
-        incidentIdField.setText(ApplicationRepository.generateIncidentId());
-        responseIdField.setText(ApplicationRepository.generateResponseId());
-        updateIdField.setText(ApplicationRepository.generateUpdateId());
+        reportIdField.clear();
+        incidentIdField.clear();
+        responseIdField.clear();
+        updateIdField.clear();
     }
 
     /**
@@ -592,46 +592,46 @@ public class MainDashboardController {
                 convertToIncidentStatus(safeMapValue(row, "updatedStatus"))
         );
     }
-    
+
     /**
- * Sets up all table data sources and column mappings.
- */
-private void setupTables() {
-    incidentQueueTableView.setItems(ApplicationRepository.getIncidents());
+     * Sets up all table data sources and column mappings.
+     */
+    private void setupTables() {
+        incidentQueueTableView.setItems(ApplicationRepository.getIncidents());
 
-    submittedReportsTableView.setItems(
-            ApplicationRepository.getDisasterReports());
+        submittedReportsTableView.setItems(
+                ApplicationRepository.getDisasterReports());
 
-    incidentUpdateTableView.setItems(
-            ApplicationRepository.getIncidentUpdates());
+        incidentUpdateTableView.setItems(
+                ApplicationRepository.getIncidentUpdates());
 
-    responseLogTableView.setItems(
-            ApplicationRepository.getEmergencyResponses());
+        responseLogTableView.setItems(
+                ApplicationRepository.getEmergencyResponses());
 
-    filteredIncidentsTableView.setItems(
-            ApplicationRepository.getIncidents());
+        filteredIncidentsTableView.setItems(
+                ApplicationRepository.getIncidents());
 
-    resourceTableView.setItems(
-            ApplicationRepository.getEmergencyResources());
+        resourceTableView.setItems(
+                ApplicationRepository.getEmergencyResources());
 
-    agencyTableView.setItems(
-            ApplicationRepository.getResponseAgencies());
+        agencyTableView.setItems(
+                ApplicationRepository.getResponseAgencies());
 
-    setupIncidentTable(incidentQueueTableView);
-    setupIncidentTable(filteredIncidentsTableView);
-    setupReportTable();
-    setupIncidentUpdateTable();
-    setupResponseLogTable();
-    setupResourceTable();
-    setupAgencyTable();
+        setupIncidentTable(incidentQueueTableView);
+        setupIncidentTable(filteredIncidentsTableView);
+        setupReportTable();
+        setupIncidentUpdateTable();
+        setupResponseLogTable();
+        setupResourceTable();
+        setupAgencyTable();
 
-    loadDisasterReportsFromBackend();
-    loadIncidentsFromBackend();
-    loadEmergencyResourcesFromBackend();
-    loadResponseAgenciesFromBackend();
-    loadResponseLogsFromBackend();
-    loadIncidentUpdatesFromBackend();
-}
+        loadDisasterReportsFromBackend();
+        loadIncidentsFromBackend();
+        loadEmergencyResourcesFromBackend();
+        loadResponseAgenciesFromBackend();
+        loadResponseLogsFromBackend();
+        loadIncidentUpdatesFromBackend();
+    }
 
     /**
      * Sets up the incident table columns.
@@ -3026,77 +3026,77 @@ private void setupTables() {
             return AgencyType.FIRE_RESPONSE;
         }
     }
-    
+
     /**
- * Converts text into a DisasterType value.
- *
- * @param value disaster type text
- * @return matching DisasterType, or FIRE as default
- */
-private DisasterType convertToDisasterType(String value) {
-    if (value == null || value.trim().isEmpty()) {
-        return DisasterType.FIRE;
+     * Converts text into a DisasterType value.
+     *
+     * @param value disaster type text
+     * @return matching DisasterType, or FIRE as default
+     */
+    private DisasterType convertToDisasterType(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return DisasterType.FIRE;
+        }
+
+        try {
+            return DisasterType.valueOf(value.trim().toUpperCase());
+        } catch (IllegalArgumentException exception) {
+            return DisasterType.FIRE;
+        }
     }
 
-    try {
-        return DisasterType.valueOf(value.trim().toUpperCase());
-    } catch (IllegalArgumentException exception) {
-        return DisasterType.FIRE;
-    }
-}
+    /**
+     * Converts text into a SeverityLevel value.
+     *
+     * @param value severity text
+     * @return matching SeverityLevel, or LOW as default
+     */
+    private SeverityLevel convertToSeverityLevel(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return SeverityLevel.LOW;
+        }
 
-/**
- * Converts text into a SeverityLevel value.
- *
- * @param value severity text
- * @return matching SeverityLevel, or LOW as default
- */
-private SeverityLevel convertToSeverityLevel(String value) {
-    if (value == null || value.trim().isEmpty()) {
-        return SeverityLevel.LOW;
-    }
-
-    try {
-        return SeverityLevel.valueOf(value.trim().toUpperCase());
-    } catch (IllegalArgumentException exception) {
-        return SeverityLevel.LOW;
-    }
-}
-
-/**
- * Converts text into an IncidentStatus value.
- *
- * @param value status text
- * @return matching IncidentStatus, or REPORTED as default
- */
-private IncidentStatus convertToIncidentStatus(String value) {
-    if (value == null || value.trim().isEmpty()) {
-        return IncidentStatus.REPORTED;
+        try {
+            return SeverityLevel.valueOf(value.trim().toUpperCase());
+        } catch (IllegalArgumentException exception) {
+            return SeverityLevel.LOW;
+        }
     }
 
-    try {
-        return IncidentStatus.valueOf(value.trim().toUpperCase());
-    } catch (IllegalArgumentException exception) {
-        return IncidentStatus.REPORTED;
-    }
-}
+    /**
+     * Converts text into an IncidentStatus value.
+     *
+     * @param value status text
+     * @return matching IncidentStatus, or REPORTED as default
+     */
+    private IncidentStatus convertToIncidentStatus(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return IncidentStatus.REPORTED;
+        }
 
-/**
- * Converts text into a ResourceStatus value.
- *
- * @param value status text
- * @return matching ResourceStatus, or AVAILABLE as default
- */
-private ResourceStatus convertToResourceStatus(String value) {
-    if (value == null || value.trim().isEmpty()) {
-        return ResourceStatus.AVAILABLE;
+        try {
+            return IncidentStatus.valueOf(value.trim().toUpperCase());
+        } catch (IllegalArgumentException exception) {
+            return IncidentStatus.REPORTED;
+        }
     }
 
-    try {
-        return ResourceStatus.valueOf(value.trim().toUpperCase());
-    } catch (IllegalArgumentException exception) {
-        return ResourceStatus.AVAILABLE;
+    /**
+     * Converts text into a ResourceStatus value.
+     *
+     * @param value status text
+     * @return matching ResourceStatus, or AVAILABLE as default
+     */
+    private ResourceStatus convertToResourceStatus(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return ResourceStatus.AVAILABLE;
+        }
+
+        try {
+            return ResourceStatus.valueOf(value.trim().toUpperCase());
+        } catch (IllegalArgumentException exception) {
+            return ResourceStatus.AVAILABLE;
+        }
     }
-}
 
 }
