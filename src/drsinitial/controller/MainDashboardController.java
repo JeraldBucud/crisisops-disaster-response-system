@@ -2174,7 +2174,8 @@ public class MainDashboardController {
             return;
         }
 
-        int totalCapacity = Integer.parseInt(shelterCapacityField.getText().trim());
+        int totalCapacity = Integer.parseInt(
+                shelterCapacityField.getText().trim());
         int currentOccupants = Integer.parseInt(
                 shelterCurrentOccupantsField.getText().trim());
 
@@ -2189,12 +2190,18 @@ public class MainDashboardController {
         );
 
         shelterAvailabilityService.updateShelterAvailability(shelter);
-        ApplicationRepository.addEvacuationShelter(shelter);
-        shelterTableView.refresh();
-        refreshShelterCounters();
+
+        ClientResponse response = backendClient.addEvacuationShelter(shelter);
+
+        if (!response.isSuccess()) {
+            shelterStatusLabel.setText(response.getMessage());
+            return;
+        }
+
+        loadEvacuationSheltersFromBackend();
         handleClearShelterForm();
 
-        shelterStatusLabel.setText("Shelter added successfully.");
+        shelterStatusLabel.setText(response.getMessage());
         globalStatusLabel.setText("System Status: Shelter record added.");
     }
 
@@ -2220,22 +2227,35 @@ public class MainDashboardController {
             return;
         }
 
-        int totalCapacity = Integer.parseInt(shelterCapacityField.getText().trim());
+        int totalCapacity = Integer.parseInt(
+                shelterCapacityField.getText().trim());
         int currentOccupants = Integer.parseInt(
                 shelterCurrentOccupantsField.getText().trim());
 
-        selectedShelter.setShelterName(shelterNameField.getText().trim());
-        selectedShelter.setLocation(shelterLocationField.getText().trim());
-        selectedShelter.setTotalCapacity(totalCapacity);
-        selectedShelter.setCurrentOccupants(currentOccupants);
-        selectedShelter.setShelterStatus(shelterStatusComboBox.getValue());
-        shelterAvailabilityService.updateShelterAvailability(selectedShelter);
-        selectedShelter.setLastUpdated(LocalDateTime.now().toString());
+        EvacuationShelter updatedShelter = new EvacuationShelter(
+                selectedShelter.getShelterId(),
+                shelterNameField.getText().trim(),
+                shelterLocationField.getText().trim(),
+                totalCapacity,
+                currentOccupants,
+                shelterStatusComboBox.getValue(),
+                LocalDateTime.now().toString()
+        );
 
-        shelterTableView.refresh();
-        refreshShelterCounters();
+        shelterAvailabilityService.updateShelterAvailability(updatedShelter);
 
-        shelterStatusLabel.setText("Shelter updated successfully.");
+        ClientResponse response = backendClient.updateEvacuationShelter(
+                updatedShelter);
+
+        if (!response.isSuccess()) {
+            shelterStatusLabel.setText(response.getMessage());
+            return;
+        }
+
+        loadEvacuationSheltersFromBackend();
+        handleClearShelterForm();
+
+        shelterStatusLabel.setText(response.getMessage());
         globalStatusLabel.setText("System Status: Shelter record updated.");
     }
 
@@ -2315,6 +2335,7 @@ public class MainDashboardController {
         showOnlyPane(evacuationShelterPane);
         pageSubtitleLabel.setText("Evacuation Shelter Availability Tracker");
         setActiveButton(evacuationShelterButton);
+        loadEvacuationSheltersFromBackend();
         shelterTableView.refresh();
         refreshShelterCounters();
     }
