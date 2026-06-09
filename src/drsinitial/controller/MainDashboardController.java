@@ -1375,12 +1375,14 @@ public class MainDashboardController {
             return;
         }
 
-        ApplicationRepository.addDisasterReport(report);
-        submittedReportsTableView.refresh();
-        refreshReportIdComboBox();
-        refreshDashboardCounters();
+        ClientResponse response = backendClient.submitDisasterReport(report);
 
-        reportStatusLabel.setText("Report submitted successfully.");
+        if (!response.isSuccess()) {
+            reportStatusLabel.setText(response.getMessage());
+            return;
+        }
+
+        reportStatusLabel.setText(response.getMessage());
         globalStatusLabel.setText("System Status: Report submitted.");
 
         reporterNameField.clear();
@@ -1388,7 +1390,15 @@ public class MainDashboardController {
         descriptionArea.clear();
         disasterTypeComboBox.getSelectionModel().clearSelection();
         initialSeverityComboBox.getSelectionModel().clearSelection();
-        reportIdField.setText(ApplicationRepository.generateReportId());
+
+        if (response.hasData()
+                && !response.getDataValue("nextReportId").isEmpty()) {
+            reportIdField.setText(response.getDataValue("nextReportId"));
+        } else {
+            reportIdField.clear();
+        }
+
+        refreshDashboardCounters();
     }
 
     /**
