@@ -1675,11 +1675,17 @@ public class MainDashboardController {
                 adminAccountStatusComboBox.getValue()
         );
 
-        ApplicationRepository.addSystemUser(user);
-        userManagementTableView.refresh();
+        ClientResponse response = backendClient.addUser(user);
+
+        if (!response.isSuccess()) {
+            userManagementStatusLabel.setText(response.getMessage());
+            return;
+        }
+
+        loadSystemUsersFromBackend();
         handleClearSystemUserForm();
 
-        userManagementStatusLabel.setText("User added successfully.");
+        userManagementStatusLabel.setText(response.getMessage());
         globalStatusLabel.setText("System Status: User account added.");
     }
 
@@ -1705,15 +1711,26 @@ public class MainDashboardController {
             return;
         }
 
-        selectedUser.setFullName(adminFullNameField.getText().trim());
-        selectedUser.setEmail(adminEmailField.getText().trim());
-        selectedUser.setUsername(adminUsernameField.getText().trim());
-        selectedUser.setRole(adminUserRoleComboBox.getValue());
-        selectedUser.setAccountStatus(adminAccountStatusComboBox.getValue());
+        User updatedUser = new User(
+                selectedUser.getUserId(),
+                adminFullNameField.getText().trim(),
+                adminEmailField.getText().trim(),
+                adminUsernameField.getText().trim(),
+                adminUserRoleComboBox.getValue(),
+                adminAccountStatusComboBox.getValue()
+        );
 
-        userManagementTableView.refresh();
+        ClientResponse response = backendClient.updateUser(updatedUser);
 
-        userManagementStatusLabel.setText("User updated successfully.");
+        if (!response.isSuccess()) {
+            userManagementStatusLabel.setText(response.getMessage());
+            return;
+        }
+
+        loadSystemUsersFromBackend();
+        handleClearSystemUserForm();
+
+        userManagementStatusLabel.setText(response.getMessage());
         globalStatusLabel.setText("System Status: User account updated.");
     }
 
@@ -2157,6 +2174,7 @@ public class MainDashboardController {
         showOnlyPane(userManagementPane);
         pageSubtitleLabel.setText("Admin User Management");
         setActiveButton(userManagementButton);
+        loadSystemUsersFromBackend();
         userManagementTableView.refresh();
     }
 
