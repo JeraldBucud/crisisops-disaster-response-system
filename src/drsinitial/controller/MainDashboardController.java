@@ -2202,6 +2202,7 @@ public class MainDashboardController {
         showOnlyPane(responseLogPane);
         pageSubtitleLabel.setText("Emergency Response Log");
         setActiveButton(responseLogButton);
+        loadResponseLogsFromBackend();
         responseLogTableView.refresh();
     }
 
