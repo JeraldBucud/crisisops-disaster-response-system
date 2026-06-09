@@ -1,5 +1,7 @@
 package drsinitial.controller;
 
+import drsinitial.client.BackendClient;
+import drsinitial.client.ClientResponse;
 import drsinitial.model.enums.UserRole;
 import drsinitial.session.UserSession;
 import java.io.IOException;
@@ -15,14 +17,16 @@ import javafx.stage.Stage;
 /**
  * Controls the login screen for DRS-Enhanced.
  *
- * This controller validates temporary frontend login accounts
- * and opens the main dashboard after successful login.
+ * This controller sends login details to the backend server through
+ * BackendClient. It does not connect directly to MySQL.
  *
  * @author Jerald Christopher Bucud
  * @studentId 12301099
  * @course COIT20258 Software Engineering
  */
 public class LoginController {
+
+    private final BackendClient backendClient = new BackendClient();
 
     @FXML
     private TextField usernameField;
@@ -32,8 +36,6 @@ public class LoginController {
 
     @FXML
     private Label loginStatusLabel;
-    
-    
 
     /**
      * Handles login button action.
@@ -48,78 +50,85 @@ public class LoginController {
             return;
         }
 
-        if (authenticateUser(username, password)) {
-            openDashboard();
+        ClientResponse response = backendClient.login(username, password);
+
+        if (!response.isSuccess()) {
+            showError(response.getMessage());
             return;
         }
 
-        showError("Invalid username or password.");
+        if (!response.hasData()) {
+            showError("Login failed. No user data was returned.");
+            return;
+        }
+
+        String accountStatus = response.getDataValue("accountStatus");
+
+        if (accountStatus.equalsIgnoreCase("INACTIVE")) {
+            showError("This account is inactive.");
+            return;
+        }
+
+        String roleValue = response.getDataValue("role");
+        UserRole userRole = convertToUserRole(roleValue);
+
+        if (userRole == null) {
+            showError("Login failed. Invalid user role returned.");
+            return;
+        }
+
+        String fullName = response.getDataValue("fullName");
+
+        if (fullName.isEmpty()) {
+            fullName = username;
+        }
+
+        UserSession.login(username, fullName, userRole);
+        openDashboard();
     }
 
     /**
      * Handles public registration button action.
-     *
-     * The registration screen will be created in the next task.
      */
     @FXML
     private void handleOpenRegistration() {
-         try {
-        Parent root = FXMLLoader.load(
-                getClass().getResource(
-                        "/drsinitial/view/PublicUserRegistrationView.fxml"));
+        try {
+            Parent root = FXMLLoader.load(
+                    getClass().getResource(
+                            "/drsinitial/view/PublicUserRegistrationView.fxml"));
 
-        Scene scene = new Scene(root);
+            Scene scene = new Scene(root);
 
-        Stage stage = (Stage) usernameField.getScene().getWindow();
-        stage.setTitle("Public User Registration");
-        stage.setScene(scene);
-        stage.show();
+            Stage stage = (Stage) usernameField.getScene().getWindow();
+            stage.setTitle("Public User Registration");
+            stage.setScene(scene);
+            stage.show();
 
-    } catch (IOException exception) {
-        showError("Unable to open registration screen.");
+        } catch (IOException exception) {
+            showError("Unable to open registration screen.");
         }
     }
 
     /**
-     * Authenticates temporary frontend test accounts.
+     * Converts a backend role value to a UserRole enum value.
      *
-     * These accounts will later be replaced by MySQL login.
-     *
-     * @param username entered username
-     * @param password entered password
-     * @return true if login details are valid
+     * @param roleValue role value returned by backend
+     * @return matching UserRole, or null if invalid
      */
-    private boolean authenticateUser(String username, String password) {
-        String normalizedUsername = username.toLowerCase();
-
-        if (normalizedUsername.equals("admin")
-                && password.equals("admin123")) {
-            UserSession.login(
-                    "admin",
-                    "System Administrator",
-                    UserRole.SYSTEM_ADMINISTRATOR);
-            return true;
+    private UserRole convertToUserRole(String roleValue) {
+        if (roleValue == null || roleValue.trim().isEmpty()) {
+            return null;
         }
 
-        if (normalizedUsername.equals("ecc")
-                && password.equals("ecc123")) {
-            UserSession.login(
-                    "ecc",
-                    "Emergency Control Centre",
-                    UserRole.EMERGENCY_CONTROL_CENTRE);
-            return true;
-        }
+        String normalizedRole = roleValue.trim()
+                .toUpperCase()
+                .replace(" ", "_");
 
-        if (normalizedUsername.equals("public")
-                && password.equals("public123")) {
-            UserSession.login(
-                    "public",
-                    "Public User",
-                    UserRole.PUBLIC_USER);
-            return true;
+        try {
+            return UserRole.valueOf(normalizedRole);
+        } catch (IllegalArgumentException exception) {
+            return null;
         }
-
-        return false;
     }
 
     /**
