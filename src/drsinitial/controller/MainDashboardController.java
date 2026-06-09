@@ -1927,6 +1927,44 @@ public class MainDashboardController {
     }
 
     /**
+     * Sends a resource availability action to the backend server.
+     *
+     * @param action resource action name
+     * @param successMessage success message prefix
+     */
+    private void updateSelectedResourceAvailability(String action,
+            String successMessage) {
+
+        EmergencyResource resource
+                = resourceTableView.getSelectionModel().getSelectedItem();
+
+        if (!hasOperationalAccess()) {
+            globalStatusLabel.setText("System Status: Access denied.");
+            return;
+        }
+
+        if (resource == null) {
+            counterStatusLabel.setText("Select a resource first.");
+            return;
+        }
+
+        ClientResponse response = backendClient.updateResourceAvailability(
+                resource.getResourceId(),
+                action);
+
+        if (!response.isSuccess()) {
+            counterStatusLabel.setText(response.getMessage());
+            return;
+        }
+
+        loadEmergencyResourcesFromBackend();
+        refreshDashboardCounters();
+
+        counterStatusLabel.setText(
+                successMessage + " " + resource.getResourceName() + ".");
+    }
+
+    /**
      * Releases one assigned unit from the selected resource.
      */
     @FXML
@@ -1967,146 +2005,40 @@ public class MainDashboardController {
      */
     @FXML
     private void handleMarkResourceUnavailable() {
-        EmergencyResource resource
-                = resourceTableView.getSelectionModel().getSelectedItem();
-
-        if (!hasOperationalAccess()) {
-            globalStatusLabel.setText("System Status: Access denied.");
-            return;
-        }
-
-        if (resource == null) {
-            counterStatusLabel.setText("Select a resource first.");
-            return;
-        }
-
-        boolean updated = resource.markOneUnavailable();
-
-        if (!updated) {
-            counterStatusLabel.setText(
-                    "No available units to mark unavailable.");
-            return;
-        }
-
-        resourceTableView.refresh();
-        refreshResourceCounters();
-        refreshDashboardCounters();
-
-        counterStatusLabel.setText(
-                "One unit marked unavailable for "
-                + resource.getResourceName()
-                + ".");
+        updateSelectedResourceAvailability(
+                "MARK_UNAVAILABLE",
+                "One unit marked unavailable for");
     }
 
-    /**
-     * Marks one available unit from the selected resource as under maintenance.
-     */
-    @FXML
-    private void handleMarkResourceMaintenance() {
-        EmergencyResource resource
-                = resourceTableView.getSelectionModel().getSelectedItem();
+/**
+ * Marks one available unit from the selected resource as under maintenance.
+ */
+@FXML
+private void handleMarkResourceMaintenance() {
+    updateSelectedResourceAvailability(
+            "MARK_MAINTENANCE",
+            "One unit marked under maintenance for");
+}
 
-        if (!hasOperationalAccess()) {
-            globalStatusLabel.setText("System Status: Access denied.");
-            return;
-        }
+/**
+ * Restores one unavailable unit from the selected resource back to available.
+ */
+@FXML
+private void handleRestoreUnavailableResource() {
+    updateSelectedResourceAvailability(
+            "RESTORE_UNAVAILABLE",
+            "One unavailable unit restored for");
+}
 
-        if (resource == null) {
-            counterStatusLabel.setText("Select a resource first.");
-            return;
-        }
-
-        boolean updated = resource.markOneMaintenance();
-
-        if (!updated) {
-            counterStatusLabel.setText(
-                    "No available units to mark for maintenance.");
-            return;
-        }
-
-        resourceTableView.refresh();
-        refreshResourceCounters();
-        refreshDashboardCounters();
-
-        counterStatusLabel.setText(
-                "One unit marked under maintenance for "
-                + resource.getResourceName()
-                + ".");
-    }
-
-    /**
-     * Restores one unavailable unit from the selected resource back to
-     * available.
-     */
-    @FXML
-    private void handleRestoreUnavailableResource() {
-        EmergencyResource resource
-                = resourceTableView.getSelectionModel().getSelectedItem();
-
-        if (!hasOperationalAccess()) {
-            globalStatusLabel.setText("System Status: Access denied.");
-            return;
-        }
-
-        if (resource == null) {
-            counterStatusLabel.setText("Select a resource first.");
-            return;
-        }
-
-        boolean restored = resource.restoreOneUnavailable();
-
-        if (!restored) {
-            counterStatusLabel.setText(
-                    "No unavailable units available to restore.");
-            return;
-        }
-
-        resourceTableView.refresh();
-        refreshResourceCounters();
-        refreshDashboardCounters();
-
-        counterStatusLabel.setText(
-                "One unavailable unit restored for "
-                + resource.getResourceName()
-                + ".");
-    }
-
-    /**
-     * Restores one maintenance unit from the selected resource back to
-     * available.
-     */
-    @FXML
-    private void handleRestoreMaintenanceResource() {
-        EmergencyResource resource
-                = resourceTableView.getSelectionModel().getSelectedItem();
-
-        if (!hasOperationalAccess()) {
-            globalStatusLabel.setText("System Status: Access denied.");
-            return;
-        }
-
-        if (resource == null) {
-            counterStatusLabel.setText("Select a resource first.");
-            return;
-        }
-
-        boolean restored = resource.restoreOneMaintenance();
-
-        if (!restored) {
-            counterStatusLabel.setText(
-                    "No maintenance units available to restore.");
-            return;
-        }
-
-        resourceTableView.refresh();
-        refreshResourceCounters();
-        refreshDashboardCounters();
-
-        counterStatusLabel.setText(
-                "One maintenance unit restored for "
-                + resource.getResourceName()
-                + ".");
-    }
+/**
+ * Restores one maintenance unit from the selected resource back to available.
+ */
+@FXML
+private void handleRestoreMaintenanceResource() {
+    updateSelectedResourceAvailability(
+            "RESTORE_MAINTENANCE",
+            "One maintenance unit restored for");
+}
 
     /**
      * Logs out the current prototype user.
@@ -2224,6 +2156,7 @@ public class MainDashboardController {
         showOnlyPane(resourceCountersPane);
         pageSubtitleLabel.setText("Emergency Resource Availability Tracker");
         setActiveButton(resourceCountersButton);
+        loadEmergencyResourcesFromBackend();
         resourceTableView.refresh();
         refreshResourceCounters();
     }
