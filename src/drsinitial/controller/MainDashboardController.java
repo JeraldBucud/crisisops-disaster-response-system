@@ -38,6 +38,7 @@ import drsinitial.service.IncidentService;
 import drsinitial.service.PriorityRecommendationService;
 import drsinitial.service.ShelterAvailabilityService;
 import drsinitial.service.PublicAlertService;
+import drsinitial.model.enums.AgencyType;
 
 /**
  * Controls the main dashboard screen of the Disaster Response System.
@@ -801,6 +802,68 @@ public class MainDashboardController {
     }
 
     /**
+     * Loads emergency response logs from the backend server.
+     */
+    private void loadResponseLogsFromBackend() {
+        ClientResponse response = backendClient.getResponseLogs();
+
+        if (!response.isSuccess()) {
+            dispatchStatusLabel.setText(response.getMessage());
+            return;
+        }
+
+        ApplicationRepository.getEmergencyResponses().clear();
+
+        for (Map<String, String> row : response.getDataList()) {
+            ApplicationRepository.getEmergencyResponses().add(
+                    convertMapToEmergencyResponse(row));
+        }
+
+        responseLogTableView.refresh();
+    }
+
+    /**
+     * Converts backend response log data into an EmergencyResponse object.
+     *
+     * @param row backend data row
+     * @return emergency response object
+     */
+    private EmergencyResponse convertMapToEmergencyResponse(
+            Map<String, String> row) {
+
+        Incident incident = new Incident(
+                safeMapValue(row, "incidentId"),
+                "",
+                0,
+                ""
+        );
+
+        ResponseAgency agency = new ResponseAgency(
+                safeMapValue(row, "agencyId"),
+                safeMapValue(row, "agencyName"),
+                safeMapValue(row, "availabilityStatus"),
+                convertToAgencyType(safeMapValue(row, "agencyType"))
+        );
+
+        EmergencyResource resource = new EmergencyResource(
+                safeMapValue(row, "resourceId"),
+                safeMapValue(row, "resourceName"),
+                safeMapValue(row, "resourceType"),
+                parseInteger(safeMapValue(row, "totalQuantity"))
+        );
+
+        EmergencyResponse emergencyResponse = new EmergencyResponse(
+                safeMapValue(row, "responseId"),
+                incident,
+                agency,
+                resource,
+                safeMapValue(row, "dispatchNotes")
+        );
+
+        return emergencyResponse;
+    }
+
+    /**
      * Sets up evacuation shelter table columns.
      */
     private void setupShelterTable() {
@@ -1513,76 +1576,56 @@ public class MainDashboardController {
             return;
         }
 
-        Incident incident = ApplicationRepository.findIncidentById(
-                dispatchIncidentIdComboBox.getValue());
-
         if (!hasOperationalAccess()) {
             globalStatusLabel.setText("System Status: Access denied.");
             return;
         }
 
-        if (incident == null) {
-            dispatchStatusLabel.setText("Incident not found.");
-            return;
-        }
+        Incident incident = new Incident(
+                dispatchIncidentIdComboBox.getValue(),
+                "",
+                0,
+                ""
+        );
 
-        EmergencyResource resource = resourceComboBox.getValue();
-
-        if (!resource.checkAvailability()) {
-            dispatchStatusLabel.setText("Selected resource is unavailable.");
-            return;
-        }
-
-        EmergencyResponse response = new EmergencyResponse(
+        EmergencyResponse responseRecord = new EmergencyResponse(
                 responseIdField.getText(),
                 incident,
                 agencyComboBox.getValue(),
-                resource,
-                dispatchNotesArea.getText()
+                resourceComboBox.getValue(),
+                dispatchNotesArea.getText().trim()
         );
 
-        boolean dispatched = response.dispatchResponse();
+        ClientResponse response = backendClient.dispatchResponse(responseRecord);
 
-        if (!dispatched) {
-            dispatchStatusLabel.setText("Dispatch failed.");
+        if (!response.isSuccess()) {
+            dispatchStatusLabel.setText(response.getMessage());
             return;
         }
 
-        ApplicationRepository.addEmergencyResponse(response);
-        incidentService.dispatchIncident(incident);
-
-        IncidentUpdate update = new IncidentUpdate(
-                ApplicationRepository.generateUpdateId(),
-                incident.getIncidentId(),
-                "Resource dispatched: "
-                + resource.getResourceName()
-                + " assigned by "
-                + agencyComboBox.getValue().getAgencyName()
-                + ". Notes: "
-                + dispatchNotesArea.getText(),
-                "Emergency Control Centre",
-                IncidentStatus.DISPATCHED
-        );
-
-        ApplicationRepository.addIncidentUpdate(update);
-
-        responseLogTableView.refresh();
-        incidentUpdateTableView.refresh();
-        resourceTableView.refresh();
-
         refreshIncidentTables();
-        refreshResourceCounters();
-        refreshDashboardCounters();
+        loadEmergencyResourcesFromBackend();
+        loadResponseLogsFromBackend();
 
-        dispatchStatusLabel.setText("Response dispatched successfully.");
+        dispatchStatusLabel.setText(response.getMessage());
         globalStatusLabel.setText("System Status: Response dispatched.");
 
         dispatchIncidentIdComboBox.getSelectionModel().clearSelection();
         agencyComboBox.getSelectionModel().clearSelection();
         resourceComboBox.getSelectionModel().clearSelection();
         dispatchNotesArea.clear();
-        responseIdField.setText(ApplicationRepository.generateResponseId());
-        updateIdField.setText(ApplicationRepository.generateUpdateId());
+
+        if (response.hasData()
+                && !response.getDataValue("nextResponseId").isEmpty()) {
+            responseIdField.setText(response.getDataValue("nextResponseId"));
+        } else {
+            responseIdField.clear();
+        }
+
+        if (response.hasData()
+                && !response.getDataValue("nextUpdateId").isEmpty()) {
+            updateIdField.setText(response.getDataValue("nextUpdateId"));
+        }
     }
 
     /**
@@ -1842,6 +1885,45 @@ public class MainDashboardController {
         filterPriorityComboBox.getSelectionModel().clearSelection();
         filterStatusComboBox.getSelectionModel().clearSelection();
         filterStatusLabel.setText("Filters reset.");
+    }
+
+    /**
+     * Loads emergency resources from the backend server.
+     */
+    private void loadEmergencyResourcesFromBackend() {
+        ClientResponse response = backendClient.getEmergencyResources();
+
+        if (!response.isSuccess()) {
+            counterStatusLabel.setText(response.getMessage());
+            return;
+        }
+
+        ApplicationRepository.getEmergencyResources().clear();
+
+        for (Map<String, String> row : response.getDataList()) {
+            ApplicationRepository.getEmergencyResources().add(
+                    convertMapToEmergencyResource(row));
+        }
+
+        resourceTableView.refresh();
+        refreshResourceCounters();
+    }
+
+    /**
+     * Converts backend resource data into an EmergencyResource object.
+     *
+     * @param row backend data row
+     * @return emergency resource object
+     */
+    private EmergencyResource convertMapToEmergencyResource(
+            Map<String, String> row) {
+
+        return new EmergencyResource(
+                safeMapValue(row, "resourceId"),
+                safeMapValue(row, "resourceName"),
+                safeMapValue(row, "resourceType"),
+                parseInteger(safeMapValue(row, "totalQuantity"))
+        );
     }
 
     /**
@@ -2811,6 +2893,24 @@ public class MainDashboardController {
             return Integer.parseInt(value);
         } catch (NumberFormatException exception) {
             return 0;
+        }
+    }
+
+    /**
+     * Converts text into an AgencyType value.
+     *
+     * @param value agency type text
+     * @return matching AgencyType, or FIRE_RESPONSE as default
+     */
+    private AgencyType convertToAgencyType(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return AgencyType.FIRE_RESPONSE;
+        }
+
+        try {
+            return AgencyType.valueOf(value.trim().toUpperCase());
+        } catch (IllegalArgumentException exception) {
+            return AgencyType.FIRE_RESPONSE;
         }
     }
 
