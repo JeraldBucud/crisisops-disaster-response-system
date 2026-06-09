@@ -1,5 +1,7 @@
 package drsinitial.controller;
 
+import drsinitial.client.BackendClient;
+import drsinitial.client.ClientResponse;
 import drsinitial.model.DisasterReport;
 import drsinitial.model.EmergencyResource;
 import drsinitial.model.EmergencyResponse;
@@ -11,8 +13,6 @@ import drsinitial.model.enums.IncidentStatus;
 import drsinitial.model.enums.PriorityLevel;
 import drsinitial.model.enums.SeverityLevel;
 import drsinitial.repository.ApplicationRepository;
-import drsinitial.service.IncidentService;
-import drsinitial.service.PriorityRecommendationService;
 import drsinitial.session.UserSession;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -39,6 +39,7 @@ import drsinitial.service.ShelterAvailabilityService;
 import drsinitial.service.PublicAlertService;
 
 
+
 /**
  * Controls the main dashboard screen of the Disaster Response System.
  *
@@ -49,7 +50,9 @@ import drsinitial.service.PublicAlertService;
  * @studentId 12301099
  * @course COIT20258 Software Engineering
  */
-public class MainDashboardController { 
+public class MainDashboardController {
+
+    private final BackendClient backendClient = new BackendClient();
 
     private final IncidentService incidentService = new IncidentService();
 
