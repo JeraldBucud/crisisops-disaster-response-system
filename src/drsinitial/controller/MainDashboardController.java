@@ -553,6 +553,47 @@ public class MainDashboardController {
     }
 
     /**
+     * Loads filtered incidents from the backend server.
+     *
+     * @param criteria search and filter criteria
+     */
+    private void loadFilteredIncidentsFromBackend(Map<String, String> criteria) {
+        ClientResponse response = backendClient.searchIncidents(criteria);
+
+        if (!response.isSuccess()) {
+            filterStatusLabel.setText(response.getMessage());
+            return;
+        }
+
+        ObservableList<Incident> filtered = FXCollections.observableArrayList();
+
+        for (Map<String, String> row : response.getDataList()) {
+            filtered.add(convertMapToIncident(row));
+        }
+
+        filteredIncidentsTableView.setItems(filtered);
+        filteredIncidentsTableView.refresh();
+        filterStatusLabel.setText(filtered.size() + " incidents found.");
+    }
+
+    /**
+     * Converts backend incident data into an Incident object.
+     *
+     * @param row backend data row
+     * @return incident object
+     */
+    private Incident convertMapToIncident(Map<String, String> row) {
+        Incident incident = new Incident(
+                safeMapValue(row, "incidentId"),
+                safeMapValue(row, "reportId"),
+                parseInteger(safeMapValue(row, "affectedPeople")),
+                safeMapValue(row, "affectedArea")
+        );
+
+        return incident;
+    }
+
+    /**
      * Sets up submitted report table columns.
      */
     private void setupReportTable() {
@@ -1821,56 +1862,28 @@ public class MainDashboardController {
      */
     @FXML
     private void handleApplyFilter() {
-        ObservableList<Incident> filtered = FXCollections.observableArrayList();
-        String keyword = filterKeywordField.getText().toLowerCase().trim();
-
-        for (Incident incident : ApplicationRepository.getIncidents()) {
-            DisasterReport report = ApplicationRepository.findReportById(
-                    incident.getReportId());
-
-            boolean matchesKeyword = keyword.isBlank()
-                    || incident.getIncidentId().toLowerCase().contains(keyword)
-                    || incident.getAffectedArea().toLowerCase()
-                            .contains(keyword);
-
-            boolean matchesPriority
-                    = filterPriorityComboBox.getValue() == null
-                    || incident.getPriorityLevel()
-                    == filterPriorityComboBox.getValue();
-
-            boolean matchesStatus
-                    = filterStatusComboBox.getValue() == null
-                    || incident.getIncidentStatus()
-                    == filterStatusComboBox.getValue();
-
-            boolean matchesDisasterType
-                    = filterDisasterTypeComboBox.getValue() == null
-                    || (report != null
-                    && report.getDisasterType()
-                    == filterDisasterTypeComboBox.getValue());
-
-            boolean matchesSeverity
-                    = filterSeverityComboBox.getValue() == null
-                    || (report != null
-                    && report.getInitialSeverity()
-                    == filterSeverityComboBox.getValue());
-
-            if (matchesKeyword
-                    && matchesPriority
-                    && matchesStatus
-                    && matchesDisasterType
-                    && matchesSeverity) {
-                filtered.add(incident);
-            }
-        }
-
-        filteredIncidentsTableView.setItems(filtered);
-        filterStatusLabel.setText(filtered.size() + " incidents found.");
-
         if (!hasOperationalAccess()) {
             globalStatusLabel.setText("System Status: Access denied.");
             return;
         }
+
+        Map<String, String> criteria = new java.util.HashMap<>();
+
+        criteria.put("keyword", filterKeywordField.getText().toLowerCase().trim());
+        criteria.put("disasterType", filterDisasterTypeComboBox.getValue() == null
+                ? ""
+                : filterDisasterTypeComboBox.getValue().name());
+        criteria.put("severity", filterSeverityComboBox.getValue() == null
+                ? ""
+                : filterSeverityComboBox.getValue().name());
+        criteria.put("priority", filterPriorityComboBox.getValue() == null
+                ? ""
+                : filterPriorityComboBox.getValue().name());
+        criteria.put("status", filterStatusComboBox.getValue() == null
+                ? ""
+                : filterStatusComboBox.getValue().name());
+
+        loadFilteredIncidentsFromBackend(criteria);
     }
 
     /**
@@ -1878,12 +1891,15 @@ public class MainDashboardController {
      */
     @FXML
     private void handleResetFilter() {
-        filteredIncidentsTableView.setItems(ApplicationRepository.getIncidents());
         filterKeywordField.clear();
         filterDisasterTypeComboBox.getSelectionModel().clearSelection();
         filterSeverityComboBox.getSelectionModel().clearSelection();
         filterPriorityComboBox.getSelectionModel().clearSelection();
         filterStatusComboBox.getSelectionModel().clearSelection();
+
+        Map<String, String> criteria = new java.util.HashMap<>();
+        loadFilteredIncidentsFromBackend(criteria);
+
         filterStatusLabel.setText("Filters reset.");
     }
 
@@ -2010,35 +2026,37 @@ public class MainDashboardController {
                 "One unit marked unavailable for");
     }
 
-/**
- * Marks one available unit from the selected resource as under maintenance.
- */
-@FXML
-private void handleMarkResourceMaintenance() {
-    updateSelectedResourceAvailability(
-            "MARK_MAINTENANCE",
-            "One unit marked under maintenance for");
-}
+    /**
+     * Marks one available unit from the selected resource as under maintenance.
+     */
+    @FXML
+    private void handleMarkResourceMaintenance() {
+        updateSelectedResourceAvailability(
+                "MARK_MAINTENANCE",
+                "One unit marked under maintenance for");
+    }
 
-/**
- * Restores one unavailable unit from the selected resource back to available.
- */
-@FXML
-private void handleRestoreUnavailableResource() {
-    updateSelectedResourceAvailability(
-            "RESTORE_UNAVAILABLE",
-            "One unavailable unit restored for");
-}
+    /**
+     * Restores one unavailable unit from the selected resource back to
+     * available.
+     */
+    @FXML
+    private void handleRestoreUnavailableResource() {
+        updateSelectedResourceAvailability(
+                "RESTORE_UNAVAILABLE",
+                "One unavailable unit restored for");
+    }
 
-/**
- * Restores one maintenance unit from the selected resource back to available.
- */
-@FXML
-private void handleRestoreMaintenanceResource() {
-    updateSelectedResourceAvailability(
-            "RESTORE_MAINTENANCE",
-            "One maintenance unit restored for");
-}
+    /**
+     * Restores one maintenance unit from the selected resource back to
+     * available.
+     */
+    @FXML
+    private void handleRestoreMaintenanceResource() {
+        updateSelectedResourceAvailability(
+                "RESTORE_MAINTENANCE",
+                "One maintenance unit restored for");
+    }
 
     /**
      * Logs out the current prototype user.
