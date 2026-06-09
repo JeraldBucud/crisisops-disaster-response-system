@@ -13,6 +13,9 @@ import drsinitial.model.enums.DisasterType;
 import drsinitial.model.enums.IncidentStatus;
 import drsinitial.model.enums.PriorityLevel;
 import drsinitial.model.enums.SeverityLevel;
+import drsinitial.model.enums.AgencyType;
+import drsinitial.model.enums.UserRole;
+import drsinitial.model.enums.ResourceStatus;
 import drsinitial.repository.ApplicationRepository;
 import drsinitial.session.UserSession;
 import javafx.beans.property.SimpleStringProperty;
@@ -28,7 +31,6 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
-import drsinitial.model.enums.UserRole;
 import javafx.scene.control.TitledPane;
 import drsinitial.model.EvacuationShelter;
 import java.time.LocalDateTime;
@@ -38,7 +40,6 @@ import drsinitial.service.IncidentService;
 import drsinitial.service.PriorityRecommendationService;
 import drsinitial.service.ShelterAvailabilityService;
 import drsinitial.service.PublicAlertService;
-import drsinitial.model.enums.AgencyType;
 
 /**
  * Controls the main dashboard screen of the Disaster Response System.
@@ -446,31 +447,191 @@ public class MainDashboardController {
     }
 
     /**
-     * Sets up all table data sources and column mappings.
+     * Loads disaster reports from the backend server.
      */
-    private void setupTables() {
-        incidentQueueTableView.setItems(incidentService.getActiveIncidents());
-        submittedReportsTableView.setItems(
-                ApplicationRepository.getDisasterReports());
-        incidentUpdateTableView.setItems(
-                ApplicationRepository.getIncidentUpdates());
-        responseLogTableView.setItems(
-                ApplicationRepository.getEmergencyResponses());
-        filteredIncidentsTableView.setItems(
-                ApplicationRepository.getIncidents());
-        resourceTableView.setItems(
-                ApplicationRepository.getEmergencyResources());
-        agencyTableView.setItems(
-                ApplicationRepository.getResponseAgencies());
+    private void loadDisasterReportsFromBackend() {
+        ClientResponse response = backendClient.getDisasterReports();
 
-        setupIncidentTable(incidentQueueTableView);
-        setupIncidentTable(filteredIncidentsTableView);
-        setupReportTable();
-        setupIncidentUpdateTable();
-        setupResponseLogTable();
-        setupResourceTable();
-        setupAgencyTable();
+        if (!response.isSuccess()) {
+            globalStatusLabel.setText("System Status: " + response.getMessage());
+            return;
+        }
+
+        ApplicationRepository.getDisasterReports().clear();
+
+        for (Map<String, String> row : response.getDataList()) {
+            ApplicationRepository.getDisasterReports().add(
+                    convertMapToDisasterReport(row));
+        }
+
+        submittedReportsTableView.refresh();
+        refreshReportIdComboBox();
     }
+
+    /**
+     * Converts backend disaster report data into a DisasterReport object.
+     *
+     * @param row backend data row
+     * @return disaster report object
+     */
+    private DisasterReport convertMapToDisasterReport(Map<String, String> row) {
+        DisasterReport report = new DisasterReport(
+                safeMapValue(row, "reportId"),
+                safeMapValue(row, "reporterName"),
+                convertToDisasterType(safeMapValue(row, "disasterType")),
+                safeMapValue(row, "location"),
+                safeMapValue(row, "description"),
+                convertToSeverityLevel(safeMapValue(row, "initialSeverity"))
+        );
+
+        report.setReportStatus(
+                convertToIncidentStatus(safeMapValue(row, "reportStatus")));
+
+        return report;
+    }
+
+    /**
+     * Loads incidents from the backend server using the search endpoint.
+     */
+    private void loadIncidentsFromBackend() {
+        Map<String, String> criteria = new java.util.HashMap<>();
+
+        ClientResponse response = backendClient.searchIncidents(criteria);
+
+        if (!response.isSuccess()) {
+            globalStatusLabel.setText("System Status: " + response.getMessage());
+            return;
+        }
+
+        ApplicationRepository.getIncidents().clear();
+
+        for (Map<String, String> row : response.getDataList()) {
+            ApplicationRepository.getIncidents().add(convertMapToIncident(row));
+        }
+
+        incidentQueueTableView.refresh();
+        filteredIncidentsTableView.refresh();
+        refreshIncidentComboBoxes();
+    }
+
+    /**
+     * Loads response agencies from the backend server.
+     */
+    private void loadResponseAgenciesFromBackend() {
+        ClientResponse response = backendClient.getResponseAgencies();
+
+        if (!response.isSuccess()) {
+            globalStatusLabel.setText("System Status: " + response.getMessage());
+            return;
+        }
+
+        ApplicationRepository.getResponseAgencies().clear();
+
+        for (Map<String, String> row : response.getDataList()) {
+            ApplicationRepository.getResponseAgencies().add(
+                    convertMapToResponseAgency(row));
+        }
+
+        agencyComboBox.setItems(ApplicationRepository.getResponseAgencies());
+        agencyTableView.refresh();
+    }
+
+    /**
+     * Converts backend response agency data into a ResponseAgency object.
+     *
+     * @param row backend data row
+     * @return response agency object
+     */
+    private ResponseAgency convertMapToResponseAgency(Map<String, String> row) {
+        ResponseAgency agency = new ResponseAgency(
+                safeMapValue(row, "agencyId"),
+                safeMapValue(row, "agencyName"),
+                safeMapValue(row, "contactNumber"),
+                convertToAgencyType(safeMapValue(row, "agencyType"))
+        );
+
+        agency.setAvailabilityStatus(
+                convertToResourceStatus(safeMapValue(row, "availabilityStatus")));
+
+        return agency;
+    }
+
+    /**
+     * Loads incident updates from the backend server.
+     */
+    private void loadIncidentUpdatesFromBackend() {
+        ClientResponse response = backendClient.getResponseLogs();
+
+        if (!response.isSuccess()) {
+            updateStatusLabel.setText(response.getMessage());
+            return;
+        }
+
+        ApplicationRepository.getIncidentUpdates().clear();
+
+        for (Map<String, String> row : response.getDataList()) {
+            ApplicationRepository.getIncidentUpdates().add(
+                    convertMapToIncidentUpdate(row));
+        }
+
+        incidentUpdateTableView.refresh();
+    }
+
+    /**
+     * Converts backend incident update data into an IncidentUpdate object.
+     *
+     * @param row backend data row
+     * @return incident update object
+     */
+    private IncidentUpdate convertMapToIncidentUpdate(Map<String, String> row) {
+        return new IncidentUpdate(
+                safeMapValue(row, "updateId"),
+                safeMapValue(row, "incidentId"),
+                safeMapValue(row, "updateNotes"),
+                safeMapValue(row, "updatedBy"),
+                convertToIncidentStatus(safeMapValue(row, "updatedStatus"))
+        );
+    }
+    
+    /**
+ * Sets up all table data sources and column mappings.
+ */
+private void setupTables() {
+    incidentQueueTableView.setItems(ApplicationRepository.getIncidents());
+
+    submittedReportsTableView.setItems(
+            ApplicationRepository.getDisasterReports());
+
+    incidentUpdateTableView.setItems(
+            ApplicationRepository.getIncidentUpdates());
+
+    responseLogTableView.setItems(
+            ApplicationRepository.getEmergencyResponses());
+
+    filteredIncidentsTableView.setItems(
+            ApplicationRepository.getIncidents());
+
+    resourceTableView.setItems(
+            ApplicationRepository.getEmergencyResources());
+
+    agencyTableView.setItems(
+            ApplicationRepository.getResponseAgencies());
+
+    setupIncidentTable(incidentQueueTableView);
+    setupIncidentTable(filteredIncidentsTableView);
+    setupReportTable();
+    setupIncidentUpdateTable();
+    setupResponseLogTable();
+    setupResourceTable();
+    setupAgencyTable();
+
+    loadDisasterReportsFromBackend();
+    loadIncidentsFromBackend();
+    loadEmergencyResourcesFromBackend();
+    loadResponseAgenciesFromBackend();
+    loadResponseLogsFromBackend();
+    loadIncidentUpdatesFromBackend();
+}
 
     /**
      * Sets up the incident table columns.
@@ -2865,5 +3026,77 @@ public class MainDashboardController {
             return AgencyType.FIRE_RESPONSE;
         }
     }
+    
+    /**
+ * Converts text into a DisasterType value.
+ *
+ * @param value disaster type text
+ * @return matching DisasterType, or FIRE as default
+ */
+private DisasterType convertToDisasterType(String value) {
+    if (value == null || value.trim().isEmpty()) {
+        return DisasterType.FIRE;
+    }
+
+    try {
+        return DisasterType.valueOf(value.trim().toUpperCase());
+    } catch (IllegalArgumentException exception) {
+        return DisasterType.FIRE;
+    }
+}
+
+/**
+ * Converts text into a SeverityLevel value.
+ *
+ * @param value severity text
+ * @return matching SeverityLevel, or LOW as default
+ */
+private SeverityLevel convertToSeverityLevel(String value) {
+    if (value == null || value.trim().isEmpty()) {
+        return SeverityLevel.LOW;
+    }
+
+    try {
+        return SeverityLevel.valueOf(value.trim().toUpperCase());
+    } catch (IllegalArgumentException exception) {
+        return SeverityLevel.LOW;
+    }
+}
+
+/**
+ * Converts text into an IncidentStatus value.
+ *
+ * @param value status text
+ * @return matching IncidentStatus, or REPORTED as default
+ */
+private IncidentStatus convertToIncidentStatus(String value) {
+    if (value == null || value.trim().isEmpty()) {
+        return IncidentStatus.REPORTED;
+    }
+
+    try {
+        return IncidentStatus.valueOf(value.trim().toUpperCase());
+    } catch (IllegalArgumentException exception) {
+        return IncidentStatus.REPORTED;
+    }
+}
+
+/**
+ * Converts text into a ResourceStatus value.
+ *
+ * @param value status text
+ * @return matching ResourceStatus, or AVAILABLE as default
+ */
+private ResourceStatus convertToResourceStatus(String value) {
+    if (value == null || value.trim().isEmpty()) {
+        return ResourceStatus.AVAILABLE;
+    }
+
+    try {
+        return ResourceStatus.valueOf(value.trim().toUpperCase());
+    } catch (IllegalArgumentException exception) {
+        return ResourceStatus.AVAILABLE;
+    }
+}
 
 }
