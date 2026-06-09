@@ -1,11 +1,16 @@
 package drsinitial.client;
 
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+
 /**
- * Provides the frontend-side connection point for future communication
- * between the JavaFX client and the DRS-Enhanced multi-threaded server.
+ * Handles communication between the JavaFX client and the
+ * DRS-Enhanced multi-threaded server.
  *
- * This class currently returns placeholder responses so the frontend
- * can compile and run before backend integration.
+ * This class does not connect directly to MySQL. It sends
+ * ClientRequest objects to the backend server and receives
+ * ClientResponse objects from the backend server.
  *
  * @author Jerald Christopher Bucud
  * @studentId 12301099
@@ -13,26 +18,66 @@ package drsinitial.client;
  */
 public class ClientConnection {
 
+    private static final String DEFAULT_HOST = "localhost";
+    private static final int DEFAULT_PORT = 5000;
+
     private String serverHost;
     private int serverPort;
 
     /**
-     * Creates a client connection using default local server settings.
+     * Creates a client connection using the default server host and port.
      */
     public ClientConnection() {
-        this.serverHost = "localhost";
-        this.serverPort = 5000;
+        this.serverHost = DEFAULT_HOST;
+        this.serverPort = DEFAULT_PORT;
     }
 
     /**
-     * Creates a client connection with custom server settings.
+     * Creates a client connection using a specific server host and port.
      *
-     * @param serverHost server host name or IP address
-     * @param serverPort server port number
+     * @param serverHost server host
+     * @param serverPort server port
      */
     public ClientConnection(String serverHost, int serverPort) {
         this.serverHost = serverHost;
         this.serverPort = serverPort;
+    }
+
+    /**
+     * Sends a request to the backend server and returns the server response.
+     *
+     * @param request client request
+     * @return server response
+     */
+    public ClientResponse sendRequest(ClientRequest request) {
+        if (request == null) {
+            return ClientResponse.failure("Request cannot be empty.");
+        }
+
+        try (
+                Socket socket = new Socket(this.serverHost, this.serverPort);
+                ObjectOutputStream output =
+                        new ObjectOutputStream(socket.getOutputStream());
+                ObjectInputStream input =
+                        new ObjectInputStream(socket.getInputStream())
+        ) {
+            output.writeObject(request);
+            output.flush();
+
+            Object responseObject = input.readObject();
+
+            if (responseObject instanceof ClientResponse) {
+                return (ClientResponse) responseObject;
+            }
+
+            return ClientResponse.failure(
+                    "Invalid response received from backend server.");
+
+        } catch (Exception exception) {
+            return ClientResponse.failure(
+                    "Backend connection unavailable. "
+                    + "Please confirm that the DRS-Enhanced server is running.");
+        }
     }
 
     public String getServerHost() {
@@ -51,36 +96,11 @@ public class ClientConnection {
         this.serverPort = serverPort;
     }
 
-    /**
-     * Sends a request to the server.
-     *
-     * This is a placeholder method. The real socket connection will
-     * be added after the multi-threaded server is available.
-     *
-     * @param request frontend request
-     * @return placeholder response
-     */
-    public ClientResponse sendRequest(ClientRequest request) {
-        if (request == null || request.getRequestType() == null) {
-            return new ClientResponse(false, "Invalid client request.");
-        }
-
-        return new ClientResponse(
-                true,
-                "Placeholder response for request: "
-                        + request.getRequestType()
-        );
-    }
-
-    /**
-     * Checks whether the server connection is available.
-     *
-     * This currently returns false because backend connection
-     * is not implemented yet.
-     *
-     * @return false until backend integration is complete
-     */
-    public boolean isServerAvailable() {
-        return false;
+    @Override
+    public String toString() {
+        return "ClientConnection{"
+                + "serverHost='" + this.serverHost + '\''
+                + ", serverPort=" + this.serverPort
+                + '}';
     }
 }
