@@ -1,5 +1,6 @@
 package drsinitial.controller;
 
+import java.util.Map;
 import drsinitial.client.BackendClient;
 import drsinitial.client.ClientResponse;
 import drsinitial.model.DisasterReport;
@@ -38,8 +39,6 @@ import drsinitial.service.PriorityRecommendationService;
 import drsinitial.service.ShelterAvailabilityService;
 import drsinitial.service.PublicAlertService;
 
-
-
 /**
  * Controls the main dashboard screen of the Disaster Response System.
  *
@@ -58,26 +57,24 @@ public class MainDashboardController {
 
     private final PriorityRecommendationService priorityService
             = new PriorityRecommendationService();
-    
+
     private final ShelterAvailabilityService shelterAvailabilityService
-        = new ShelterAvailabilityService();
+            = new ShelterAvailabilityService();
 
     private final PublicAlertService publicAlertService
-        = new PublicAlertService();
-    
-    
+            = new PublicAlertService();
 
     private final UserSession userSession = new UserSession();
 
     private final ObservableList<EvacuationShelter> evacuationShelters
-        = ApplicationRepository.getEvacuationShelters();
+            = ApplicationRepository.getEvacuationShelters();
 
     private final ObservableList<PublicAlert> publicAlerts
             = ApplicationRepository.getPublicAlerts();
 
     private final ObservableList<User> systemUsers
             = ApplicationRepository.getSystemUsers();
-    
+
     private final ObservableList<PublicAlert> filteredPublicAlerts
             = FXCollections.observableArrayList();
 
@@ -372,7 +369,6 @@ public class MainDashboardController {
      */
     @FXML
     private void initialize() {
-        ApplicationRepository.loadSampleData();
 
         setupComboBoxes();
         setupTables();
@@ -776,11 +772,32 @@ public class MainDashboardController {
 
         shelterTableView.setItems(evacuationShelters);
         setupShelterTable();
-        loadSampleShelters();
+        loadEvacuationSheltersFromBackend();
         prepareShelterId();
         refreshShelterCounters();
         setShelterAddMode();
 
+    }
+
+    /**
+     * Loads evacuation shelters from the backend server.
+     */
+    private void loadEvacuationSheltersFromBackend() {
+        ClientResponse response = backendClient.getEvacuationShelters();
+
+        if (!response.isSuccess()) {
+            shelterStatusLabel.setText(response.getMessage());
+            return;
+        }
+
+        evacuationShelters.clear();
+
+        for (Map<String, String> row : response.getDataList()) {
+            evacuationShelters.add(convertMapToEvacuationShelter(row));
+        }
+
+        shelterTableView.refresh();
+        refreshShelterCounters();
     }
 
     /**
@@ -814,6 +831,30 @@ public class MainDashboardController {
                         setShelterAddMode();
                     }
                 });
+    }
+
+    /**
+     * Converts backend shelter data into an EvacuationShelter object.
+     *
+     * @param row backend data row
+     * @return evacuation shelter object
+     */
+    private EvacuationShelter convertMapToEvacuationShelter(
+            Map<String, String> row) {
+
+        int totalCapacity = parseInteger(safeMapValue(row, "totalCapacity"));
+        int currentOccupants = parseInteger(
+                safeMapValue(row, "currentOccupants"));
+
+        return new EvacuationShelter(
+                safeMapValue(row, "shelterId"),
+                safeMapValue(row, "shelterName"),
+                safeMapValue(row, "location"),
+                totalCapacity,
+                currentOccupants,
+                safeMapValue(row, "shelterStatus"),
+                safeMapValue(row, "lastUpdated")
+        );
     }
 
     /**
@@ -870,9 +911,53 @@ public class MainDashboardController {
         refreshAlertIncidentComboBox();
         publicAlertTableView.setItems(filteredPublicAlerts);
         setupPublicAlertTable();
-        loadSamplePublicAlerts();
+        loadPublicAlertsFromBackend();
         refreshPublicAlertDisplay();
         prepareAlertId();
+    }
+
+    /**
+     * Loads public alerts from the backend server.
+     */
+    private void loadPublicAlertsFromBackend() {
+        ClientResponse response;
+
+        if (UserSession.getCurrentRole() == UserRole.PUBLIC_USER) {
+            response = backendClient.getPublicAlertsForPublicUser();
+        } else {
+            response = backendClient.getAllPublicAlerts();
+        }
+
+        if (!response.isSuccess()) {
+            publicAlertStatusLabel.setText(response.getMessage());
+            return;
+        }
+
+        publicAlerts.clear();
+
+        for (Map<String, String> row : response.getDataList()) {
+            publicAlerts.add(convertMapToPublicAlert(row));
+        }
+    }
+
+    /**
+     * Converts backend public alert data into a PublicAlert object.
+     *
+     * @param row backend data row
+     * @return public alert object
+     */
+    private PublicAlert convertMapToPublicAlert(Map<String, String> row) {
+        return new PublicAlert(
+                safeMapValue(row, "alertId"),
+                safeMapValue(row, "incidentId"),
+                safeMapValue(row, "alertType"),
+                safeMapValue(row, "affectedArea"),
+                safeMapValue(row, "severityLevel"),
+                safeMapValue(row, "alertMessage"),
+                safeMapValue(row, "createdBy"),
+                safeMapValue(row, "createdTime"),
+                safeMapValue(row, "alertStatus")
+        );
     }
 
     /**
@@ -945,6 +1030,7 @@ public class MainDashboardController {
      */
     @FXML
     private void handleSearchPublicAlerts() {
+        loadPublicAlertsFromBackend();
         refreshPublicAlertDisplay();
     }
 
@@ -955,6 +1041,7 @@ public class MainDashboardController {
     private void handleResetPublicAlertSearch() {
         publicAlertSearchField.clear();
         publicAlertStatusFilterComboBox.setValue("ALL");
+        loadPublicAlertsFromBackend();
         refreshPublicAlertDisplay();
     }
 
@@ -1010,8 +1097,28 @@ public class MainDashboardController {
 
         userManagementTableView.setItems(systemUsers);
         setupUserManagementTable();
-        loadSampleSystemUsers();
+        loadSystemUsersFromBackend();
         prepareSystemUserId();
+    }
+
+    /**
+     * Loads system users from the backend server.
+     */
+    private void loadSystemUsersFromBackend() {
+        ClientResponse response = backendClient.getUsers();
+
+        if (!response.isSuccess()) {
+            userManagementStatusLabel.setText(response.getMessage());
+            return;
+        }
+
+        systemUsers.clear();
+
+        for (Map<String, String> row : response.getDataList()) {
+            systemUsers.add(convertMapToUser(row));
+        }
+
+        userManagementTableView.refresh();
     }
 
     /**
@@ -1041,39 +1148,20 @@ public class MainDashboardController {
     }
 
     /**
-     * Loads temporary system users for frontend testing.
+     * Converts backend user data into a User object.
+     *
+     * @param row backend data row
+     * @return user object
      */
-    private void loadSampleSystemUsers() {
-        if (!systemUsers.isEmpty()) {
-            return;
-        }
-
-        systemUsers.add(new User(
-                "U001",
-                "System Administrator",
-                "admin@drs.local",
-                "admin",
-                "SYSTEM_ADMINISTRATOR",
-                "ACTIVE"
-        ));
-
-        systemUsers.add(new User(
-                "U002",
-                "Emergency Control Centre",
-                "ecc@drs.local",
-                "ecc",
-                "EMERGENCY_CONTROL_CENTRE",
-                "ACTIVE"
-        ));
-
-        systemUsers.add(new User(
-                "U003",
-                "Public User",
-                "public@drs.local",
-                "public",
-                "PUBLIC_USER",
-                "ACTIVE"
-        ));
+    private User convertMapToUser(Map<String, String> row) {
+        return new User(
+                safeMapValue(row, "userId"),
+                safeMapValue(row, "fullName"),
+                safeMapValue(row, "email"),
+                safeMapValue(row, "username"),
+                safeMapValue(row, "role"),
+                safeMapValue(row, "accountStatus")
+        );
     }
 
     /**
@@ -1099,83 +1187,11 @@ public class MainDashboardController {
     }
 
     /**
-     * Loads temporary public alert records for frontend testing.
-     */
-    private void loadSamplePublicAlerts() {
-        if (!publicAlerts.isEmpty()) {
-            return;
-        }
-
-        publicAlerts.add(new PublicAlert(
-                "AL001",
-                "I001",
-                "Fire Alert",
-                "Brisbane CBD",
-                "HIGH",
-                "Avoid the Brisbane CBD area due to an active fire incident.",
-                "Emergency Control Centre",
-                "2026-06-06 17:20",
-                "PUBLISHED"
-        ));
-
-        publicAlerts.add(new PublicAlert(
-                "AL002",
-                "I002",
-                "Flood Warning",
-                "South Bank",
-                "CRITICAL",
-                "Flood water is rising near South Bank. Move to higher ground.",
-                "Emergency Control Centre",
-                "2026-06-06 17:25",
-                "PUBLISHED"
-        ));
-    }
-
-    /**
      * Prepares the next alert ID.
      */
     private void prepareAlertId() {
         int nextNumber = publicAlerts.size() + 1;
         alertIdField.setText(String.format("AL%03d", nextNumber));
-    }
-
-    /**
-     * Loads temporary shelter records for frontend testing.
-     */
-    private void loadSampleShelters() {
-        if (!evacuationShelters.isEmpty()) {
-            return;
-        }
-
-        evacuationShelters.add(new EvacuationShelter(
-                "SH001",
-                "Brisbane Community Hall",
-                "Brisbane CBD",
-                250,
-                80,
-                "AVAILABLE",
-                "2026-06-06 17:00"
-        ));
-
-        evacuationShelters.add(new EvacuationShelter(
-                "SH002",
-                "South Bank School Gym",
-                "South Bank",
-                180,
-                165,
-                "NEAR_CAPACITY",
-                "2026-06-06 17:05"
-        ));
-
-        evacuationShelters.add(new EvacuationShelter(
-                "SH003",
-                "Fortitude Valley Centre",
-                "Fortitude Valley",
-                120,
-                120,
-                "FULL",
-                "2026-06-06 17:10"
-        ));
     }
 
     /**
@@ -2171,7 +2187,7 @@ public class MainDashboardController {
                 shelterStatusComboBox.getValue(),
                 LocalDateTime.now().toString()
         );
-        
+
         shelterAvailabilityService.updateShelterAvailability(shelter);
         ApplicationRepository.addEvacuationShelter(shelter);
         shelterTableView.refresh();
@@ -2352,11 +2368,18 @@ public class MainDashboardController {
             return;
         }
 
-        ApplicationRepository.addPublicAlert(alert);
+        ClientResponse response = backendClient.createPublicAlert(alert);
+
+        if (!response.isSuccess()) {
+            publicAlertStatusLabel.setText(response.getMessage());
+            return;
+        }
+
+        loadPublicAlertsFromBackend();
         refreshPublicAlertDisplay();
         handleClearAlertForm();
 
-        publicAlertStatusLabel.setText("Public alert created successfully.");
+        publicAlertStatusLabel.setText(response.getMessage());
         globalStatusLabel.setText("System Status: Public alert created.");
     }
 
@@ -2378,12 +2401,18 @@ public class MainDashboardController {
             return;
         }
 
-        publicAlertService.publishAlert(selectedAlert);
-        selectedAlert.setCreatedTime(LocalDateTime.now().toString());
+        ClientResponse response = backendClient.publishPublicAlert(
+                selectedAlert.getAlertId());
 
+        if (!response.isSuccess()) {
+            publicAlertStatusLabel.setText(response.getMessage());
+            return;
+        }
+
+        loadPublicAlertsFromBackend();
         refreshPublicAlertDisplay();
 
-        publicAlertStatusLabel.setText("Public alert published.");
+        publicAlertStatusLabel.setText(response.getMessage());
         globalStatusLabel.setText("System Status: Public alert published.");
     }
 
@@ -2405,12 +2434,18 @@ public class MainDashboardController {
             return;
         }
 
-        publicAlertService.expireAlert(selectedAlert);
-        selectedAlert.setCreatedTime(LocalDateTime.now().toString());
+        ClientResponse response = backendClient.expirePublicAlert(
+                selectedAlert.getAlertId());
 
+        if (!response.isSuccess()) {
+            publicAlertStatusLabel.setText(response.getMessage());
+            return;
+        }
+
+        loadPublicAlertsFromBackend();
         refreshPublicAlertDisplay();
 
-        publicAlertStatusLabel.setText("Public alert expired.");
+        publicAlertStatusLabel.setText(response.getMessage());
         globalStatusLabel.setText("System Status: Public alert expired.");
     }
 
@@ -2726,4 +2761,34 @@ public class MainDashboardController {
         return currentRole == UserRole.EMERGENCY_CONTROL_CENTRE
                 || currentRole == UserRole.SYSTEM_ADMINISTRATOR;
     }
+
+    /**
+     * Safely reads a value from a backend data row.
+     *
+     * @param row backend data row
+     * @param key data key
+     * @return value or empty string
+     */
+    private String safeMapValue(Map<String, String> row, String key) {
+        if (row == null || !row.containsKey(key) || row.get(key) == null) {
+            return "";
+        }
+
+        return row.get(key);
+    }
+
+    /**
+     * Converts text into an integer.
+     *
+     * @param value text value
+     * @return integer value, or zero if invalid
+     */
+    private int parseInteger(String value) {
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException exception) {
+            return 0;
+        }
+    }
+
 }
