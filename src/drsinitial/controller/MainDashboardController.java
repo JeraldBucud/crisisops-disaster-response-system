@@ -1598,44 +1598,42 @@ public class MainDashboardController {
             return;
         }
 
-        Incident incident = ApplicationRepository.findIncidentById(
-                updateIncidentIdComboBox.getValue());
-
         if (!hasOperationalAccess()) {
             globalStatusLabel.setText("System Status: Access denied.");
             return;
         }
 
-        if (incident == null) {
-            updateStatusLabel.setText("Incident not found.");
+        IncidentUpdate update = new IncidentUpdate(
+                updateIdField.getText(),
+                updateIncidentIdComboBox.getValue(),
+                updateNotesArea.getText().trim(),
+                updatedByField.getText().trim(),
+                updateStatusComboBox.getValue()
+        );
+
+        ClientResponse response = backendClient.updateIncidentStatus(update);
+
+        if (!response.isSuccess()) {
+            updateStatusLabel.setText(response.getMessage());
             return;
         }
 
-        incidentService.updateIncidentStatus(
-                incident,
-                updateStatusComboBox.getValue()
-        );
-
-        IncidentUpdate update = new IncidentUpdate(
-                updateIdField.getText(),
-                incident.getIncidentId(),
-                updateNotesArea.getText(),
-                updatedByField.getText(),
-                updateStatusComboBox.getValue()
-        );
-
-        ApplicationRepository.addIncidentUpdate(update);
-        incidentUpdateTableView.refresh();
         refreshIncidentTables();
 
-        updateStatusLabel.setText("Incident status updated successfully.");
+        updateStatusLabel.setText(response.getMessage());
         globalStatusLabel.setText("System Status: Incident status updated.");
 
         updateIncidentIdComboBox.getSelectionModel().clearSelection();
         updateStatusComboBox.getSelectionModel().clearSelection();
         updatedByField.clear();
         updateNotesArea.clear();
-        updateIdField.setText(ApplicationRepository.generateUpdateId());
+
+        if (response.hasData()
+                && !response.getDataValue("nextUpdateId").isEmpty()) {
+            updateIdField.setText(response.getDataValue("nextUpdateId"));
+        } else {
+            updateIdField.clear();
+        }
     }
 
     /**
