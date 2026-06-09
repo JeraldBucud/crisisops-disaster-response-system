@@ -1482,54 +1482,20 @@ public class MainDashboardController {
             return;
         }
 
-        Incident incident = ApplicationRepository.findIncidentById(incidentId);
+        ClientResponse response = backendClient.assessIncidentPriority(incidentId);
 
-        if (incident == null) {
-            assessmentStatusLabel.setText("Incident not found.");
+        if (!response.isSuccess()) {
+            assessmentStatusLabel.setText(response.getMessage());
             return;
         }
 
-        DisasterReport report = ApplicationRepository.findReportById(
-                incident.getReportId());
-
-        if (report == null) {
-            assessmentStatusLabel.setText("Linked report not found.");
-            return;
-        }
-
-        SeverityLevel severity = report.getInitialSeverity();
-
-        boolean severityUpdated = incidentService.assessIncident(
-                incident,
-                severity
-        );
-
-        if (!severityUpdated) {
-            assessmentStatusLabel.setText("Severity assessment failed.");
-            return;
-        }
-
-        PriorityLevel priority = priorityService.recommendPriority(incident);
-        double riskScore = priorityService.calculateRiskScore(incident);
-
-        boolean priorityUpdated = incidentService.prioritiseIncident(
-                incident,
-                priority
-        );
-
-        if (!priorityUpdated) {
-            assessmentStatusLabel.setText("Priority update failed.");
-            return;
-        }
-
-        severityLevelDisplayLabel.setText(severity.toString());
-        riskScoreLabel.setText(String.valueOf(riskScore));
-        recommendedPriorityLabel.setText(priority.toString());
+        severityLevelDisplayLabel.setText(response.getDataValue("severity"));
+        riskScoreLabel.setText(response.getDataValue("riskScore"));
+        recommendedPriorityLabel.setText(response.getDataValue("priority"));
 
         refreshIncidentTables();
-        showSelectedIncidentDetails(incident);
 
-        assessmentStatusLabel.setText("Assessment completed.");
+        assessmentStatusLabel.setText(response.getMessage());
         globalStatusLabel.setText(
                 "System Status: Incident assessed and prioritised.");
     }
