@@ -1433,16 +1433,20 @@ public class MainDashboardController {
             return;
         }
 
-        incidentService.registerIncident(
-                incidentIdField.getText(),
+        ClientResponse response = backendClient.registerIncident(
                 reportId,
                 affectedPeople,
-                affectedAreaField.getText()
+                affectedAreaField.getText().trim()
         );
+
+        if (!response.isSuccess()) {
+            incidentStatusLabel.setText(response.getMessage());
+            return;
+        }
 
         refreshIncidentTables();
 
-        incidentStatusLabel.setText("Incident registered successfully.");
+        incidentStatusLabel.setText(response.getMessage());
         globalStatusLabel.setText("System Status: Incident registered.");
 
         incidentReportIdComboBox.getSelectionModel().clearSelection();
@@ -1452,7 +1456,13 @@ public class MainDashboardController {
         selectedReportLocationLabel.setText("Select a report first.");
         selectedReportSeverityLabel.setText("Select a report first.");
         selectedReportDescriptionArea.clear();
-        incidentIdField.setText(ApplicationRepository.generateIncidentId());
+
+        if (response.hasData()
+                && !response.getDataValue("nextIncidentId").isEmpty()) {
+            incidentIdField.setText(response.getDataValue("nextIncidentId"));
+        } else {
+            incidentIdField.clear();
+        }
     }
 
     /**
