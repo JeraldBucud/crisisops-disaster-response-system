@@ -27,17 +27,6 @@
                        wrapText="true"
                        styleClass="login-brand-description" />
 
-                <VBox spacing="8.0" styleClass="login-info-box">
-                    <Label text="Temporary test accounts"
-                           styleClass="login-info-title" />
-                    <Label text="admin / admin123"
-                           styleClass="login-info-text" />
-                    <Label text="ecc / ecc123"
-                           styleClass="login-info-text" />
-                    <Label text="public / public123"
-                           styleClass="login-info-text" />
-                </VBox>
-
             </VBox>
 
             <VBox alignment="CENTER" spacing="16.0"

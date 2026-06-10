@@ -1,5 +1,8 @@
 package drsinitial.controller;
 
+import java.util.Map;
+import drsinitial.client.BackendClient;
+import drsinitial.client.ClientResponse;
 import drsinitial.model.DisasterReport;
 import drsinitial.model.EmergencyResource;
 import drsinitial.model.EmergencyResponse;
@@ -10,9 +13,10 @@ import drsinitial.model.enums.DisasterType;
 import drsinitial.model.enums.IncidentStatus;
 import drsinitial.model.enums.PriorityLevel;
 import drsinitial.model.enums.SeverityLevel;
+import drsinitial.model.enums.AgencyType;
+import drsinitial.model.enums.UserRole;
+import drsinitial.model.enums.ResourceStatus;
 import drsinitial.repository.ApplicationRepository;
-import drsinitial.service.IncidentService;
-import drsinitial.service.PriorityRecommendationService;
 import drsinitial.session.UserSession;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -27,7 +31,6 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
-import drsinitial.model.enums.UserRole;
 import javafx.scene.control.TitledPane;
 import drsinitial.model.EvacuationShelter;
 import java.time.LocalDateTime;
@@ -37,7 +40,6 @@ import drsinitial.service.IncidentService;
 import drsinitial.service.PriorityRecommendationService;
 import drsinitial.service.ShelterAvailabilityService;
 import drsinitial.service.PublicAlertService;
-
 
 /**
  * Controls the main dashboard screen of the Disaster Response System.
@@ -49,32 +51,32 @@ import drsinitial.service.PublicAlertService;
  * @studentId 12301099
  * @course COIT20258 Software Engineering
  */
-public class MainDashboardController { 
+public class MainDashboardController {
+
+    private final BackendClient backendClient = new BackendClient();
 
     private final IncidentService incidentService = new IncidentService();
 
     private final PriorityRecommendationService priorityService
             = new PriorityRecommendationService();
-    
+
     private final ShelterAvailabilityService shelterAvailabilityService
-        = new ShelterAvailabilityService();
+            = new ShelterAvailabilityService();
 
     private final PublicAlertService publicAlertService
-        = new PublicAlertService();
-    
-    
+            = new PublicAlertService();
 
     private final UserSession userSession = new UserSession();
 
     private final ObservableList<EvacuationShelter> evacuationShelters
-        = ApplicationRepository.getEvacuationShelters();
+            = ApplicationRepository.getEvacuationShelters();
 
     private final ObservableList<PublicAlert> publicAlerts
             = ApplicationRepository.getPublicAlerts();
 
     private final ObservableList<User> systemUsers
             = ApplicationRepository.getSystemUsers();
-    
+
     private final ObservableList<PublicAlert> filteredPublicAlerts
             = FXCollections.observableArrayList();
 
@@ -369,7 +371,6 @@ public class MainDashboardController {
      */
     @FXML
     private void initialize() {
-        ApplicationRepository.loadSampleData();
 
         setupComboBoxes();
         setupTables();
@@ -410,13 +411,13 @@ public class MainDashboardController {
     }
 
     /**
-     * Prepares generated IDs for input forms.
+     * Clears generated ID fields until backend-generated IDs are returned.
      */
     private void prepareGeneratedIds() {
-        reportIdField.setText(ApplicationRepository.generateReportId());
-        incidentIdField.setText(ApplicationRepository.generateIncidentId());
-        responseIdField.setText(ApplicationRepository.generateResponseId());
-        updateIdField.setText(ApplicationRepository.generateUpdateId());
+        reportIdField.clear();
+        incidentIdField.clear();
+        responseIdField.clear();
+        updateIdField.clear();
     }
 
     /**
@@ -446,20 +447,173 @@ public class MainDashboardController {
     }
 
     /**
+     * Loads disaster reports from the backend server.
+     */
+    private void loadDisasterReportsFromBackend() {
+        ClientResponse response = backendClient.getDisasterReports();
+
+        if (!response.isSuccess()) {
+            globalStatusLabel.setText("System Status: " + response.getMessage());
+            return;
+        }
+
+        ApplicationRepository.getDisasterReports().clear();
+
+        for (Map<String, String> row : response.getDataList()) {
+            ApplicationRepository.getDisasterReports().add(
+                    convertMapToDisasterReport(row));
+        }
+
+        submittedReportsTableView.refresh();
+        refreshReportIdComboBox();
+    }
+
+    /**
+     * Converts backend disaster report data into a DisasterReport object.
+     *
+     * @param row backend data row
+     * @return disaster report object
+     */
+    private DisasterReport convertMapToDisasterReport(Map<String, String> row) {
+        DisasterReport report = new DisasterReport(
+                safeMapValue(row, "reportId"),
+                safeMapValue(row, "reporterName"),
+                convertToDisasterType(safeMapValue(row, "disasterType")),
+                safeMapValue(row, "location"),
+                safeMapValue(row, "description"),
+                convertToSeverityLevel(safeMapValue(row, "initialSeverity"))
+        );
+
+        report.setReportStatus(
+                convertToIncidentStatus(safeMapValue(row, "reportStatus")));
+
+        return report;
+    }
+
+    /**
+     * Loads incidents from the backend server using the search endpoint.
+     */
+    private void loadIncidentsFromBackend() {
+        Map<String, String> criteria = new java.util.HashMap<>();
+
+        ClientResponse response = backendClient.searchIncidents(criteria);
+
+        if (!response.isSuccess()) {
+            globalStatusLabel.setText("System Status: " + response.getMessage());
+            return;
+        }
+
+        ApplicationRepository.getIncidents().clear();
+
+        for (Map<String, String> row : response.getDataList()) {
+            ApplicationRepository.getIncidents().add(convertMapToIncident(row));
+        }
+
+        incidentQueueTableView.refresh();
+        filteredIncidentsTableView.refresh();
+        refreshIncidentComboBoxes();
+    }
+
+    /**
+     * Loads response agencies from the backend server.
+     */
+    private void loadResponseAgenciesFromBackend() {
+        ClientResponse response = backendClient.getResponseAgencies();
+
+        if (!response.isSuccess()) {
+            globalStatusLabel.setText("System Status: " + response.getMessage());
+            return;
+        }
+
+        ApplicationRepository.getResponseAgencies().clear();
+
+        for (Map<String, String> row : response.getDataList()) {
+            ApplicationRepository.getResponseAgencies().add(
+                    convertMapToResponseAgency(row));
+        }
+
+        agencyComboBox.setItems(ApplicationRepository.getResponseAgencies());
+        agencyTableView.refresh();
+    }
+
+    /**
+     * Converts backend response agency data into a ResponseAgency object.
+     *
+     * @param row backend data row
+     * @return response agency object
+     */
+    private ResponseAgency convertMapToResponseAgency(Map<String, String> row) {
+        ResponseAgency agency = new ResponseAgency(
+                safeMapValue(row, "agencyId"),
+                safeMapValue(row, "agencyName"),
+                safeMapValue(row, "contactNumber"),
+                convertToAgencyType(safeMapValue(row, "agencyType"))
+        );
+
+        agency.setAvailabilityStatus(
+                convertToResourceStatus(safeMapValue(row, "availabilityStatus")));
+
+        return agency;
+    }
+
+    /**
+     * Loads incident updates from the backend server.
+     */
+    private void loadIncidentUpdatesFromBackend() {
+        ClientResponse response = backendClient.getResponseLogs();
+
+        if (!response.isSuccess()) {
+            updateStatusLabel.setText(response.getMessage());
+            return;
+        }
+
+        ApplicationRepository.getIncidentUpdates().clear();
+
+        for (Map<String, String> row : response.getDataList()) {
+            ApplicationRepository.getIncidentUpdates().add(
+                    convertMapToIncidentUpdate(row));
+        }
+
+        incidentUpdateTableView.refresh();
+    }
+
+    /**
+     * Converts backend incident update data into an IncidentUpdate object.
+     *
+     * @param row backend data row
+     * @return incident update object
+     */
+    private IncidentUpdate convertMapToIncidentUpdate(Map<String, String> row) {
+        return new IncidentUpdate(
+                safeMapValue(row, "updateId"),
+                safeMapValue(row, "incidentId"),
+                safeMapValue(row, "updateNotes"),
+                safeMapValue(row, "updatedBy"),
+                convertToIncidentStatus(safeMapValue(row, "updatedStatus"))
+        );
+    }
+
+    /**
      * Sets up all table data sources and column mappings.
      */
     private void setupTables() {
-        incidentQueueTableView.setItems(incidentService.getActiveIncidents());
+        incidentQueueTableView.setItems(ApplicationRepository.getIncidents());
+
         submittedReportsTableView.setItems(
                 ApplicationRepository.getDisasterReports());
+
         incidentUpdateTableView.setItems(
                 ApplicationRepository.getIncidentUpdates());
+
         responseLogTableView.setItems(
                 ApplicationRepository.getEmergencyResponses());
+
         filteredIncidentsTableView.setItems(
                 ApplicationRepository.getIncidents());
+
         resourceTableView.setItems(
                 ApplicationRepository.getEmergencyResources());
+
         agencyTableView.setItems(
                 ApplicationRepository.getResponseAgencies());
 
@@ -470,6 +624,13 @@ public class MainDashboardController {
         setupResponseLogTable();
         setupResourceTable();
         setupAgencyTable();
+
+        loadDisasterReportsFromBackend();
+        loadIncidentsFromBackend();
+        loadEmergencyResourcesFromBackend();
+        loadResponseAgenciesFromBackend();
+        loadResponseLogsFromBackend();
+        loadIncidentUpdatesFromBackend();
     }
 
     /**
@@ -550,6 +711,47 @@ public class MainDashboardController {
 
             return new SimpleStringProperty(value);
         });
+    }
+
+    /**
+     * Loads filtered incidents from the backend server.
+     *
+     * @param criteria search and filter criteria
+     */
+    private void loadFilteredIncidentsFromBackend(Map<String, String> criteria) {
+        ClientResponse response = backendClient.searchIncidents(criteria);
+
+        if (!response.isSuccess()) {
+            filterStatusLabel.setText(response.getMessage());
+            return;
+        }
+
+        ObservableList<Incident> filtered = FXCollections.observableArrayList();
+
+        for (Map<String, String> row : response.getDataList()) {
+            filtered.add(convertMapToIncident(row));
+        }
+
+        filteredIncidentsTableView.setItems(filtered);
+        filteredIncidentsTableView.refresh();
+        filterStatusLabel.setText(filtered.size() + " incidents found.");
+    }
+
+    /**
+     * Converts backend incident data into an Incident object.
+     *
+     * @param row backend data row
+     * @return incident object
+     */
+    private Incident convertMapToIncident(Map<String, String> row) {
+        Incident incident = new Incident(
+                safeMapValue(row, "incidentId"),
+                safeMapValue(row, "reportId"),
+                parseInteger(safeMapValue(row, "affectedPeople")),
+                safeMapValue(row, "affectedArea")
+        );
+
+        return incident;
     }
 
     /**
@@ -773,11 +975,94 @@ public class MainDashboardController {
 
         shelterTableView.setItems(evacuationShelters);
         setupShelterTable();
-        loadSampleShelters();
+        loadEvacuationSheltersFromBackend();
         prepareShelterId();
         refreshShelterCounters();
         setShelterAddMode();
 
+    }
+
+    /**
+     * Loads evacuation shelters from the backend server.
+     */
+    private void loadEvacuationSheltersFromBackend() {
+        ClientResponse response = backendClient.getEvacuationShelters();
+
+        if (!response.isSuccess()) {
+            shelterStatusLabel.setText(response.getMessage());
+            return;
+        }
+
+        evacuationShelters.clear();
+
+        for (Map<String, String> row : response.getDataList()) {
+            evacuationShelters.add(convertMapToEvacuationShelter(row));
+        }
+
+        shelterTableView.refresh();
+        refreshShelterCounters();
+    }
+
+    /**
+     * Loads emergency response logs from the backend server.
+     */
+    private void loadResponseLogsFromBackend() {
+        ClientResponse response = backendClient.getResponseLogs();
+
+        if (!response.isSuccess()) {
+            dispatchStatusLabel.setText(response.getMessage());
+            return;
+        }
+
+        ApplicationRepository.getEmergencyResponses().clear();
+
+        for (Map<String, String> row : response.getDataList()) {
+            ApplicationRepository.getEmergencyResponses().add(
+                    convertMapToEmergencyResponse(row));
+        }
+
+        responseLogTableView.refresh();
+    }
+
+    /**
+     * Converts backend response log data into an EmergencyResponse object.
+     *
+     * @param row backend data row
+     * @return emergency response object
+     */
+    private EmergencyResponse convertMapToEmergencyResponse(
+            Map<String, String> row) {
+
+        Incident incident = new Incident(
+                safeMapValue(row, "incidentId"),
+                "",
+                0,
+                ""
+        );
+
+        ResponseAgency agency = new ResponseAgency(
+                safeMapValue(row, "agencyId"),
+                safeMapValue(row, "agencyName"),
+                safeMapValue(row, "availabilityStatus"),
+                convertToAgencyType(safeMapValue(row, "agencyType"))
+        );
+
+        EmergencyResource resource = new EmergencyResource(
+                safeMapValue(row, "resourceId"),
+                safeMapValue(row, "resourceName"),
+                safeMapValue(row, "resourceType"),
+                parseInteger(safeMapValue(row, "totalQuantity"))
+        );
+
+        EmergencyResponse emergencyResponse = new EmergencyResponse(
+                safeMapValue(row, "responseId"),
+                incident,
+                agency,
+                resource,
+                safeMapValue(row, "dispatchNotes")
+        );
+
+        return emergencyResponse;
     }
 
     /**
@@ -811,6 +1096,30 @@ public class MainDashboardController {
                         setShelterAddMode();
                     }
                 });
+    }
+
+    /**
+     * Converts backend shelter data into an EvacuationShelter object.
+     *
+     * @param row backend data row
+     * @return evacuation shelter object
+     */
+    private EvacuationShelter convertMapToEvacuationShelter(
+            Map<String, String> row) {
+
+        int totalCapacity = parseInteger(safeMapValue(row, "totalCapacity"));
+        int currentOccupants = parseInteger(
+                safeMapValue(row, "currentOccupants"));
+
+        return new EvacuationShelter(
+                safeMapValue(row, "shelterId"),
+                safeMapValue(row, "shelterName"),
+                safeMapValue(row, "location"),
+                totalCapacity,
+                currentOccupants,
+                safeMapValue(row, "shelterStatus"),
+                safeMapValue(row, "lastUpdated")
+        );
     }
 
     /**
@@ -867,9 +1176,53 @@ public class MainDashboardController {
         refreshAlertIncidentComboBox();
         publicAlertTableView.setItems(filteredPublicAlerts);
         setupPublicAlertTable();
-        loadSamplePublicAlerts();
+        loadPublicAlertsFromBackend();
         refreshPublicAlertDisplay();
         prepareAlertId();
+    }
+
+    /**
+     * Loads public alerts from the backend server.
+     */
+    private void loadPublicAlertsFromBackend() {
+        ClientResponse response;
+
+        if (UserSession.getCurrentRole() == UserRole.PUBLIC_USER) {
+            response = backendClient.getPublicAlertsForPublicUser();
+        } else {
+            response = backendClient.getAllPublicAlerts();
+        }
+
+        if (!response.isSuccess()) {
+            publicAlertStatusLabel.setText(response.getMessage());
+            return;
+        }
+
+        publicAlerts.clear();
+
+        for (Map<String, String> row : response.getDataList()) {
+            publicAlerts.add(convertMapToPublicAlert(row));
+        }
+    }
+
+    /**
+     * Converts backend public alert data into a PublicAlert object.
+     *
+     * @param row backend data row
+     * @return public alert object
+     */
+    private PublicAlert convertMapToPublicAlert(Map<String, String> row) {
+        return new PublicAlert(
+                safeMapValue(row, "alertId"),
+                safeMapValue(row, "incidentId"),
+                safeMapValue(row, "alertType"),
+                safeMapValue(row, "affectedArea"),
+                safeMapValue(row, "severityLevel"),
+                safeMapValue(row, "alertMessage"),
+                safeMapValue(row, "createdBy"),
+                safeMapValue(row, "createdTime"),
+                safeMapValue(row, "alertStatus")
+        );
     }
 
     /**
@@ -942,6 +1295,7 @@ public class MainDashboardController {
      */
     @FXML
     private void handleSearchPublicAlerts() {
+        loadPublicAlertsFromBackend();
         refreshPublicAlertDisplay();
     }
 
@@ -952,6 +1306,7 @@ public class MainDashboardController {
     private void handleResetPublicAlertSearch() {
         publicAlertSearchField.clear();
         publicAlertStatusFilterComboBox.setValue("ALL");
+        loadPublicAlertsFromBackend();
         refreshPublicAlertDisplay();
     }
 
@@ -1007,8 +1362,28 @@ public class MainDashboardController {
 
         userManagementTableView.setItems(systemUsers);
         setupUserManagementTable();
-        loadSampleSystemUsers();
+        loadSystemUsersFromBackend();
         prepareSystemUserId();
+    }
+
+    /**
+     * Loads system users from the backend server.
+     */
+    private void loadSystemUsersFromBackend() {
+        ClientResponse response = backendClient.getUsers();
+
+        if (!response.isSuccess()) {
+            userManagementStatusLabel.setText(response.getMessage());
+            return;
+        }
+
+        systemUsers.clear();
+
+        for (Map<String, String> row : response.getDataList()) {
+            systemUsers.add(convertMapToUser(row));
+        }
+
+        userManagementTableView.refresh();
     }
 
     /**
@@ -1038,39 +1413,20 @@ public class MainDashboardController {
     }
 
     /**
-     * Loads temporary system users for frontend testing.
+     * Converts backend user data into a User object.
+     *
+     * @param row backend data row
+     * @return user object
      */
-    private void loadSampleSystemUsers() {
-        if (!systemUsers.isEmpty()) {
-            return;
-        }
-
-        systemUsers.add(new User(
-                "U001",
-                "System Administrator",
-                "admin@drs.local",
-                "admin",
-                "SYSTEM_ADMINISTRATOR",
-                "ACTIVE"
-        ));
-
-        systemUsers.add(new User(
-                "U002",
-                "Emergency Control Centre",
-                "ecc@drs.local",
-                "ecc",
-                "EMERGENCY_CONTROL_CENTRE",
-                "ACTIVE"
-        ));
-
-        systemUsers.add(new User(
-                "U003",
-                "Public User",
-                "public@drs.local",
-                "public",
-                "PUBLIC_USER",
-                "ACTIVE"
-        ));
+    private User convertMapToUser(Map<String, String> row) {
+        return new User(
+                safeMapValue(row, "userId"),
+                safeMapValue(row, "fullName"),
+                safeMapValue(row, "email"),
+                safeMapValue(row, "username"),
+                safeMapValue(row, "role"),
+                safeMapValue(row, "accountStatus")
+        );
     }
 
     /**
@@ -1096,83 +1452,11 @@ public class MainDashboardController {
     }
 
     /**
-     * Loads temporary public alert records for frontend testing.
-     */
-    private void loadSamplePublicAlerts() {
-        if (!publicAlerts.isEmpty()) {
-            return;
-        }
-
-        publicAlerts.add(new PublicAlert(
-                "AL001",
-                "I001",
-                "Fire Alert",
-                "Brisbane CBD",
-                "HIGH",
-                "Avoid the Brisbane CBD area due to an active fire incident.",
-                "Emergency Control Centre",
-                "2026-06-06 17:20",
-                "PUBLISHED"
-        ));
-
-        publicAlerts.add(new PublicAlert(
-                "AL002",
-                "I002",
-                "Flood Warning",
-                "South Bank",
-                "CRITICAL",
-                "Flood water is rising near South Bank. Move to higher ground.",
-                "Emergency Control Centre",
-                "2026-06-06 17:25",
-                "PUBLISHED"
-        ));
-    }
-
-    /**
      * Prepares the next alert ID.
      */
     private void prepareAlertId() {
         int nextNumber = publicAlerts.size() + 1;
         alertIdField.setText(String.format("AL%03d", nextNumber));
-    }
-
-    /**
-     * Loads temporary shelter records for frontend testing.
-     */
-    private void loadSampleShelters() {
-        if (!evacuationShelters.isEmpty()) {
-            return;
-        }
-
-        evacuationShelters.add(new EvacuationShelter(
-                "SH001",
-                "Brisbane Community Hall",
-                "Brisbane CBD",
-                250,
-                80,
-                "AVAILABLE",
-                "2026-06-06 17:00"
-        ));
-
-        evacuationShelters.add(new EvacuationShelter(
-                "SH002",
-                "South Bank School Gym",
-                "South Bank",
-                180,
-                165,
-                "NEAR_CAPACITY",
-                "2026-06-06 17:05"
-        ));
-
-        evacuationShelters.add(new EvacuationShelter(
-                "SH003",
-                "Fortitude Valley Centre",
-                "Fortitude Valley",
-                120,
-                120,
-                "FULL",
-                "2026-06-06 17:10"
-        ));
     }
 
     /**
@@ -1356,12 +1640,14 @@ public class MainDashboardController {
             return;
         }
 
-        ApplicationRepository.addDisasterReport(report);
-        submittedReportsTableView.refresh();
-        refreshReportIdComboBox();
-        refreshDashboardCounters();
+        ClientResponse response = backendClient.submitDisasterReport(report);
 
-        reportStatusLabel.setText("Report submitted successfully.");
+        if (!response.isSuccess()) {
+            reportStatusLabel.setText(response.getMessage());
+            return;
+        }
+
+        reportStatusLabel.setText(response.getMessage());
         globalStatusLabel.setText("System Status: Report submitted.");
 
         reporterNameField.clear();
@@ -1369,7 +1655,15 @@ public class MainDashboardController {
         descriptionArea.clear();
         disasterTypeComboBox.getSelectionModel().clearSelection();
         initialSeverityComboBox.getSelectionModel().clearSelection();
-        reportIdField.setText(ApplicationRepository.generateReportId());
+
+        if (response.hasData()
+                && !response.getDataValue("nextReportId").isEmpty()) {
+            reportIdField.setText(response.getDataValue("nextReportId"));
+        } else {
+            reportIdField.clear();
+        }
+
+        refreshDashboardCounters();
     }
 
     /**
@@ -1404,16 +1698,20 @@ public class MainDashboardController {
             return;
         }
 
-        incidentService.registerIncident(
-                incidentIdField.getText(),
+        ClientResponse response = backendClient.registerIncident(
                 reportId,
                 affectedPeople,
-                affectedAreaField.getText()
+                affectedAreaField.getText().trim()
         );
+
+        if (!response.isSuccess()) {
+            incidentStatusLabel.setText(response.getMessage());
+            return;
+        }
 
         refreshIncidentTables();
 
-        incidentStatusLabel.setText("Incident registered successfully.");
+        incidentStatusLabel.setText(response.getMessage());
         globalStatusLabel.setText("System Status: Incident registered.");
 
         incidentReportIdComboBox.getSelectionModel().clearSelection();
@@ -1423,7 +1721,13 @@ public class MainDashboardController {
         selectedReportLocationLabel.setText("Select a report first.");
         selectedReportSeverityLabel.setText("Select a report first.");
         selectedReportDescriptionArea.clear();
-        incidentIdField.setText(ApplicationRepository.generateIncidentId());
+
+        if (response.hasData()
+                && !response.getDataValue("nextIncidentId").isEmpty()) {
+            incidentIdField.setText(response.getDataValue("nextIncidentId"));
+        } else {
+            incidentIdField.clear();
+        }
     }
 
     /**
@@ -1443,54 +1747,20 @@ public class MainDashboardController {
             return;
         }
 
-        Incident incident = ApplicationRepository.findIncidentById(incidentId);
+        ClientResponse response = backendClient.assessIncidentPriority(incidentId);
 
-        if (incident == null) {
-            assessmentStatusLabel.setText("Incident not found.");
+        if (!response.isSuccess()) {
+            assessmentStatusLabel.setText(response.getMessage());
             return;
         }
 
-        DisasterReport report = ApplicationRepository.findReportById(
-                incident.getReportId());
-
-        if (report == null) {
-            assessmentStatusLabel.setText("Linked report not found.");
-            return;
-        }
-
-        SeverityLevel severity = report.getInitialSeverity();
-
-        boolean severityUpdated = incidentService.assessIncident(
-                incident,
-                severity
-        );
-
-        if (!severityUpdated) {
-            assessmentStatusLabel.setText("Severity assessment failed.");
-            return;
-        }
-
-        PriorityLevel priority = priorityService.recommendPriority(incident);
-        double riskScore = priorityService.calculateRiskScore(incident);
-
-        boolean priorityUpdated = incidentService.prioritiseIncident(
-                incident,
-                priority
-        );
-
-        if (!priorityUpdated) {
-            assessmentStatusLabel.setText("Priority update failed.");
-            return;
-        }
-
-        severityLevelDisplayLabel.setText(severity.toString());
-        riskScoreLabel.setText(String.valueOf(riskScore));
-        recommendedPriorityLabel.setText(priority.toString());
+        severityLevelDisplayLabel.setText(response.getDataValue("severity"));
+        riskScoreLabel.setText(response.getDataValue("riskScore"));
+        recommendedPriorityLabel.setText(response.getDataValue("priority"));
 
         refreshIncidentTables();
-        showSelectedIncidentDetails(incident);
 
-        assessmentStatusLabel.setText("Assessment completed.");
+        assessmentStatusLabel.setText(response.getMessage());
         globalStatusLabel.setText(
                 "System Status: Incident assessed and prioritised.");
     }
@@ -1508,76 +1778,56 @@ public class MainDashboardController {
             return;
         }
 
-        Incident incident = ApplicationRepository.findIncidentById(
-                dispatchIncidentIdComboBox.getValue());
-
         if (!hasOperationalAccess()) {
             globalStatusLabel.setText("System Status: Access denied.");
             return;
         }
 
-        if (incident == null) {
-            dispatchStatusLabel.setText("Incident not found.");
-            return;
-        }
+        Incident incident = new Incident(
+                dispatchIncidentIdComboBox.getValue(),
+                "",
+                0,
+                ""
+        );
 
-        EmergencyResource resource = resourceComboBox.getValue();
-
-        if (!resource.checkAvailability()) {
-            dispatchStatusLabel.setText("Selected resource is unavailable.");
-            return;
-        }
-
-        EmergencyResponse response = new EmergencyResponse(
+        EmergencyResponse responseRecord = new EmergencyResponse(
                 responseIdField.getText(),
                 incident,
                 agencyComboBox.getValue(),
-                resource,
-                dispatchNotesArea.getText()
+                resourceComboBox.getValue(),
+                dispatchNotesArea.getText().trim()
         );
 
-        boolean dispatched = response.dispatchResponse();
+        ClientResponse response = backendClient.dispatchResponse(responseRecord);
 
-        if (!dispatched) {
-            dispatchStatusLabel.setText("Dispatch failed.");
+        if (!response.isSuccess()) {
+            dispatchStatusLabel.setText(response.getMessage());
             return;
         }
 
-        ApplicationRepository.addEmergencyResponse(response);
-        incidentService.dispatchIncident(incident);
-
-        IncidentUpdate update = new IncidentUpdate(
-                ApplicationRepository.generateUpdateId(),
-                incident.getIncidentId(),
-                "Resource dispatched: "
-                + resource.getResourceName()
-                + " assigned by "
-                + agencyComboBox.getValue().getAgencyName()
-                + ". Notes: "
-                + dispatchNotesArea.getText(),
-                "Emergency Control Centre",
-                IncidentStatus.DISPATCHED
-        );
-
-        ApplicationRepository.addIncidentUpdate(update);
-
-        responseLogTableView.refresh();
-        incidentUpdateTableView.refresh();
-        resourceTableView.refresh();
-
         refreshIncidentTables();
-        refreshResourceCounters();
-        refreshDashboardCounters();
+        loadEmergencyResourcesFromBackend();
+        loadResponseLogsFromBackend();
 
-        dispatchStatusLabel.setText("Response dispatched successfully.");
+        dispatchStatusLabel.setText(response.getMessage());
         globalStatusLabel.setText("System Status: Response dispatched.");
 
         dispatchIncidentIdComboBox.getSelectionModel().clearSelection();
         agencyComboBox.getSelectionModel().clearSelection();
         resourceComboBox.getSelectionModel().clearSelection();
         dispatchNotesArea.clear();
-        responseIdField.setText(ApplicationRepository.generateResponseId());
-        updateIdField.setText(ApplicationRepository.generateUpdateId());
+
+        if (response.hasData()
+                && !response.getDataValue("nextResponseId").isEmpty()) {
+            responseIdField.setText(response.getDataValue("nextResponseId"));
+        } else {
+            responseIdField.clear();
+        }
+
+        if (response.hasData()
+                && !response.getDataValue("nextUpdateId").isEmpty()) {
+            updateIdField.setText(response.getDataValue("nextUpdateId"));
+        }
     }
 
     /**
@@ -1593,44 +1843,42 @@ public class MainDashboardController {
             return;
         }
 
-        Incident incident = ApplicationRepository.findIncidentById(
-                updateIncidentIdComboBox.getValue());
-
         if (!hasOperationalAccess()) {
             globalStatusLabel.setText("System Status: Access denied.");
             return;
         }
 
-        if (incident == null) {
-            updateStatusLabel.setText("Incident not found.");
+        IncidentUpdate update = new IncidentUpdate(
+                updateIdField.getText(),
+                updateIncidentIdComboBox.getValue(),
+                updateNotesArea.getText().trim(),
+                updatedByField.getText().trim(),
+                updateStatusComboBox.getValue()
+        );
+
+        ClientResponse response = backendClient.updateIncidentStatus(update);
+
+        if (!response.isSuccess()) {
+            updateStatusLabel.setText(response.getMessage());
             return;
         }
 
-        incidentService.updateIncidentStatus(
-                incident,
-                updateStatusComboBox.getValue()
-        );
-
-        IncidentUpdate update = new IncidentUpdate(
-                updateIdField.getText(),
-                incident.getIncidentId(),
-                updateNotesArea.getText(),
-                updatedByField.getText(),
-                updateStatusComboBox.getValue()
-        );
-
-        ApplicationRepository.addIncidentUpdate(update);
-        incidentUpdateTableView.refresh();
         refreshIncidentTables();
 
-        updateStatusLabel.setText("Incident status updated successfully.");
+        updateStatusLabel.setText(response.getMessage());
         globalStatusLabel.setText("System Status: Incident status updated.");
 
         updateIncidentIdComboBox.getSelectionModel().clearSelection();
         updateStatusComboBox.getSelectionModel().clearSelection();
         updatedByField.clear();
         updateNotesArea.clear();
-        updateIdField.setText(ApplicationRepository.generateUpdateId());
+
+        if (response.hasData()
+                && !response.getDataValue("nextUpdateId").isEmpty()) {
+            updateIdField.setText(response.getDataValue("nextUpdateId"));
+        } else {
+            updateIdField.clear();
+        }
     }
 
     /**
@@ -1656,11 +1904,17 @@ public class MainDashboardController {
                 adminAccountStatusComboBox.getValue()
         );
 
-        ApplicationRepository.addSystemUser(user);
-        userManagementTableView.refresh();
+        ClientResponse response = backendClient.addUser(user);
+
+        if (!response.isSuccess()) {
+            userManagementStatusLabel.setText(response.getMessage());
+            return;
+        }
+
+        loadSystemUsersFromBackend();
         handleClearSystemUserForm();
 
-        userManagementStatusLabel.setText("User added successfully.");
+        userManagementStatusLabel.setText(response.getMessage());
         globalStatusLabel.setText("System Status: User account added.");
     }
 
@@ -1686,15 +1940,26 @@ public class MainDashboardController {
             return;
         }
 
-        selectedUser.setFullName(adminFullNameField.getText().trim());
-        selectedUser.setEmail(adminEmailField.getText().trim());
-        selectedUser.setUsername(adminUsernameField.getText().trim());
-        selectedUser.setRole(adminUserRoleComboBox.getValue());
-        selectedUser.setAccountStatus(adminAccountStatusComboBox.getValue());
+        User updatedUser = new User(
+                selectedUser.getUserId(),
+                adminFullNameField.getText().trim(),
+                adminEmailField.getText().trim(),
+                adminUsernameField.getText().trim(),
+                adminUserRoleComboBox.getValue(),
+                adminAccountStatusComboBox.getValue()
+        );
 
-        userManagementTableView.refresh();
+        ClientResponse response = backendClient.updateUser(updatedUser);
 
-        userManagementStatusLabel.setText("User updated successfully.");
+        if (!response.isSuccess()) {
+            userManagementStatusLabel.setText(response.getMessage());
+            return;
+        }
+
+        loadSystemUsersFromBackend();
+        handleClearSystemUserForm();
+
+        userManagementStatusLabel.setText(response.getMessage());
         globalStatusLabel.setText("System Status: User account updated.");
     }
 
@@ -1758,56 +2023,28 @@ public class MainDashboardController {
      */
     @FXML
     private void handleApplyFilter() {
-        ObservableList<Incident> filtered = FXCollections.observableArrayList();
-        String keyword = filterKeywordField.getText().toLowerCase().trim();
-
-        for (Incident incident : ApplicationRepository.getIncidents()) {
-            DisasterReport report = ApplicationRepository.findReportById(
-                    incident.getReportId());
-
-            boolean matchesKeyword = keyword.isBlank()
-                    || incident.getIncidentId().toLowerCase().contains(keyword)
-                    || incident.getAffectedArea().toLowerCase()
-                            .contains(keyword);
-
-            boolean matchesPriority
-                    = filterPriorityComboBox.getValue() == null
-                    || incident.getPriorityLevel()
-                    == filterPriorityComboBox.getValue();
-
-            boolean matchesStatus
-                    = filterStatusComboBox.getValue() == null
-                    || incident.getIncidentStatus()
-                    == filterStatusComboBox.getValue();
-
-            boolean matchesDisasterType
-                    = filterDisasterTypeComboBox.getValue() == null
-                    || (report != null
-                    && report.getDisasterType()
-                    == filterDisasterTypeComboBox.getValue());
-
-            boolean matchesSeverity
-                    = filterSeverityComboBox.getValue() == null
-                    || (report != null
-                    && report.getInitialSeverity()
-                    == filterSeverityComboBox.getValue());
-
-            if (matchesKeyword
-                    && matchesPriority
-                    && matchesStatus
-                    && matchesDisasterType
-                    && matchesSeverity) {
-                filtered.add(incident);
-            }
-        }
-
-        filteredIncidentsTableView.setItems(filtered);
-        filterStatusLabel.setText(filtered.size() + " incidents found.");
-
         if (!hasOperationalAccess()) {
             globalStatusLabel.setText("System Status: Access denied.");
             return;
         }
+
+        Map<String, String> criteria = new java.util.HashMap<>();
+
+        criteria.put("keyword", filterKeywordField.getText().toLowerCase().trim());
+        criteria.put("disasterType", filterDisasterTypeComboBox.getValue() == null
+                ? ""
+                : filterDisasterTypeComboBox.getValue().name());
+        criteria.put("severity", filterSeverityComboBox.getValue() == null
+                ? ""
+                : filterSeverityComboBox.getValue().name());
+        criteria.put("priority", filterPriorityComboBox.getValue() == null
+                ? ""
+                : filterPriorityComboBox.getValue().name());
+        criteria.put("status", filterStatusComboBox.getValue() == null
+                ? ""
+                : filterStatusComboBox.getValue().name());
+
+        loadFilteredIncidentsFromBackend(criteria);
     }
 
     /**
@@ -1815,13 +2052,93 @@ public class MainDashboardController {
      */
     @FXML
     private void handleResetFilter() {
-        filteredIncidentsTableView.setItems(ApplicationRepository.getIncidents());
         filterKeywordField.clear();
         filterDisasterTypeComboBox.getSelectionModel().clearSelection();
         filterSeverityComboBox.getSelectionModel().clearSelection();
         filterPriorityComboBox.getSelectionModel().clearSelection();
         filterStatusComboBox.getSelectionModel().clearSelection();
+
+        Map<String, String> criteria = new java.util.HashMap<>();
+        loadFilteredIncidentsFromBackend(criteria);
+
         filterStatusLabel.setText("Filters reset.");
+    }
+
+    /**
+     * Loads emergency resources from the backend server.
+     */
+    private void loadEmergencyResourcesFromBackend() {
+        ClientResponse response = backendClient.getEmergencyResources();
+
+        if (!response.isSuccess()) {
+            counterStatusLabel.setText(response.getMessage());
+            return;
+        }
+
+        ApplicationRepository.getEmergencyResources().clear();
+
+        for (Map<String, String> row : response.getDataList()) {
+            ApplicationRepository.getEmergencyResources().add(
+                    convertMapToEmergencyResource(row));
+        }
+
+        resourceTableView.refresh();
+        refreshResourceCounters();
+    }
+
+    /**
+     * Converts backend resource data into an EmergencyResource object.
+     *
+     * @param row backend data row
+     * @return emergency resource object
+     */
+    private EmergencyResource convertMapToEmergencyResource(
+            Map<String, String> row) {
+
+        return new EmergencyResource(
+                safeMapValue(row, "resourceId"),
+                safeMapValue(row, "resourceName"),
+                safeMapValue(row, "resourceType"),
+                parseInteger(safeMapValue(row, "totalQuantity"))
+        );
+    }
+
+    /**
+     * Sends a resource availability action to the backend server.
+     *
+     * @param action resource action name
+     * @param successMessage success message prefix
+     */
+    private void updateSelectedResourceAvailability(String action,
+            String successMessage) {
+
+        EmergencyResource resource
+                = resourceTableView.getSelectionModel().getSelectedItem();
+
+        if (!hasOperationalAccess()) {
+            globalStatusLabel.setText("System Status: Access denied.");
+            return;
+        }
+
+        if (resource == null) {
+            counterStatusLabel.setText("Select a resource first.");
+            return;
+        }
+
+        ClientResponse response = backendClient.updateResourceAvailability(
+                resource.getResourceId(),
+                action);
+
+        if (!response.isSuccess()) {
+            counterStatusLabel.setText(response.getMessage());
+            return;
+        }
+
+        loadEmergencyResourcesFromBackend();
+        refreshDashboardCounters();
+
+        counterStatusLabel.setText(
+                successMessage + " " + resource.getResourceName() + ".");
     }
 
     /**
@@ -1865,35 +2182,9 @@ public class MainDashboardController {
      */
     @FXML
     private void handleMarkResourceUnavailable() {
-        EmergencyResource resource
-                = resourceTableView.getSelectionModel().getSelectedItem();
-
-        if (!hasOperationalAccess()) {
-            globalStatusLabel.setText("System Status: Access denied.");
-            return;
-        }
-
-        if (resource == null) {
-            counterStatusLabel.setText("Select a resource first.");
-            return;
-        }
-
-        boolean updated = resource.markOneUnavailable();
-
-        if (!updated) {
-            counterStatusLabel.setText(
-                    "No available units to mark unavailable.");
-            return;
-        }
-
-        resourceTableView.refresh();
-        refreshResourceCounters();
-        refreshDashboardCounters();
-
-        counterStatusLabel.setText(
-                "One unit marked unavailable for "
-                + resource.getResourceName()
-                + ".");
+        updateSelectedResourceAvailability(
+                "MARK_UNAVAILABLE",
+                "One unit marked unavailable for");
     }
 
     /**
@@ -1901,35 +2192,9 @@ public class MainDashboardController {
      */
     @FXML
     private void handleMarkResourceMaintenance() {
-        EmergencyResource resource
-                = resourceTableView.getSelectionModel().getSelectedItem();
-
-        if (!hasOperationalAccess()) {
-            globalStatusLabel.setText("System Status: Access denied.");
-            return;
-        }
-
-        if (resource == null) {
-            counterStatusLabel.setText("Select a resource first.");
-            return;
-        }
-
-        boolean updated = resource.markOneMaintenance();
-
-        if (!updated) {
-            counterStatusLabel.setText(
-                    "No available units to mark for maintenance.");
-            return;
-        }
-
-        resourceTableView.refresh();
-        refreshResourceCounters();
-        refreshDashboardCounters();
-
-        counterStatusLabel.setText(
-                "One unit marked under maintenance for "
-                + resource.getResourceName()
-                + ".");
+        updateSelectedResourceAvailability(
+                "MARK_MAINTENANCE",
+                "One unit marked under maintenance for");
     }
 
     /**
@@ -1938,35 +2203,9 @@ public class MainDashboardController {
      */
     @FXML
     private void handleRestoreUnavailableResource() {
-        EmergencyResource resource
-                = resourceTableView.getSelectionModel().getSelectedItem();
-
-        if (!hasOperationalAccess()) {
-            globalStatusLabel.setText("System Status: Access denied.");
-            return;
-        }
-
-        if (resource == null) {
-            counterStatusLabel.setText("Select a resource first.");
-            return;
-        }
-
-        boolean restored = resource.restoreOneUnavailable();
-
-        if (!restored) {
-            counterStatusLabel.setText(
-                    "No unavailable units available to restore.");
-            return;
-        }
-
-        resourceTableView.refresh();
-        refreshResourceCounters();
-        refreshDashboardCounters();
-
-        counterStatusLabel.setText(
-                "One unavailable unit restored for "
-                + resource.getResourceName()
-                + ".");
+        updateSelectedResourceAvailability(
+                "RESTORE_UNAVAILABLE",
+                "One unavailable unit restored for");
     }
 
     /**
@@ -1975,35 +2214,9 @@ public class MainDashboardController {
      */
     @FXML
     private void handleRestoreMaintenanceResource() {
-        EmergencyResource resource
-                = resourceTableView.getSelectionModel().getSelectedItem();
-
-        if (!hasOperationalAccess()) {
-            globalStatusLabel.setText("System Status: Access denied.");
-            return;
-        }
-
-        if (resource == null) {
-            counterStatusLabel.setText("Select a resource first.");
-            return;
-        }
-
-        boolean restored = resource.restoreOneMaintenance();
-
-        if (!restored) {
-            counterStatusLabel.setText(
-                    "No maintenance units available to restore.");
-            return;
-        }
-
-        resourceTableView.refresh();
-        refreshResourceCounters();
-        refreshDashboardCounters();
-
-        counterStatusLabel.setText(
-                "One maintenance unit restored for "
-                + resource.getResourceName()
-                + ".");
+        updateSelectedResourceAvailability(
+                "RESTORE_MAINTENANCE",
+                "One maintenance unit restored for");
     }
 
     /**
@@ -2100,6 +2313,7 @@ public class MainDashboardController {
         showOnlyPane(responseLogPane);
         pageSubtitleLabel.setText("Emergency Response Log");
         setActiveButton(responseLogButton);
+        loadResponseLogsFromBackend();
         responseLogTableView.refresh();
     }
 
@@ -2121,6 +2335,7 @@ public class MainDashboardController {
         showOnlyPane(resourceCountersPane);
         pageSubtitleLabel.setText("Emergency Resource Availability Tracker");
         setActiveButton(resourceCountersButton);
+        loadEmergencyResourcesFromBackend();
         resourceTableView.refresh();
         refreshResourceCounters();
     }
@@ -2138,6 +2353,7 @@ public class MainDashboardController {
         showOnlyPane(userManagementPane);
         pageSubtitleLabel.setText("Admin User Management");
         setActiveButton(userManagementButton);
+        loadSystemUsersFromBackend();
         userManagementTableView.refresh();
     }
 
@@ -2155,7 +2371,8 @@ public class MainDashboardController {
             return;
         }
 
-        int totalCapacity = Integer.parseInt(shelterCapacityField.getText().trim());
+        int totalCapacity = Integer.parseInt(
+                shelterCapacityField.getText().trim());
         int currentOccupants = Integer.parseInt(
                 shelterCurrentOccupantsField.getText().trim());
 
@@ -2168,14 +2385,20 @@ public class MainDashboardController {
                 shelterStatusComboBox.getValue(),
                 LocalDateTime.now().toString()
         );
-        
+
         shelterAvailabilityService.updateShelterAvailability(shelter);
-        ApplicationRepository.addEvacuationShelter(shelter);
-        shelterTableView.refresh();
-        refreshShelterCounters();
+
+        ClientResponse response = backendClient.addEvacuationShelter(shelter);
+
+        if (!response.isSuccess()) {
+            shelterStatusLabel.setText(response.getMessage());
+            return;
+        }
+
+        loadEvacuationSheltersFromBackend();
         handleClearShelterForm();
 
-        shelterStatusLabel.setText("Shelter added successfully.");
+        shelterStatusLabel.setText(response.getMessage());
         globalStatusLabel.setText("System Status: Shelter record added.");
     }
 
@@ -2201,22 +2424,35 @@ public class MainDashboardController {
             return;
         }
 
-        int totalCapacity = Integer.parseInt(shelterCapacityField.getText().trim());
+        int totalCapacity = Integer.parseInt(
+                shelterCapacityField.getText().trim());
         int currentOccupants = Integer.parseInt(
                 shelterCurrentOccupantsField.getText().trim());
 
-        selectedShelter.setShelterName(shelterNameField.getText().trim());
-        selectedShelter.setLocation(shelterLocationField.getText().trim());
-        selectedShelter.setTotalCapacity(totalCapacity);
-        selectedShelter.setCurrentOccupants(currentOccupants);
-        selectedShelter.setShelterStatus(shelterStatusComboBox.getValue());
-        shelterAvailabilityService.updateShelterAvailability(selectedShelter);
-        selectedShelter.setLastUpdated(LocalDateTime.now().toString());
+        EvacuationShelter updatedShelter = new EvacuationShelter(
+                selectedShelter.getShelterId(),
+                shelterNameField.getText().trim(),
+                shelterLocationField.getText().trim(),
+                totalCapacity,
+                currentOccupants,
+                shelterStatusComboBox.getValue(),
+                LocalDateTime.now().toString()
+        );
 
-        shelterTableView.refresh();
-        refreshShelterCounters();
+        shelterAvailabilityService.updateShelterAvailability(updatedShelter);
 
-        shelterStatusLabel.setText("Shelter updated successfully.");
+        ClientResponse response = backendClient.updateEvacuationShelter(
+                updatedShelter);
+
+        if (!response.isSuccess()) {
+            shelterStatusLabel.setText(response.getMessage());
+            return;
+        }
+
+        loadEvacuationSheltersFromBackend();
+        handleClearShelterForm();
+
+        shelterStatusLabel.setText(response.getMessage());
         globalStatusLabel.setText("System Status: Shelter record updated.");
     }
 
@@ -2296,6 +2532,7 @@ public class MainDashboardController {
         showOnlyPane(evacuationShelterPane);
         pageSubtitleLabel.setText("Evacuation Shelter Availability Tracker");
         setActiveButton(evacuationShelterButton);
+        loadEvacuationSheltersFromBackend();
         shelterTableView.refresh();
         refreshShelterCounters();
     }
@@ -2349,11 +2586,18 @@ public class MainDashboardController {
             return;
         }
 
-        ApplicationRepository.addPublicAlert(alert);
+        ClientResponse response = backendClient.createPublicAlert(alert);
+
+        if (!response.isSuccess()) {
+            publicAlertStatusLabel.setText(response.getMessage());
+            return;
+        }
+
+        loadPublicAlertsFromBackend();
         refreshPublicAlertDisplay();
         handleClearAlertForm();
 
-        publicAlertStatusLabel.setText("Public alert created successfully.");
+        publicAlertStatusLabel.setText(response.getMessage());
         globalStatusLabel.setText("System Status: Public alert created.");
     }
 
@@ -2375,12 +2619,18 @@ public class MainDashboardController {
             return;
         }
 
-        publicAlertService.publishAlert(selectedAlert);
-        selectedAlert.setCreatedTime(LocalDateTime.now().toString());
+        ClientResponse response = backendClient.publishPublicAlert(
+                selectedAlert.getAlertId());
 
+        if (!response.isSuccess()) {
+            publicAlertStatusLabel.setText(response.getMessage());
+            return;
+        }
+
+        loadPublicAlertsFromBackend();
         refreshPublicAlertDisplay();
 
-        publicAlertStatusLabel.setText("Public alert published.");
+        publicAlertStatusLabel.setText(response.getMessage());
         globalStatusLabel.setText("System Status: Public alert published.");
     }
 
@@ -2402,12 +2652,18 @@ public class MainDashboardController {
             return;
         }
 
-        publicAlertService.expireAlert(selectedAlert);
-        selectedAlert.setCreatedTime(LocalDateTime.now().toString());
+        ClientResponse response = backendClient.expirePublicAlert(
+                selectedAlert.getAlertId());
 
+        if (!response.isSuccess()) {
+            publicAlertStatusLabel.setText(response.getMessage());
+            return;
+        }
+
+        loadPublicAlertsFromBackend();
         refreshPublicAlertDisplay();
 
-        publicAlertStatusLabel.setText("Public alert expired.");
+        publicAlertStatusLabel.setText(response.getMessage());
         globalStatusLabel.setText("System Status: Public alert expired.");
     }
 
@@ -2723,4 +2979,124 @@ public class MainDashboardController {
         return currentRole == UserRole.EMERGENCY_CONTROL_CENTRE
                 || currentRole == UserRole.SYSTEM_ADMINISTRATOR;
     }
+
+    /**
+     * Safely reads a value from a backend data row.
+     *
+     * @param row backend data row
+     * @param key data key
+     * @return value or empty string
+     */
+    private String safeMapValue(Map<String, String> row, String key) {
+        if (row == null || !row.containsKey(key) || row.get(key) == null) {
+            return "";
+        }
+
+        return row.get(key);
+    }
+
+    /**
+     * Converts text into an integer.
+     *
+     * @param value text value
+     * @return integer value, or zero if invalid
+     */
+    private int parseInteger(String value) {
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException exception) {
+            return 0;
+        }
+    }
+
+    /**
+     * Converts text into an AgencyType value.
+     *
+     * @param value agency type text
+     * @return matching AgencyType, or FIRE_RESPONSE as default
+     */
+    private AgencyType convertToAgencyType(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return AgencyType.FIRE_RESPONSE;
+        }
+
+        try {
+            return AgencyType.valueOf(value.trim().toUpperCase());
+        } catch (IllegalArgumentException exception) {
+            return AgencyType.FIRE_RESPONSE;
+        }
+    }
+
+    /**
+     * Converts text into a DisasterType value.
+     *
+     * @param value disaster type text
+     * @return matching DisasterType, or FIRE as default
+     */
+    private DisasterType convertToDisasterType(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return DisasterType.FIRE;
+        }
+
+        try {
+            return DisasterType.valueOf(value.trim().toUpperCase());
+        } catch (IllegalArgumentException exception) {
+            return DisasterType.FIRE;
+        }
+    }
+
+    /**
+     * Converts text into a SeverityLevel value.
+     *
+     * @param value severity text
+     * @return matching SeverityLevel, or LOW as default
+     */
+    private SeverityLevel convertToSeverityLevel(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return SeverityLevel.LOW;
+        }
+
+        try {
+            return SeverityLevel.valueOf(value.trim().toUpperCase());
+        } catch (IllegalArgumentException exception) {
+            return SeverityLevel.LOW;
+        }
+    }
+
+    /**
+     * Converts text into an IncidentStatus value.
+     *
+     * @param value status text
+     * @return matching IncidentStatus, or REPORTED as default
+     */
+    private IncidentStatus convertToIncidentStatus(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return IncidentStatus.REPORTED;
+        }
+
+        try {
+            return IncidentStatus.valueOf(value.trim().toUpperCase());
+        } catch (IllegalArgumentException exception) {
+            return IncidentStatus.REPORTED;
+        }
+    }
+
+    /**
+     * Converts text into a ResourceStatus value.
+     *
+     * @param value status text
+     * @return matching ResourceStatus, or AVAILABLE as default
+     */
+    private ResourceStatus convertToResourceStatus(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return ResourceStatus.AVAILABLE;
+        }
+
+        try {
+            return ResourceStatus.valueOf(value.trim().toUpperCase());
+        } catch (IllegalArgumentException exception) {
+            return ResourceStatus.AVAILABLE;
+        }
+    }
+
 }
