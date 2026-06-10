@@ -1,14 +1,4 @@
-build/
-dist/
-target/
-out/
-
-*.class
-*.log
-*.tmp
 
 nbproject/private/
-private/
-
-.DS_Store
-Thumbs.db
+build/
+dist/

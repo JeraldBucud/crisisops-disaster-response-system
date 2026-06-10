@@ -32,6 +32,8 @@ public class ClientRequest implements Serializable {
             "SUBMIT_DISASTER_REPORT";
     public static final String GET_DISASTER_REPORTS =
             "GET_DISASTER_REPORTS";
+
+    public static final String GET_INCIDENTS = "GET_INCIDENTS";
     public static final String REGISTER_INCIDENT = "REGISTER_INCIDENT";
     public static final String ASSESS_INCIDENT_PRIORITY =
             "ASSESS_INCIDENT_PRIORITY";
@@ -56,6 +58,7 @@ public class ClientRequest implements Serializable {
     public static final String UPDATE_EVACUATION_SHELTER =
             "UPDATE_EVACUATION_SHELTER";
 
+    public static final String GET_PUBLIC_ALERTS = "GET_PUBLIC_ALERTS";
     public static final String GET_PUBLIC_ALERTS_FOR_PUBLIC_USER =
             "GET_PUBLIC_ALERTS_FOR_PUBLIC_USER";
     public static final String GET_ALL_PUBLIC_ALERTS =
