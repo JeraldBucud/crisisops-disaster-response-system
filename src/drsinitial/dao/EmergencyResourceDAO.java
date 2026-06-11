@@ -52,6 +52,40 @@ public class EmergencyResourceDAO {
 
         return resources;
     }
+    
+    /**
+ * Loads all response agencies from the database.
+ *
+ * @return list of response agency records
+ * @throws SQLException if database access fails
+ */
+public List<Map<String, String>> getAllResponseAgencies()
+        throws SQLException {
+
+    List<Map<String, String>> agencies = new ArrayList<>();
+
+    String sql = "SELECT agency_id, agency_name, agency_type, contact_number "
+            + "FROM response_agencies ORDER BY agency_id";
+
+    try (Connection connection = DatabaseConnection.getConnection();
+            PreparedStatement statement = connection.prepareStatement(sql);
+            ResultSet resultSet = statement.executeQuery()) {
+
+        while (resultSet.next()) {
+            Map<String, String> agency = new HashMap<>();
+
+            agency.put("agencyId", resultSet.getString("agency_id"));
+            agency.put("agencyName", resultSet.getString("agency_name"));
+            agency.put("agencyType", resultSet.getString("agency_type"));
+            agency.put("contactNumber", resultSet.getString("contact_number"));
+            agency.put("availabilityStatus", "AVAILABLE");
+
+            agencies.add(agency);
+        }
+    }
+
+    return agencies;
+}
 
     public boolean updateResourceAvailability(String resourceId,
             String action) throws SQLException {

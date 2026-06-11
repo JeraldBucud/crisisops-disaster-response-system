@@ -118,10 +118,10 @@ public class ClientHandler implements Runnable {
                         "Incidents loaded.",
                         incidentDAO.getAllIncidents());
             }
-            
+
             if (ClientRequest.REGISTER_INCIDENT.equals(type)) {
-                    return handleRegisterIncident(request.getData());
-                }
+                return handleRegisterIncident(request.getData());
+            }
 
             if (ClientRequest.SEARCH_INCIDENTS.equals(type)) {
                 return new ClientResponse(
@@ -192,6 +192,13 @@ public class ClientHandler implements Runnable {
                         true,
                         "Emergency resources loaded.",
                         resourceDAO.getAllResources());
+            }
+
+            if (ClientRequest.GET_RESPONSE_AGENCIES.equals(type)) {
+                return new ClientResponse(
+                        true,
+                        "Response agencies loaded.",
+                        resourceDAO.getAllResponseAgencies());
             }
 
             if (ClientRequest.UPDATE_RESOURCE_AVAILABILITY.equals(type)) {
