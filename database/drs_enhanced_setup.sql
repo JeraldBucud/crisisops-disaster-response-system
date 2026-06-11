@@ -31,10 +31,11 @@ CREATE TABLE disaster_reports (
 CREATE TABLE incidents (
     incident_id VARCHAR(20) PRIMARY KEY,
     report_id VARCHAR(20) NOT NULL,
-    location VARCHAR(150) NOT NULL,
-    status VARCHAR(50) NOT NULL,
+    affected_people INT NOT NULL,
+    affected_area VARCHAR(150) NOT NULL,
     severity VARCHAR(50) NOT NULL,
     priority VARCHAR(50),
+    status VARCHAR(50) NOT NULL,
     created_time DATETIME NOT NULL,
     FOREIGN KEY (report_id) REFERENCES disaster_reports(report_id)
 );
@@ -97,7 +98,8 @@ CREATE TABLE public_alerts (
     alert_message TEXT NOT NULL,
     created_by VARCHAR(100) NOT NULL,
     created_time DATETIME NOT NULL,
-    alert_status VARCHAR(30) NOT NULL
+    alert_status VARCHAR(30) NOT NULL,
+    FOREIGN KEY (incident_id) REFERENCES incidents(incident_id)
 );
 
 CREATE TABLE audit_logs (
@@ -120,9 +122,9 @@ INSERT INTO emergency_resources VALUES
 ('RES004','Relief Food Kit','SUPPLY',200,200,'AVAILABLE');
 
 INSERT INTO response_agencies VALUES
-('AG001','Fire and Emergency Services','FIRE_AND_EMERGENCY','000'),
-('AG002','Queensland Ambulance Service','HOSPITAL','000'),
-('AG003','Queensland Police Service','LAW_ENFORCEMENT','000');
+('AG001','Fire and Emergency Services','FIRE_RESPONSE','000'),
+('AG002','Queensland Ambulance Service','MEDICAL_RESPONSE','000'),
+('AG003','Queensland Police Service','SECURITY_RESPONSE','000');
 
 INSERT INTO evacuation_shelters VALUES
 ('SH001','Brisbane Community Hall','Brisbane CBD',200,45,155,'AVAILABLE',NOW()),
@@ -134,7 +136,7 @@ INSERT INTO disaster_reports VALUES
 ('R002','Public User','FLOOD','South Bank','Flooding reported near river walkway.','MEDIUM','REPORTED',NOW());
 
 INSERT INTO incidents VALUES
-('INC001','R001','Brisbane CBD','REGISTERED','HIGH','HIGH',NOW());
+('INC001','R001',25,'Brisbane CBD','HIGH','HIGH','REGISTERED',NOW());
 
 INSERT INTO public_alerts VALUES
 ('ALT001','INC001','Fire Alert','Brisbane CBD','HIGH','Avoid the affected area and follow emergency service instructions.','Emergency Control Centre',NOW(),'PUBLISHED');
