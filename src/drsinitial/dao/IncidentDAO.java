@@ -60,6 +60,28 @@ public class IncidentDAO {
 
         return incidents;
     }
+    
+    public Map<String, String> findIncidentById(String incidentId)
+        throws SQLException {
+
+    String sql = "SELECT incident_id, report_id, affected_people, "
+            + "affected_area, severity, priority, status, created_time "
+            + "FROM incidents WHERE incident_id = ?";
+
+    try (Connection connection = DatabaseConnection.getConnection();
+            PreparedStatement statement = connection.prepareStatement(sql)) {
+
+        statement.setString(1, incidentId);
+
+        try (ResultSet resultSet = statement.executeQuery()) {
+            if (resultSet.next()) {
+                return mapIncident(resultSet);
+            }
+        }
+    }
+
+    return null;
+}
 
     private boolean matchesCriteria(Map<String, String> incident,
             Map<String, String> criteria) {

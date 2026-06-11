@@ -47,11 +47,9 @@ public class ClientHandler implements Runnable {
     @Override
     public void run() {
         try (
-                ObjectOutputStream output =
-                        new ObjectOutputStream(clientSocket.getOutputStream());
-                ObjectInputStream input =
-                        new ObjectInputStream(clientSocket.getInputStream())
-        ) {
+                ObjectOutputStream output
+                = new ObjectOutputStream(clientSocket.getOutputStream()); ObjectInputStream input
+                = new ObjectInputStream(clientSocket.getInputStream())) {
             Object object = input.readObject();
             ClientResponse response;
 
@@ -126,6 +124,10 @@ public class ClientHandler implements Runnable {
                         true,
                         "Incidents loaded.",
                         incidentDAO.searchIncidents(request.getData()));
+            }
+
+            if (ClientRequest.ASSESS_INCIDENT_PRIORITY.equals(type)) {
+                return handleAssessIncidentPriority(request.getData());
             }
 
             if (ClientRequest.GET_PUBLIC_ALERTS.equals(type)
@@ -349,7 +351,7 @@ public class ClientHandler implements Runnable {
 
         return new ClientResponse(
                 true,
-                "Disaster report saved to MySQL.",
+                "Disaster report submitted.",
                 responseData);
     }
 
@@ -383,7 +385,7 @@ public class ClientHandler implements Runnable {
 
         return new ClientResponse(
                 true,
-                "Public alert saved to MySQL.",
+                "Public alert created successfully.",
                 responseData);
     }
 
@@ -432,7 +434,7 @@ public class ClientHandler implements Runnable {
 
         return new ClientResponse(
                 true,
-                "Evacuation shelter saved to MySQL.",
+                "Evacuation shelter added successfully.",
                 responseData);
     }
 
@@ -458,7 +460,7 @@ public class ClientHandler implements Runnable {
                 "Shelter updated: " + data.get("shelterId"));
 
         return ClientResponse.success(
-                "Evacuation shelter updated in MySQL.");
+                "Evacuation shelter updated successfully.");
     }
 
     private ClientResponse handleUpdateResourceAvailability(
@@ -503,6 +505,74 @@ public class ClientHandler implements Runnable {
         return new ClientResponse(
                 true,
                 "Emergency response dispatched.",
+                responseData);
+    }
+
+    private ClientResponse handleAssessIncidentPriority(Map<String, String> data)
+            throws SQLException {
+
+        String incidentId = data.get("incidentId");
+
+        if (incidentId == null || incidentId.trim().isEmpty()) {
+            return ClientResponse.failure("Select an incident first.");
+        }
+
+        Map<String, String> incident = incidentDAO.findIncidentById(incidentId);
+
+        if (incident == null || incident.isEmpty()) {
+            return ClientResponse.failure("Incident not found.");
+        }
+
+        String severity = incident.getOrDefault("severity", "LOW");
+        String affectedPeopleText = incident.getOrDefault("affectedPeople", "0");
+
+        int affectedPeople;
+
+        try {
+            affectedPeople = Integer.parseInt(affectedPeopleText);
+        } catch (NumberFormatException exception) {
+            affectedPeople = 0;
+        }
+
+        int severityScore;
+
+        switch (severity.toUpperCase()) {
+            case "CRITICAL":
+                severityScore = 4;
+                break;
+            case "HIGH":
+                severityScore = 3;
+                break;
+            case "MEDIUM":
+                severityScore = 2;
+                break;
+            default:
+                severityScore = 1;
+                break;
+        }
+
+        int riskScore = severityScore * affectedPeople;
+
+        String priority;
+
+        if (riskScore >= 300) {
+            priority = "EMERGENCY";
+        } else if (riskScore >= 150) {
+            priority = "HIGH";
+        } else if (riskScore >= 50) {
+            priority = "MEDIUM";
+        } else {
+            priority = "LOW";
+        }
+
+        Map<String, String> responseData = new HashMap<>();
+        responseData.put("severity", severity);
+        responseData.put("riskScore", String.valueOf(riskScore));
+        responseData.put("priority", priority);
+
+        return new ClientResponse(
+                true,
+                "Incident assessed and priority recommended.",
                 responseData);
     }
 }
