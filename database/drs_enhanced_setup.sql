@@ -43,8 +43,9 @@ CREATE TABLE incidents (
 CREATE TABLE incident_updates (
     update_id VARCHAR(20) PRIMARY KEY,
     incident_id VARCHAR(20) NOT NULL,
-    update_details TEXT NOT NULL,
+    update_notes TEXT NOT NULL,
     updated_by VARCHAR(100) NOT NULL,
+    updated_status VARCHAR(50) NOT NULL,
     update_time DATETIME NOT NULL,
     FOREIGN KEY (incident_id) REFERENCES incidents(incident_id)
 );
@@ -55,6 +56,9 @@ CREATE TABLE emergency_resources (
     type VARCHAR(50) NOT NULL,
     quantity INT NOT NULL,
     available_quantity INT NOT NULL,
+    assigned_quantity INT NOT NULL,
+    unavailable_quantity INT NOT NULL,
+    maintenance_quantity INT NOT NULL,
     resource_status VARCHAR(30) NOT NULL
 );
 
@@ -116,10 +120,10 @@ INSERT INTO users VALUES
 ('USR003','Public User','public@drs.local','public','public123','PUBLIC_USER','ACTIVE',NOW());
 
 INSERT INTO emergency_resources VALUES
-('RES001','Ambulance Unit','MEDICAL',5,5,'AVAILABLE'),
-('RES002','Fire Truck','FIRE',4,4,'AVAILABLE'),
-('RES003','Rescue Boat','RESCUE',2,2,'AVAILABLE'),
-('RES004','Relief Food Kit','SUPPLY',200,200,'AVAILABLE');
+('RES001','Ambulance Unit','MEDICAL',5,5,0,0,0,'AVAILABLE'),
+('RES002','Fire Truck','FIRE',4,4,0,0,0,'AVAILABLE'),
+('RES003','Rescue Boat','RESCUE',2,2,0,0,0,'AVAILABLE'),
+('RES004','Relief Food Kit','SUPPLY',200,200,0,0,0,'AVAILABLE');
 
 INSERT INTO response_agencies VALUES
 ('AG001','Fire and Emergency Services','FIRE_RESPONSE','000'),
@@ -138,8 +142,14 @@ INSERT INTO disaster_reports VALUES
 INSERT INTO incidents VALUES
 ('INC001','R001',25,'Brisbane CBD','HIGH','HIGH','REGISTERED',NOW());
 
+INSERT INTO incident_updates VALUES
+('U001','INC001','Initial incident registered from disaster report.','Emergency Control Centre','REGISTERED',NOW());
+
+INSERT INTO emergency_responses VALUES
+('ER001','INC001','AG001','RES002','DISPATCHED','Fire response team dispatched to Brisbane CBD.',NOW());
+
 INSERT INTO public_alerts VALUES
-('ALT001','INC001','Fire Alert','Brisbane CBD','HIGH','Avoid the affected area and follow emergency service instructions.','Emergency Control Centre',NOW(),'PUBLISHED');
+('AL001','INC001','Fire Alert','Brisbane CBD','HIGH','Avoid the affected area and follow emergency service instructions.','Emergency Control Centre',NOW(),'PUBLISHED');
 
 INSERT INTO audit_logs(username, action_type, action_details, action_time) VALUES
 ('system','DATABASE_INITIALISED','Default DRS-Enhanced seed data inserted.',NOW());

@@ -2122,96 +2122,86 @@ public class MainDashboardController {
         refreshResourceCounters();
     }
 
-    /**
-     * Converts backend resource data into an EmergencyResource object.
-     *
-     * @param row backend data row
-     * @return emergency resource object
-     */
-    private EmergencyResource convertMapToEmergencyResource(
-            Map<String, String> row) {
+/**
+ * Converts backend resource data into an EmergencyResource object.
+ *
+ * @param row backend data row
+ * @return emergency resource object
+ */
+private EmergencyResource convertMapToEmergencyResource(
+        Map<String, String> row) {
 
-        return new EmergencyResource(
-                safeMapValue(row, "resourceId"),
-                safeMapValue(row, "resourceName"),
-                safeMapValue(row, "resourceType"),
-                parseInteger(safeMapValue(row, "totalQuantity"))
-        );
+    EmergencyResource resource = new EmergencyResource(
+            safeMapValue(row, "resourceId"),
+            safeMapValue(row, "resourceName"),
+            safeMapValue(row, "resourceType"),
+            parseInteger(safeMapValue(row, "totalQuantity"))
+    );
+
+    resource.setAvailableQuantity(
+            parseInteger(safeMapValue(row, "availableQuantity")));
+
+    resource.setAssignedQuantity(
+            parseInteger(safeMapValue(row, "assignedQuantity")));
+
+    resource.setUnavailableQuantity(
+            parseInteger(safeMapValue(row, "unavailableQuantity")));
+
+    resource.setMaintenanceQuantity(
+            parseInteger(safeMapValue(row, "maintenanceQuantity")));
+
+    return resource;
+}
+
+/**
+ * Sends a resource availability action to the backend server.
+ *
+ * @param action resource action name
+ * @param successMessage success message prefix
+ */
+private void updateSelectedResourceAvailability(String action,
+        String successMessage) {
+
+    EmergencyResource resource =
+            resourceTableView.getSelectionModel().getSelectedItem();
+
+    if (!hasOperationalAccess()) {
+        globalStatusLabel.setText("System Status: Access denied.");
+        return;
     }
 
-    /**
-     * Sends a resource availability action to the backend server.
-     *
-     * @param action resource action name
-     * @param successMessage success message prefix
-     */
-    private void updateSelectedResourceAvailability(String action,
-            String successMessage) {
-
-        EmergencyResource resource
-                = resourceTableView.getSelectionModel().getSelectedItem();
-
-        if (!hasOperationalAccess()) {
-            globalStatusLabel.setText("System Status: Access denied.");
-            return;
-        }
-
-        if (resource == null) {
-            counterStatusLabel.setText("Select a resource first.");
-            return;
-        }
-
-        ClientResponse response = backendClient.updateResourceAvailability(
-                resource.getResourceId(),
-                action);
-
-        if (!response.isSuccess()) {
-            counterStatusLabel.setText(response.getMessage());
-            return;
-        }
-
-        loadEmergencyResourcesFromBackend();
-        refreshDashboardCounters();
-
-        counterStatusLabel.setText(
-                successMessage + " " + resource.getResourceName() + ".");
+    if (resource == null) {
+        counterStatusLabel.setText("Select a resource first.");
+        return;
     }
 
-    /**
-     * Releases one assigned unit from the selected resource.
-     */
-    @FXML
-    private void handleReleaseResource() {
-        EmergencyResource resource
-                = resourceTableView.getSelectionModel().getSelectedItem();
+    ClientResponse response = backendClient.updateResourceAvailability(
+            resource.getResourceId(),
+            action);
 
-        if (!hasOperationalAccess()) {
-            globalStatusLabel.setText("System Status: Access denied.");
-            return;
-        }
-
-        if (resource == null) {
-            counterStatusLabel.setText("Select a resource first.");
-            return;
-        }
-
-        boolean released = resource.releaseResource();
-
-        if (!released) {
-            counterStatusLabel.setText(
-                    "No assigned units available to release.");
-            return;
-        }
-
-        resourceTableView.refresh();
-        refreshResourceCounters();
-        refreshDashboardCounters();
-
-        counterStatusLabel.setText(
-                "One assigned unit released for "
-                + resource.getResourceName()
-                + ".");
+    if (!response.isSuccess()) {
+        counterStatusLabel.setText(response.getMessage());
+        return;
     }
+
+    loadEmergencyResourcesFromBackend();
+    resourceTableView.refresh();
+    refreshResourceCounters();
+    refreshDashboardCounters();
+
+    counterStatusLabel.setText(
+            successMessage + " " + resource.getResourceName() + ".");
+}
+
+/**
+ * Releases one assigned unit from the selected resource.
+ */
+@FXML
+private void handleReleaseResource() {
+    updateSelectedResourceAvailability(
+            "RELEASE_ASSIGNED",
+            "One assigned unit released for");
+}
 
     /**
      * Marks one available unit from the selected resource as unavailable.
