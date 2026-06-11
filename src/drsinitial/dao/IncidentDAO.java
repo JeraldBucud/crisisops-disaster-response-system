@@ -60,28 +60,93 @@ public class IncidentDAO {
 
         return incidents;
     }
-    
+
     public Map<String, String> findIncidentById(String incidentId)
-        throws SQLException {
+            throws SQLException {
 
-    String sql = "SELECT incident_id, report_id, affected_people, "
-            + "affected_area, severity, priority, status, created_time "
-            + "FROM incidents WHERE incident_id = ?";
+        String sql = "SELECT incident_id, report_id, affected_people, "
+                + "affected_area, severity, priority, status, created_time "
+                + "FROM incidents WHERE incident_id = ?";
 
-    try (Connection connection = DatabaseConnection.getConnection();
-            PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (Connection connection = DatabaseConnection.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
 
-        statement.setString(1, incidentId);
+            statement.setString(1, incidentId);
 
-        try (ResultSet resultSet = statement.executeQuery()) {
-            if (resultSet.next()) {
-                return mapIncident(resultSet);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return mapIncident(resultSet);
+                }
             }
+        }
+
+        return null;
+    }
+
+    public String generateNextIncidentId() throws SQLException {
+        String sql = "SELECT incident_id FROM incidents "
+                + "ORDER BY CAST(SUBSTRING(incident_id, 4) AS UNSIGNED) DESC "
+                + "LIMIT 1";
+
+        try (Connection connection = DatabaseConnection.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql);
+                ResultSet resultSet = statement.executeQuery()) {
+
+            if (resultSet.next()) {
+                String currentId = resultSet.getString("incident_id");
+                int number = Integer.parseInt(currentId.substring(3));
+                return String.format("INC%03d", number + 1);
+            }
+        }
+
+        return "INC001";
+    }
+
+    public boolean saveIncident(String incidentId,
+            String reportId,
+            int affectedPeople,
+            String affectedArea,
+            String severity,
+            String priority,
+            String status) throws SQLException {
+
+        String sql = "INSERT INTO incidents "
+                + "(incident_id, report_id, affected_people, affected_area, "
+                + "severity, priority, status, created_time) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, NOW())";
+
+        try (Connection connection = DatabaseConnection.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, incidentId);
+            statement.setString(2, reportId);
+            statement.setInt(3, affectedPeople);
+            statement.setString(4, affectedArea);
+            statement.setString(5, severity);
+            statement.setString(6, priority);
+            statement.setString(7, status);
+
+            return statement.executeUpdate() > 0;
         }
     }
 
-    return null;
-}
+    public boolean updateIncidentPriority(String incidentId,
+            String severity,
+            String priority) throws SQLException {
+
+        String sql = "UPDATE incidents SET severity = ?, priority = ? "
+                + "WHERE incident_id = ?";
+
+        try (Connection connection = DatabaseConnection.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, severity);
+            statement.setString(2, priority);
+            statement.setString(3, incidentId);
+
+            return statement.executeUpdate() > 0;
+        }
+    }
 
     private boolean matchesCriteria(Map<String, String> incident,
             Map<String, String> criteria) {

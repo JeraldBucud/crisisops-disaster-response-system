@@ -1706,14 +1706,15 @@ public class MainDashboardController {
             return;
         }
 
-        incidentService.registerIncident(
-                incidentIdField.getText(),
+        ClientResponse response = backendClient.registerIncident(
                 reportId,
                 affectedPeople,
-                affectedAreaField.getText()
-        );
+                affectedAreaField.getText());
 
-        refreshIncidentTables();
+        if (!response.isSuccess()) {
+            incidentStatusLabel.setText(response.getMessage());
+            return;
+        }
 
         incidentStatusLabel.setText("Incident registered successfully.");
         globalStatusLabel.setText("System Status: Incident registered.");
@@ -1725,6 +1726,11 @@ public class MainDashboardController {
         selectedReportLocationLabel.setText("Select a report first.");
         selectedReportSeverityLabel.setText("Select a report first.");
         selectedReportDescriptionArea.clear();
+
+        loadIncidentsFromBackend();
+        refreshIncidentTables();
+        refreshIncidentComboBoxes();
+        refreshAlertIncidentComboBox();
 
         prepareGeneratedIds();
         refreshDashboardCounters();
@@ -1758,9 +1764,11 @@ public class MainDashboardController {
         riskScoreLabel.setText(response.getDataValue("riskScore"));
         recommendedPriorityLabel.setText(response.getDataValue("priority"));
 
+        loadIncidentsFromBackend();
         refreshIncidentTables();
 
-        assessmentStatusLabel.setText("Incident assessed and priority recommended.");
+        assessmentStatusLabel.setText(
+                "Incident assessed and priority recommended.");
         globalStatusLabel.setText(
                 "System Status: Incident assessed and prioritised.");
     }

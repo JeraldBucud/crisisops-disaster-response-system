@@ -118,12 +118,20 @@ public class ClientHandler implements Runnable {
                         "Incidents loaded.",
                         incidentDAO.getAllIncidents());
             }
+            
+            if (ClientRequest.REGISTER_INCIDENT.equals(type)) {
+                    return handleRegisterIncident(request.getData());
+                }
 
             if (ClientRequest.SEARCH_INCIDENTS.equals(type)) {
                 return new ClientResponse(
                         true,
                         "Incidents loaded.",
                         incidentDAO.searchIncidents(request.getData()));
+            }
+
+            if (ClientRequest.ASSESS_INCIDENT_PRIORITY.equals(type)) {
+                return handleAssessIncidentPriority(request.getData());
             }
 
             if (ClientRequest.ASSESS_INCIDENT_PRIORITY.equals(type)) {
@@ -575,4 +583,62 @@ public class ClientHandler implements Runnable {
                 "Incident assessed and priority recommended.",
                 responseData);
     }
+
+    private ClientResponse handleRegisterIncident(Map<String, String> data)
+            throws SQLException {
+
+        String reportId = data.get("reportId");
+
+        if (reportId == null || reportId.trim().isEmpty()) {
+            return ClientResponse.failure("Select a report ID first.");
+        }
+
+        int affectedPeople;
+
+        try {
+            affectedPeople = Integer.parseInt(data.get("affectedPeople"));
+        } catch (NumberFormatException exception) {
+            return ClientResponse.failure("Affected people must be numeric.");
+        }
+
+        String affectedArea = data.get("affectedArea");
+
+        if (affectedArea == null || affectedArea.trim().isEmpty()) {
+            return ClientResponse.failure("Affected area is required.");
+        }
+
+        String incidentId = incidentDAO.generateNextIncidentId();
+
+        String severity = data.getOrDefault("severity", "HIGH");
+        String priority = data.getOrDefault("priority", "HIGH");
+        String status = data.getOrDefault("status", "REGISTERED");
+
+        boolean saved = incidentDAO.saveIncident(
+                incidentId,
+                reportId,
+                affectedPeople,
+                affectedArea,
+                severity,
+                priority,
+                status);
+
+        if (!saved) {
+            return ClientResponse.failure("Incident could not be registered.");
+        }
+
+        auditLogDAO.saveAuditLog(
+                data.getOrDefault("username", "ecc"),
+                "REGISTER_INCIDENT",
+                "Incident registered: " + incidentId);
+
+        Map<String, String> responseData = new HashMap<>();
+        responseData.put("incidentId", incidentId);
+        responseData.put("nextIncidentId", incidentDAO.generateNextIncidentId());
+
+        return new ClientResponse(
+                true,
+                "Incident registered successfully.",
+                responseData);
+    }
+
 }
