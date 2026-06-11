@@ -1658,8 +1658,8 @@ public class MainDashboardController {
             return;
         }
 
-        reportStatusLabel.setText(response.getMessage());
-        globalStatusLabel.setText("System Status: Report submitted.");
+        reportStatusLabel.setText("Disaster report submitted.");
+        globalStatusLabel.setText("System Status: Disaster report submitted.");
 
         reporterNameField.clear();
         locationField.clear();

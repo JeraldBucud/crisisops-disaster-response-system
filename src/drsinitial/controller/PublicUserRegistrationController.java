@@ -86,7 +86,7 @@ public class PublicUserRegistrationController {
             return;
         }
 
-        showSuccess(response.getMessage());
+        showSuccess("Registration successful. You can now log in.");
 
         PauseTransition pause = new PauseTransition(Duration.seconds(1.2));
         pause.setOnFinished(event -> openLoginScreen());
