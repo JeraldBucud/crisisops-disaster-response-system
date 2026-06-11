@@ -411,13 +411,24 @@ public class MainDashboardController {
     }
 
     /**
-     * Clears generated ID fields until backend-generated IDs are returned.
+     * Prepares generated IDs for input forms.
      */
     private void prepareGeneratedIds() {
-        reportIdField.clear();
-        incidentIdField.clear();
-        responseIdField.clear();
-        updateIdField.clear();
+        if (reportIdField != null) {
+            reportIdField.setText(ApplicationRepository.generateReportId());
+        }
+
+        if (incidentIdField != null) {
+            incidentIdField.setText(ApplicationRepository.generateIncidentId());
+        }
+
+        if (updateIdField != null) {
+            updateIdField.setText(ApplicationRepository.generateUpdateId());
+        }
+
+        if (responseIdField != null) {
+            responseIdField.setText(ApplicationRepository.generateResponseId());
+        }
     }
 
     /**
@@ -1656,13 +1667,7 @@ public class MainDashboardController {
         disasterTypeComboBox.getSelectionModel().clearSelection();
         initialSeverityComboBox.getSelectionModel().clearSelection();
 
-        if (response.hasData()
-                && !response.getDataValue("nextReportId").isEmpty()) {
-            reportIdField.setText(response.getDataValue("nextReportId"));
-        } else {
-            reportIdField.clear();
-        }
-
+        prepareGeneratedIds();
         refreshDashboardCounters();
     }
 
@@ -1698,20 +1703,16 @@ public class MainDashboardController {
             return;
         }
 
-        ClientResponse response = backendClient.registerIncident(
+        incidentService.registerIncident(
+                incidentIdField.getText(),
                 reportId,
                 affectedPeople,
-                affectedAreaField.getText().trim()
+                affectedAreaField.getText()
         );
-
-        if (!response.isSuccess()) {
-            incidentStatusLabel.setText(response.getMessage());
-            return;
-        }
 
         refreshIncidentTables();
 
-        incidentStatusLabel.setText(response.getMessage());
+        incidentStatusLabel.setText("Incident registered successfully.");
         globalStatusLabel.setText("System Status: Incident registered.");
 
         incidentReportIdComboBox.getSelectionModel().clearSelection();
@@ -1722,12 +1723,8 @@ public class MainDashboardController {
         selectedReportSeverityLabel.setText("Select a report first.");
         selectedReportDescriptionArea.clear();
 
-        if (response.hasData()
-                && !response.getDataValue("nextIncidentId").isEmpty()) {
-            incidentIdField.setText(response.getDataValue("nextIncidentId"));
-        } else {
-            incidentIdField.clear();
-        }
+        prepareGeneratedIds();
+        refreshDashboardCounters();
     }
 
     /**
@@ -1783,33 +1780,63 @@ public class MainDashboardController {
             return;
         }
 
-        Incident incident = new Incident(
-                dispatchIncidentIdComboBox.getValue(),
-                "",
-                0,
-                ""
-        );
+        Incident incident = ApplicationRepository.findIncidentById(
+                dispatchIncidentIdComboBox.getValue());
 
-        EmergencyResponse responseRecord = new EmergencyResponse(
-                responseIdField.getText(),
-                incident,
-                agencyComboBox.getValue(),
-                resourceComboBox.getValue(),
-                dispatchNotesArea.getText().trim()
-        );
-
-        ClientResponse response = backendClient.dispatchResponse(responseRecord);
-
-        if (!response.isSuccess()) {
-            dispatchStatusLabel.setText(response.getMessage());
+        if (incident == null) {
+            dispatchStatusLabel.setText("Incident not found.");
             return;
         }
 
-        refreshIncidentTables();
-        loadEmergencyResourcesFromBackend();
-        loadResponseLogsFromBackend();
+        EmergencyResource resource = resourceComboBox.getValue();
 
-        dispatchStatusLabel.setText(response.getMessage());
+        if (!resource.checkAvailability()) {
+            dispatchStatusLabel.setText("Selected resource is unavailable.");
+            return;
+        }
+
+        EmergencyResponse response = new EmergencyResponse(
+                responseIdField.getText(),
+                incident,
+                agencyComboBox.getValue(),
+                resource,
+                dispatchNotesArea.getText()
+        );
+
+        boolean dispatched = response.dispatchResponse();
+
+        if (!dispatched) {
+            dispatchStatusLabel.setText("Dispatch failed.");
+            return;
+        }
+
+        ApplicationRepository.addEmergencyResponse(response);
+        incidentService.dispatchIncident(incident);
+
+        IncidentUpdate update = new IncidentUpdate(
+                updateIdField.getText(),
+                incident.getIncidentId(),
+                "Resource dispatched: "
+                + resource.getResourceName()
+                + " assigned by "
+                + agencyComboBox.getValue().getAgencyName()
+                + ". Notes: "
+                + dispatchNotesArea.getText(),
+                "Emergency Control Centre",
+                IncidentStatus.DISPATCHED
+        );
+
+        ApplicationRepository.addIncidentUpdate(update);
+
+        responseLogTableView.refresh();
+        incidentUpdateTableView.refresh();
+        resourceTableView.refresh();
+
+        refreshIncidentTables();
+        refreshResourceCounters();
+        refreshDashboardCounters();
+
+        dispatchStatusLabel.setText("Response dispatched successfully.");
         globalStatusLabel.setText("System Status: Response dispatched.");
 
         dispatchIncidentIdComboBox.getSelectionModel().clearSelection();
@@ -1817,17 +1844,7 @@ public class MainDashboardController {
         resourceComboBox.getSelectionModel().clearSelection();
         dispatchNotesArea.clear();
 
-        if (response.hasData()
-                && !response.getDataValue("nextResponseId").isEmpty()) {
-            responseIdField.setText(response.getDataValue("nextResponseId"));
-        } else {
-            responseIdField.clear();
-        }
-
-        if (response.hasData()
-                && !response.getDataValue("nextUpdateId").isEmpty()) {
-            updateIdField.setText(response.getDataValue("nextUpdateId"));
-        }
+        prepareGeneratedIds();
     }
 
     /**
@@ -1848,24 +1865,32 @@ public class MainDashboardController {
             return;
         }
 
-        IncidentUpdate update = new IncidentUpdate(
-                updateIdField.getText(),
-                updateIncidentIdComboBox.getValue(),
-                updateNotesArea.getText().trim(),
-                updatedByField.getText().trim(),
-                updateStatusComboBox.getValue()
-        );
+        Incident incident = ApplicationRepository.findIncidentById(
+                updateIncidentIdComboBox.getValue());
 
-        ClientResponse response = backendClient.updateIncidentStatus(update);
-
-        if (!response.isSuccess()) {
-            updateStatusLabel.setText(response.getMessage());
+        if (incident == null) {
+            updateStatusLabel.setText("Incident not found.");
             return;
         }
 
+        incidentService.updateIncidentStatus(
+                incident,
+                updateStatusComboBox.getValue()
+        );
+
+        IncidentUpdate update = new IncidentUpdate(
+                updateIdField.getText(),
+                incident.getIncidentId(),
+                updateNotesArea.getText(),
+                updatedByField.getText(),
+                updateStatusComboBox.getValue()
+        );
+
+        ApplicationRepository.addIncidentUpdate(update);
+        incidentUpdateTableView.refresh();
         refreshIncidentTables();
 
-        updateStatusLabel.setText(response.getMessage());
+        updateStatusLabel.setText("Incident status updated successfully.");
         globalStatusLabel.setText("System Status: Incident status updated.");
 
         updateIncidentIdComboBox.getSelectionModel().clearSelection();
@@ -1873,12 +1898,8 @@ public class MainDashboardController {
         updatedByField.clear();
         updateNotesArea.clear();
 
-        if (response.hasData()
-                && !response.getDataValue("nextUpdateId").isEmpty()) {
-            updateIdField.setText(response.getDataValue("nextUpdateId"));
-        } else {
-            updateIdField.clear();
-        }
+        prepareGeneratedIds();
+        refreshDashboardCounters();
     }
 
     /**

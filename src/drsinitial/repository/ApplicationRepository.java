@@ -215,6 +215,42 @@ public class ApplicationRepository {
 
         return null;
     }
+    
+    /**
+ * Generates the next disaster report identifier for display.
+ *
+ * @return generated report identifier
+ */
+public static String generateReportId() {
+    return String.format("R%03d", disasterReports.size() + 1);
+}
+
+/**
+ * Generates the next incident identifier for display.
+ *
+ * @return generated incident identifier
+ */
+public static String generateIncidentId() {
+    return String.format("I%03d", incidents.size() + 1);
+}
+
+/**
+ * Generates the next incident update identifier for display.
+ *
+ * @return generated update identifier
+ */
+public static String generateUpdateId() {
+    return String.format("U%03d", incidentUpdates.size() + 1);
+}
+
+/**
+ * Generates the next emergency response identifier for display.
+ *
+ * @return generated response identifier
+ */
+public static String generateResponseId() {
+    return String.format("ER%03d", emergencyResponses.size() + 1);
+}
 
     /**
      * Clears all frontend cache lists.
