@@ -1667,6 +1667,9 @@ public class MainDashboardController {
         disasterTypeComboBox.getSelectionModel().clearSelection();
         initialSeverityComboBox.getSelectionModel().clearSelection();
 
+        loadDisasterReportsFromBackend();
+        refreshReportIdComboBox();
+
         prepareGeneratedIds();
         refreshDashboardCounters();
     }
@@ -1757,7 +1760,7 @@ public class MainDashboardController {
 
         refreshIncidentTables();
 
-        assessmentStatusLabel.setText(response.getMessage());
+        assessmentStatusLabel.setText("Incident assessed and priority recommended.");
         globalStatusLabel.setText(
                 "System Status: Incident assessed and prioritised.");
     }
@@ -1833,6 +1836,8 @@ public class MainDashboardController {
         resourceTableView.refresh();
 
         refreshIncidentTables();
+        refreshIncidentComboBoxes();
+        refreshAlertIncidentComboBox();
         refreshResourceCounters();
         refreshDashboardCounters();
 
@@ -1845,6 +1850,7 @@ public class MainDashboardController {
         dispatchNotesArea.clear();
 
         prepareGeneratedIds();
+        refreshIncidentComboBoxes();
     }
 
     /**
@@ -1900,6 +1906,7 @@ public class MainDashboardController {
 
         prepareGeneratedIds();
         refreshDashboardCounters();
+        refreshIncidentComboBoxes();
     }
 
     /**
@@ -1935,7 +1942,7 @@ public class MainDashboardController {
         loadSystemUsersFromBackend();
         handleClearSystemUserForm();
 
-        userManagementStatusLabel.setText(response.getMessage());
+        userManagementStatusLabel.setText("User account added successfully.");
         globalStatusLabel.setText("System Status: User account added.");
     }
 
@@ -1980,7 +1987,7 @@ public class MainDashboardController {
         loadSystemUsersFromBackend();
         handleClearSystemUserForm();
 
-        userManagementStatusLabel.setText(response.getMessage());
+        userManagementStatusLabel.setText("User account updated successfully.");
         globalStatusLabel.setText("System Status: User account updated.");
     }
 
@@ -2284,6 +2291,10 @@ public class MainDashboardController {
         showOnlyPane(reportPane);
         pageSubtitleLabel.setText("UCA2-UC1 Report Disaster");
         setActiveButton(reportButton);
+
+        loadDisasterReportsFromBackend();
+        refreshReportIdComboBox();
+        prepareGeneratedIds();
     }
 
     /**
@@ -2294,6 +2305,12 @@ public class MainDashboardController {
         showOnlyPane(registerIncidentPane);
         pageSubtitleLabel.setText("UCA2-UC2 Validate and Register Incident");
         setActiveButton(registerIncidentButton);
+
+        loadDisasterReportsFromBackend();
+        loadIncidentsFromBackend();
+        refreshReportIdComboBox();
+        refreshIncidentComboBoxes();
+        prepareGeneratedIds();
     }
 
     /**
@@ -2304,6 +2321,9 @@ public class MainDashboardController {
         showOnlyPane(severityPriorityPane);
         pageSubtitleLabel.setText("UCA2-UC3 and UCA2-UC4 Severity and Priority");
         setActiveButton(severityPriorityButton);
+
+        loadIncidentsFromBackend();
+        refreshIncidentComboBoxes();
     }
 
     /**
@@ -2314,6 +2334,11 @@ public class MainDashboardController {
         showOnlyPane(updateIncidentStatusPane);
         pageSubtitleLabel.setText("Update Incident Status");
         setActiveButton(updateIncidentStatusButton);
+
+        loadIncidentsFromBackend();
+        loadIncidentUpdatesFromBackend();
+        refreshIncidentComboBoxes();
+        prepareGeneratedIds();
     }
 
     /**
@@ -2324,6 +2349,13 @@ public class MainDashboardController {
         showOnlyPane(emergencyDispatchPane);
         pageSubtitleLabel.setText("UCA2-UC6 Emergency Dispatch");
         setActiveButton(emergencyDispatchButton);
+
+        loadIncidentsFromBackend();
+        loadEmergencyResourcesFromBackend();
+        loadResponseAgenciesFromBackend();
+        loadResponseLogsFromBackend();
+        refreshIncidentComboBoxes();
+        prepareGeneratedIds();
     }
 
     /**
@@ -2346,6 +2378,9 @@ public class MainDashboardController {
         showOnlyPane(searchFilterPane);
         pageSubtitleLabel.setText("Incident Search and Filter");
         setActiveButton(searchFilterButton);
+
+        Map<String, String> criteria = new java.util.HashMap<>();
+        loadFilteredIncidentsFromBackend(criteria);
     }
 
     /**
@@ -2419,7 +2454,7 @@ public class MainDashboardController {
         loadEvacuationSheltersFromBackend();
         handleClearShelterForm();
 
-        shelterStatusLabel.setText(response.getMessage());
+        shelterStatusLabel.setText("Evacuation shelter added successfully.");
         globalStatusLabel.setText("System Status: Shelter record added.");
     }
 
@@ -2473,7 +2508,7 @@ public class MainDashboardController {
         loadEvacuationSheltersFromBackend();
         handleClearShelterForm();
 
-        shelterStatusLabel.setText(response.getMessage());
+        shelterStatusLabel.setText("Evacuation shelter updated successfully.");
         globalStatusLabel.setText("System Status: Shelter record updated.");
     }
 
@@ -2573,6 +2608,7 @@ public class MainDashboardController {
             pageSubtitleLabel.setText("Public Alert Notification Manager");
         }
 
+        loadPublicAlertsFromBackend();
         refreshPublicAlertDisplay();
     }
 
@@ -2618,7 +2654,7 @@ public class MainDashboardController {
         refreshPublicAlertDisplay();
         handleClearAlertForm();
 
-        publicAlertStatusLabel.setText(response.getMessage());
+        publicAlertStatusLabel.setText("Public alert created successfully.");
         globalStatusLabel.setText("System Status: Public alert created.");
     }
 
@@ -2651,7 +2687,7 @@ public class MainDashboardController {
         loadPublicAlertsFromBackend();
         refreshPublicAlertDisplay();
 
-        publicAlertStatusLabel.setText(response.getMessage());
+        publicAlertStatusLabel.setText("Public alert published successfully.");
         globalStatusLabel.setText("System Status: Public alert published.");
     }
 
@@ -2684,7 +2720,7 @@ public class MainDashboardController {
         loadPublicAlertsFromBackend();
         refreshPublicAlertDisplay();
 
-        publicAlertStatusLabel.setText(response.getMessage());
+        publicAlertStatusLabel.setText("Public alert expired successfully.");
         globalStatusLabel.setText("System Status: Public alert expired.");
     }
 
