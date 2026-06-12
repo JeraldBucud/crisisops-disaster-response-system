@@ -54,10 +54,24 @@ public class ClientHandler implements Runnable {
             ClientResponse response;
 
             if (object instanceof ClientRequest) {
-                response = handleRequest((ClientRequest) object);
+                ClientRequest request = (ClientRequest) object;
+                System.out.println("Request received: " + request.getRequestType());
+
+                response = handleRequest(request);
+
+                if (response.isSuccess()) {
+                    System.out.println("Response sent: "
+                            + request.getRequestType() + "_SUCCESS");
+                } else {
+                    System.out.println("Response sent: "
+                            + request.getRequestType() + "_FAILED - "
+                            + response.getMessage());
+                }
+
             } else {
                 response = ClientResponse.failure(
                         "Invalid object received by server.");
+                System.out.println("Response sent: INVALID_OBJECT_FAILED");
             }
 
             output.writeObject(response);
@@ -77,6 +91,7 @@ public class ClientHandler implements Runnable {
     private ClientResponse handleRequest(ClientRequest request) {
         try {
             String type = request.getRequestType();
+            System.out.println("Request received: " + type);
 
             if (ClientRequest.LOGIN.equals(type)) {
                 return handleLogin(request.getData());
