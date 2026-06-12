@@ -2250,8 +2250,13 @@ private void handleReleaseResource() {
      */
     @FXML
     private void handleLogout() {
+        
+        System.out.println("Request received: LOGOUT");
+        
         try {
             UserSession.logout();
+            
+            System.out.println("Response sent: LOGOUT_SUCCESS");
 
             javafx.scene.Parent root = javafx.fxml.FXMLLoader.load(
                     getClass().getResource("/drsinitial/view/LoginView.fxml"));
