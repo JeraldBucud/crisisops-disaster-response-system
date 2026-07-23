@@ -4,7 +4,7 @@
 
 CrisisOps is a JavaFX desktop application for reporting disasters, managing incidents, assessing severity and priority, coordinating emergency resources, publishing public alerts, and tracking evacuation shelters.
 
-The project began as an individual software engineering system developed by **Jerald Christopher Bucud**. It was later selected as the foundation for the course's final group project and expanded through collaborative development into a database-backed client-server application.
+The project began as an individual assessment project for **COIT20258: Software Engineering**, developed by **Jerald Christopher Bucud**. It was later selected as the foundation for the class's final group assessment and expanded collaboratively into a database-backed client-server application.
 
 ## Project Highlights
 
@@ -26,7 +26,7 @@ The project began as an individual software engineering system developed by **Je
 
 **Original System Developer and JavaFX Integration Contributor**
 
-I designed and developed the original application used for the first two individual assessments, including its JavaFX structure and core disaster-response workflows. When the system was selected as the base for the final group project, I continued contributing to the JavaFX frontend and integration work.
+I designed and developed the original application for the first two individual assessments in **COIT20258: Software Engineering**, including its JavaFX structure and core disaster-response workflows. When the system was selected as the base for the class's final group assessment, I continued contributing to the JavaFX frontend and integration work.
 
 My contributions include:
 
@@ -135,7 +135,7 @@ Portfolio screenshots and a short walkthrough will be added after the interface 
 
 ## Academic Origin and Attribution
 
-CrisisOps originated as an individual university software engineering project. The original system was selected as the foundation for the final group assessment and was subsequently enhanced through collaborative development.
+CrisisOps originated from the individual assessment stages of **COIT20258: Software Engineering**. The original system was selected as the foundation for the final group assessment in the same class and was subsequently enhanced through collaborative development.
 
 A detailed breakdown of the individual and collaborative stages is available in [docs/ACADEMIC_ORIGIN.md](docs/ACADEMIC_ORIGIN.md).
 
