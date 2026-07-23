@@ -1,124 +1,153 @@
-# DisasterResponseSystem
+# CrisisOps
 
-COIT20258 Software Engineering
-Disaster Response System
+**Emergency Operations and Disaster Response Management System**
 
-## Project Overview
+CrisisOps is a JavaFX desktop application for reporting disasters, managing incidents, assessing severity and priority, coordinating emergency resources, publishing public alerts, and tracking evacuation shelters.
 
-DisasterResponseSystem is a JavaFX desktop application created for COIT20258 Software Engineering.
+The project began as an individual software engineering system developed by **Jerald Christopher Bucud**. It was later selected as the foundation for the course's final group project and expanded through collaborative development into a database-backed client-server application.
 
-This project was developed as DRS-Initial for Assessment 2 and will be used as the base system for Assessment 3 group enhancement.
+## Project Highlights
 
-The enhanced version will improve the design, functionality, testing, and maintainability of the system.
+- Disaster reporting and incident registration
+- Severity assessment and incident priority recommendations
+- Incident status tracking, search, and filtering
+- Emergency resource availability management
+- Emergency dispatch and response logging
+- Public alert creation and publication
+- Evacuation shelter availability management
+- Public user registration and authentication
+- Role-based access for public users, emergency control centre staff, and system administrators
+- Administrative user management
+- MySQL persistence through a DAO layer
+- Multi-threaded socket server communication
+- JUnit tests for selected application components
 
-## Purpose
+## My Role
 
-The system supports disaster response activities by allowing users and emergency staff to manage disaster reports, incidents, response agencies, emergency resources, and incident updates.
+**Original System Developer and JavaFX Integration Contributor**
 
-## Main Features
+I designed and developed the original application used for the first two individual assessments, including its JavaFX structure and core disaster-response workflows. When the system was selected as the base for the final group project, I continued contributing to the JavaFX frontend and integration work.
 
-* Report different types of disasters
-* Register and manage incidents
-* Assess disaster severity
-* Recommend incident priority
-* Coordinate emergency response agencies
-* Track emergency resource availability
-* Search and filter incident records
-* Update incident status
-* View response and incident information
+My contributions include:
 
-## Creative Features
+- Original application architecture and JavaFX interface
+- Disaster reporting and incident-management workflows
+- Severity assessment and priority recommendation features
+- Emergency resource availability tracking
+- Incident search and filtering
+- Login and public-user registration interfaces
+- Role-based dashboard access
+- Public alert and evacuation shelter interfaces
+- Administrator user-management interface
+- Frontend client communication components
+- Frontend-to-backend integration and interface refinement
 
-The following creative features were added in DRS-Initial:
+The final server, database, DAO, testing, and integration work includes collaborative contributions. The original commit history has been preserved so the project's development and contributors remain visible.
 
-1. Emergency Resource Availability Tracker
-2. Incident Priority Recommendation System
-3. Incident Search and Filter
+## Technology Stack
 
-## Technology Used
+| Area | Technologies |
+| --- | --- |
+| Language | Java 17 |
+| Desktop UI | JavaFX, FXML, CSS |
+| Architecture | MVC-style desktop client, multi-threaded client-server communication |
+| Database | MySQL, JDBC, DAO pattern |
+| Testing | JUnit |
+| Build and IDE | Apache Ant, NetBeans, Scene Builder |
+| Collaboration | Git, GitHub branches, pull requests, and code review |
 
-* Java
-* JavaFX
-* FXML
-* Scene Builder
-* NetBeans
-* Ant
-* JUnit
+## System Roles
+
+| Role | Main capabilities |
+| --- | --- |
+| Public User | Register, sign in, report disasters, and view published public alerts |
+| Emergency Control Centre | Manage incidents, severity, priority, dispatch, resources, shelters, and alerts |
+| System Administrator | Access emergency-management functions and manage system users |
+
+## Architecture Overview
+
+CrisisOps uses a JavaFX desktop client connected to a multi-threaded Java server over sockets. The server processes client requests, applies application and security logic, and accesses MySQL through DAO classes.
+
+```text
+JavaFX Client
+     |
+     | Socket requests and responses
+     v
+Multi-threaded Java Server
+     |
+     | Services, security, and DAO layer
+     v
+MySQL Database
+```
 
 ## Project Structure
 
-* src: Java source code and FXML files
-* test: JUnit test files
-* nbproject: NetBeans project configuration
-* build.xml: Ant build file
-* manifest.mf: project manifest
-* README.md: project information
-* .gitignore: ignored generated files
+```text
+database/              MySQL schema and seed data
+lib/                   Project libraries used by the original NetBeans build
+src/drsinitial/        Java source code and JavaFX resources
+test/drsinitial/       JUnit tests
+nbproject/             NetBeans project configuration
+build.xml              Apache Ant build file
+docs/                  Portfolio documentation
+```
 
-## Requirements
+The legacy Java package name `drsinitial` and database schema name `drs_enhanced` are currently retained to avoid breaking FXML controller paths, imports, tests, and database integration during the portfolio rebrand.
 
-Use the following tools to run the project:
+## Getting Started
 
-* JDK 17
-* NetBeans
-* JavaFX SDK 11 or later
-* Scene Builder 11 or later
-* JUnit library for testing
+### Requirements
 
-## How to Run the Project
+- JDK 17
+- NetBeans with Java support
+- JavaFX SDK 17 or later
+- MySQL Server and MySQL Workbench
+- MySQL Connector/J
 
-1. Clone the repository.
+### Run the application
+
+1. Clone this repository.
 2. Open the project in NetBeans.
-3. Check the Java platform is set to JDK 17.
-4. Check JavaFX libraries are configured.
-5. Clean and build the project.
-6. Run the main application class.
+3. Run `database/drs_enhanced_setup.sql` in MySQL Workbench.
+4. Review the local connection values in `src/drsinitial/database/DatabaseConnection.java` and update them for your MySQL installation.
+5. Add JavaFX and MySQL Connector/J to the project libraries when required by your NetBeans setup.
+6. Run `drsinitial.server.DRSServer`.
+7. Confirm that the server is listening on port `5000`.
+8. Run `drsinitial.Main` to open the JavaFX client.
 
-## JavaFX Setup Note
+Detailed instructions are available in [docs/SETUP.md](docs/SETUP.md).
 
-If the project does not run and shows a JavaFX error, check the JavaFX library path in NetBeans.
+## Demonstration Accounts
 
-Common error:
+The included seed data provides local demonstration accounts:
 
-Module javafx.controls not found
+| Role | Username | Password |
+| --- | --- | --- |
+| System Administrator | `admin` | `admin123` |
+| Emergency Control Centre | `ecc` | `ecc123` |
+| Public User | `public` | `public123` |
 
-To fix this, add the JavaFX SDK jar files to the project libraries or module path.
+These accounts are for local demonstration only and must not be used in a production environment.
 
-## Group Workflow
+## Screenshots and Demo
 
-The main branch stores the stable project version.
+Portfolio screenshots and a short walkthrough will be added after the interface rebrand and final testing are complete.
 
-Each group member should create a separate feature branch before making changes.
+## Academic Origin and Attribution
 
-Example branch names:
+CrisisOps originated as an individual university software engineering project. The original system was selected as the foundation for the final group assessment and was subsequently enhanced through collaborative development.
 
-* feature/incident-management
-* feature/resource-tracker
-* feature/search-filter
-* feature/testing
-* feature/ui-improvements
+A detailed breakdown of the individual and collaborative stages is available in [docs/ACADEMIC_ORIGIN.md](docs/ACADEMIC_ORIGIN.md).
 
-After finishing a task, the member should push the branch and open a pull request.
+The original academic repository is preserved at:
 
-The group should review changes before merging into main.
+https://github.com/JeraldBucud/DisasterResponseSystem
 
-## Suggested Team Task Division
+## Project Status
 
-Member 1:
-Incident reporting, validation, and user interface improvements.
-
-Member 2:
-Priority recommendation, incident assessment, and search/filter improvements.
-
-Member 3:
-Resource availability tracker, response coordination, and JUnit testing.
+The completed academic version is functional as a JavaFX, Java server, and MySQL application. This portfolio branch focuses on professional presentation, clearer attribution, setup documentation, interface branding, and future build improvements.
 
 ## Author
 
-Jerald Christopher Bucud
-Student ID: 12301099
-COIT20258 Software Engineering
-
-## Status
-
-Initial Assessment 2 prototype uploaded for Assessment 3 group enhancement.
+**Jerald Christopher Bucud**  
+Master of Information Technology student specialising in Software Design and Development, with a minor in Artificial Intelligence.
