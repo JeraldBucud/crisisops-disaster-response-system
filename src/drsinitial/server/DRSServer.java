@@ -6,7 +6,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 /**
- * Multi-threaded socket server for DRS-Enhanced.
+ * Multi-threaded socket server for CrisisOps.
  */
 public class DRSServer {
 
@@ -16,7 +16,7 @@ public class DRSServer {
         DatabaseInitializer.initializeDatabase();
 
         try (ServerSocket serverSocket = new ServerSocket(SERVER_PORT)) {
-            System.out.println("DRS-Enhanced multi-threaded server started on port " + SERVER_PORT);
+            System.out.println("CrisisOps multi-threaded server started on port " + SERVER_PORT);
 
             while (true) {
                 Socket clientSocket = serverSocket.accept();
