@@ -34,22 +34,45 @@ The legacy schema name is retained during the portfolio rebrand to avoid breakin
 
 ## 3. Configure the database connection
 
-Open:
+CrisisOps reads the database connection from environment variables or Java system properties. Credentials are no longer stored directly in the source code.
 
-```text
-src/drsinitial/database/DatabaseConnection.java
+### Environment variables
+
+| Setting | Environment variable | Default |
+| --- | --- | --- |
+| JDBC URL | `CRISISOPS_DB_URL` | Local `drs_enhanced` schema on port `3306` |
+| Username | `CRISISOPS_DB_USERNAME` | `root` |
+| Password | `CRISISOPS_DB_PASSWORD` | Empty |
+
+PowerShell example:
+
+```powershell
+$env:CRISISOPS_DB_USERNAME = "root"
+$env:CRISISOPS_DB_PASSWORD = "your-mysql-password"
 ```
 
-Review the following local settings:
+Optional custom URL:
 
-- MySQL host and port
-- Schema name
-- MySQL username
-- MySQL password
+```powershell
+$env:CRISISOPS_DB_URL = "jdbc:mysql://localhost:3306/drs_enhanced?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC"
+```
 
-Update them to match your own MySQL installation before starting the server.
+The environment variables must be available to the Java process that starts the server. On Windows, they can also be added through **System Properties > Environment Variables** before opening NetBeans.
 
-The current connection class is intended for local demonstration and development. A future portfolio improvement will move credentials into environment variables or an ignored local configuration file.
+### Java system properties
+
+The same values can be supplied as Java system properties:
+
+```text
+-Dcrisisops.db.username=root
+-Dcrisisops.db.password=your-mysql-password
+```
+
+The optional URL property is:
+
+```text
+-Dcrisisops.db.url=jdbc:mysql://localhost:3306/drs_enhanced?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
+```
 
 ## 4. Configure JavaFX in NetBeans
 
@@ -90,10 +113,10 @@ Run:
 drsinitial.server.DRSServer
 ```
 
-The server should start on:
+The server should report:
 
 ```text
-localhost:5000
+CrisisOps multi-threaded server started on port 5000
 ```
 
 Keep the server running while using the desktop client.
@@ -143,7 +166,8 @@ These credentials are for local demonstration only.
 
 - Confirm MySQL Server is running.
 - Confirm the `drs_enhanced` schema exists.
-- Confirm the local username and password in `DatabaseConnection.java` are correct.
+- Confirm `CRISISOPS_DB_USERNAME` and `CRISISOPS_DB_PASSWORD` match the local MySQL account.
+- Restart NetBeans after changing permanent Windows environment variables.
 - Confirm MySQL Connector/J is available to the project.
 
 ### JavaFX classes or modules cannot be found
@@ -158,7 +182,6 @@ The portfolio version can later be improved by:
 
 - Migrating the Ant build to Maven or Gradle
 - Removing the bundled JavaFX SDK from repository history
-- Moving database credentials out of source code
 - Adding automated database configuration
 - Adding GitHub Actions for build and test checks
 - Producing a packaged desktop release
