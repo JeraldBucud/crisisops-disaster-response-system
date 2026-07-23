@@ -4,6 +4,7 @@ import drsinitial.client.BackendClient;
 import drsinitial.client.ClientResponse;
 import drsinitial.model.enums.UserRole;
 import drsinitial.session.UserSession;
+import drsinitial.util.BrandingService;
 import java.io.IOException;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -138,6 +139,7 @@ public class LoginController {
                     getClass().getResource(
                             "/drsinitial/view/MainDashboard.fxml"));
 
+            BrandingService.applyCrisisOpsBranding(root);
             Scene scene = new Scene(root);
 
             Stage stage = (Stage) usernameField.getScene().getWindow();
