@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- * Creates the DRS-Enhanced database tables programmatically when the server starts.
+ * Creates the CrisisOps database tables programmatically when the server starts.
  */
 public class DatabaseInitializer {
 
@@ -105,7 +105,7 @@ public class DatabaseInitializer {
             for (String sql : sqlStatements) {
                 statement.execute(sql);
             }
-            System.out.println("DRS-Enhanced database tables checked/created.");
+            System.out.println("CrisisOps database tables checked/created.");
         } catch (SQLException exception) {
             System.err.println("Database initialization failed: " + exception.getMessage());
         }
@@ -120,15 +120,15 @@ public class DatabaseInitializer {
             try {
                 drsinitial.dao.UserDAO userDAO = new drsinitial.dao.UserDAO();
                 if (!userDAO.usernameExists("admin")) {
-                    userDAO.createUser("USR001", "System Administrator", "admin@drs.local",
+                    userDAO.createUser("USR001", "System Administrator", "admin@crisisops.local",
                             "admin", "admin123", "SYSTEM_ADMINISTRATOR", "ACTIVE");
                 }
                 if (!userDAO.usernameExists("ecc")) {
-                    userDAO.createUser("USR002", "Emergency Control Centre", "ecc@drs.local",
+                    userDAO.createUser("USR002", "Emergency Control Centre", "ecc@crisisops.local",
                             "ecc", "ecc123", "EMERGENCY_CONTROL_CENTRE", "ACTIVE");
                 }
                 if (!userDAO.usernameExists("public")) {
-                    userDAO.createUser("USR003", "Public User", "public@drs.local",
+                    userDAO.createUser("USR003", "Public User", "public@crisisops.local",
                             "public", "public123", "PUBLIC_USER", "ACTIVE");
                 }
             } catch (Exception exception) {
