@@ -6,14 +6,12 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 /**
- * Starts the DRS-Enhanced Disaster Response System application.
+ * Starts the CrisisOps emergency operations application.
  *
  * This class loads the login screen first. After successful login,
  * the user is directed to the main dashboard.
  *
  * @author Jerald Christopher Bucud
- * @studentId 12301099
- * @course COIT20258 Software Engineering
  */
 public class Main extends Application {
 
@@ -31,7 +29,7 @@ public class Main extends Application {
 
         Scene scene = new Scene(loader.load());
 
-        stage.setTitle("DRS-Enhanced Login");
+        stage.setTitle("CrisisOps | Secure Login");
         stage.setScene(scene);
         stage.setResizable(true);
         stage.show();
