@@ -29,6 +29,23 @@ public class Main extends Application {
 
         Scene scene = new Scene(loader.load());
 
+        stage.titleProperty().addListener((observable, oldTitle, newTitle) -> {
+            if (newTitle == null) {
+                return;
+            }
+
+            String brandedTitle = newTitle
+                    .replace("DRS-Enhanced Disaster Response System",
+                            "CrisisOps Emergency Operations System")
+                    .replace("DRS-Enhanced", "CrisisOps")
+                    .replace("Disaster Response System",
+                            "Emergency Operations System");
+
+            if (!brandedTitle.equals(newTitle)) {
+                stage.setTitle(brandedTitle);
+            }
+        });
+
         stage.setTitle("CrisisOps | Secure Login");
         stage.setScene(scene);
         stage.setResizable(true);
