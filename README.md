@@ -109,7 +109,7 @@ The legacy Java package name `drsinitial` and database schema name `drs_enhanced
 1. Clone this repository.
 2. Open the project in NetBeans.
 3. Run `database/drs_enhanced_setup.sql` in MySQL Workbench.
-4. Review the local connection values in `src/drsinitial/database/DatabaseConnection.java` and update them for your MySQL installation.
+4. Set `CRISISOPS_DB_USERNAME` and `CRISISOPS_DB_PASSWORD` for your local MySQL account.
 5. Add JavaFX and MySQL Connector/J to the project libraries when required by your NetBeans setup.
 6. Run `drsinitial.server.DRSServer`.
 7. Confirm that the server is listening on port `5000`.
@@ -145,9 +145,9 @@ https://github.com/JeraldBucud/DisasterResponseSystem
 
 ## Project Status
 
-The completed academic version is functional as a JavaFX, Java server, and MySQL application. This portfolio branch focuses on professional presentation, clearer attribution, setup documentation, interface branding, and future build improvements.
+The completed academic version is functional as a JavaFX, Java server, and MySQL application. This portfolio branch focuses on professional presentation, clearer attribution, secure local configuration, interface branding, and future build improvements.
 
 ## Author
 
 **Jerald Christopher Bucud**  
-Master of Information Technology student specialising in Software Design and Development, with a minor in Artificial Intelligence.
+Master of Information Technology student majoring in Software Design and Development, with a minor in Artificial Intelligence.
