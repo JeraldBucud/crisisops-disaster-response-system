@@ -19,21 +19,34 @@ The legacy Java package and database names are retained during the portfolio reb
 
 ## MySQL Configuration
 
-The connection values are currently defined in:
+CrisisOps reads database settings from environment variables or Java system properties.
 
-```text
-src/drsinitial/database/DatabaseConnection.java
-```
+Environment variables:
 
-Before running the server, update the local database username and password to match your MySQL installation.
+- `CRISISOPS_DB_URL`
+- `CRISISOPS_DB_USERNAME`
+- `CRISISOPS_DB_PASSWORD`
 
-Default application expectations:
+Java system properties:
+
+- `crisisops.db.url`
+- `crisisops.db.username`
+- `crisisops.db.password`
+
+Defaults:
 
 - Schema: `drs_enhanced`
 - MySQL port: `3306`
+- Username: `root`
+- Password: empty
 - Server port: `5000`
 
-The database configuration is intended for local development and demonstration. It should be moved to environment variables or an ignored configuration file before production use.
+PowerShell example:
+
+```powershell
+$env:CRISISOPS_DB_USERNAME = "root"
+$env:CRISISOPS_DB_PASSWORD = "your-mysql-password"
+```
 
 ## Required Library
 
@@ -43,7 +56,7 @@ Add MySQL Connector/J to the NetBeans project libraries before running the backe
 
 1. Start MySQL Server.
 2. Run `database/drs_enhanced_setup.sql` in MySQL Workbench.
-3. Update the local values in `DatabaseConnection.java` when required.
+3. Configure the local database environment variables or Java system properties.
 4. In NetBeans, run `drsinitial.server.DRSServer`.
 5. Confirm that the CrisisOps server has started on port `5000`.
 6. Run `drsinitial.Main` to open the JavaFX client.
