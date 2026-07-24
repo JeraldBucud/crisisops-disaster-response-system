@@ -48,8 +48,6 @@ import drsinitial.service.PublicAlertService;
  * business logic to service classes.
  *
  * @author Jerald Christopher Bucud
- * @studentId 12301099
- * @course COIT20258 Software Engineering
  */
 public class MainDashboardController {
 

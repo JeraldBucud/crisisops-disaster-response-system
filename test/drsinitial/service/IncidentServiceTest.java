@@ -13,8 +13,6 @@ import static org.junit.Assert.*;
  * Disaster Response System prototype.
  *
  * @author Jerald Christopher Bucud
- * @studentId 12301099
- * @course COIT20258 Software Engineering
  */
 public class IncidentServiceTest {
 

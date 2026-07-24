@@ -9,8 +9,6 @@ package drsinitial.model.enums;
  * resolution, closure, or rejection.
  *
  * @author Jerald Christopher Bucud
- * @studentId 12301099
- * @course COIT20258 Software Engineering
  */
 public enum IncidentStatus {
 

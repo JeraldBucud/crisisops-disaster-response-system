@@ -17,13 +17,14 @@
                   prefWidth="520.0"
                   styleClass="login-brand-panel">
 
-                <Label text="DRS-Enhanced"
+                <Label text="CrisisOps"
                        styleClass="login-brand-title" />
 
-                <Label text="Disaster Response System"
+                <Label text="Emergency Operations and Disaster Response"
+                       wrapText="true"
                        styleClass="login-brand-subtitle" />
 
-                <Label text="Secure access for disaster reporting, incident management, and public alerts."
+                <Label text="Secure access for disaster reporting, incident coordination, emergency resources, public alerts, and evacuation shelters."
                        wrapText="true"
                        styleClass="login-brand-description" />
 
@@ -33,7 +34,7 @@
                   prefWidth="430.0"
                   styleClass="login-card">
 
-                <Label text="Login"
+                <Label text="Sign in"
                        styleClass="login-title" />
 
                 <Label text="Enter your account details to continue."
@@ -53,12 +54,12 @@
                                    styleClass="login-field" />
                 </VBox>
 
-                <Button text="Login"
+                <Button text="Sign In"
                         maxWidth="330.0"
                         onAction="#handleLogin"
                         styleClass="login-primary-button" />
 
-                <Button text="Register as Public User"
+                <Button text="Create Public Account"
                         maxWidth="330.0"
                         onAction="#handleOpenRegistration"
                         styleClass="login-secondary-button" />

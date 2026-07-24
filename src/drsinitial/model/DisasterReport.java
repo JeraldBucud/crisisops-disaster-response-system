@@ -17,8 +17,6 @@ import java.time.LocalDateTime;
  * - report status
  *
  * @author Jerald Christopher Bucud
- * @studentId 12301099
- * @course COIT20258 Software Engineering
  */
 public class DisasterReport {
 

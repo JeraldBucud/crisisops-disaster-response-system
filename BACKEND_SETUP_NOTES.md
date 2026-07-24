@@ -1,52 +1,72 @@
-# DRS-Enhanced Backend Setup Notes
+# CrisisOps Backend Setup Notes
 
-## Added backend components
+This document summarises the backend components and the local steps required to run the completed CrisisOps application.
 
-This patch adds the backend work needed for Team Member 1:
+## Backend Components
 
 - `drsinitial.database.DatabaseConnection`
 - `drsinitial.database.DatabaseInitializer`
-- DAO classes for users, reports, incidents, resources, shelters, alerts, dispatch and audit logs
+- DAO classes for users, reports, incidents, resources, shelters, alerts, dispatch, and audit logs
 - `drsinitial.server.DRSServer`
 - `drsinitial.server.ClientHandler`
 - `drsinitial.security.SecurityService`
 - `drsinitial.security.EncryptionService`
 - `database/drs_enhanced_setup.sql`
-- Updated `ClientConnection` to use sockets on `localhost:5000`
-- Updated Login and Public User Registration controllers to call the backend server
+- Socket communication through `localhost:5000`
+- Backend-connected login and public-user registration workflows
 
-## MySQL settings
+The legacy Java package and database names are retained during the portfolio rebrand to avoid breaking existing imports, FXML controller paths, tests, and database integration.
 
-Default values in `DatabaseConnection.java`:
+## MySQL Configuration
 
-- Database: `drs_enhanced`
+CrisisOps reads database settings from environment variables or Java system properties.
+
+Environment variables:
+
+- `CRISISOPS_DB_URL`
+- `CRISISOPS_DB_USERNAME`
+- `CRISISOPS_DB_PASSWORD`
+
+Java system properties:
+
+- `crisisops.db.url`
+- `crisisops.db.username`
+- `crisisops.db.password`
+
+Defaults:
+
+- Schema: `drs_enhanced`
+- MySQL port: `3306`
 - Username: `root`
-- Password: `root123`
-- Port: `3306`
+- Password: empty
+- Server port: `5000`
 
-Change these if your local MySQL password is different.
+PowerShell example:
 
-## Required library
+```powershell
+$env:CRISISOPS_DB_USERNAME = "root"
+$env:CRISISOPS_DB_PASSWORD = "your-mysql-password"
+```
 
-Add MySQL Connector/J to NetBeans project libraries before running backend.
+## Required Library
 
-## How to run
+Add MySQL Connector/J to the NetBeans project libraries before running the backend.
 
-1. Start MySQL.
+## How to Run
+
+1. Start MySQL Server.
 2. Run `database/drs_enhanced_setup.sql` in MySQL Workbench.
-3. In NetBeans, run `drsinitial.server.DRSServer`.
-4. Confirm output: `DRS-Enhanced multi-threaded server started on port 5000`.
-5. Run the JavaFX app.
-6. Login using:
-   - `admin / admin123`
-   - `ecc / ecc123`
-   - `public / public123`
+3. Configure the local database environment variables or Java system properties.
+4. In NetBeans, run `drsinitial.server.DRSServer`.
+5. Confirm that the CrisisOps server has started on port `5000`.
+6. Run `drsinitial.Main` to open the JavaFX client.
 
-## Screenshot evidence to capture
+## Local Demonstration Accounts
 
-- MySQL schema and tables.
-- `users` table with admin/ecc/public.
-- Server running on port 5000.
-- Successful login through JavaFX.
-- New public user registration saved in MySQL.
-- `audit_logs` table showing timestamped actions.
+- System Administrator: `admin / admin123`
+- Emergency Control Centre: `ecc / ecc123`
+- Public User: `public / public123`
+
+These accounts are included for local demonstration only.
+
+For fuller instructions, see [`docs/SETUP.md`](docs/SETUP.md).

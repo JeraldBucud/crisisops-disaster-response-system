@@ -14,8 +14,6 @@ import java.util.Map;
  * objects and sends them through ClientConnection.
  *
  * @author Jerald Christopher Bucud
- * @studentId 12301099
- * @course COIT20258 Software Engineering
  */
 public class ClientRequest implements Serializable {
 

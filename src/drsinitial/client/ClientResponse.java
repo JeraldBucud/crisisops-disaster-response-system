@@ -13,8 +13,6 @@ import java.util.Map;
  * one optional data map, and one optional list of data maps.
  *
  * @author Jerald Christopher Bucud
- * @studentId 12301099
- * @course COIT20258 Software Engineering
  */
 public class ClientResponse implements Serializable {
 

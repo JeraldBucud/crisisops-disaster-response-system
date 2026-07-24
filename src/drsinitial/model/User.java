@@ -1,14 +1,12 @@
 package drsinitial.model;
 
 /**
- * Represents a system user account for DRS-Enhanced.
+ * Represents a system user account for CrisisOps.
  *
  * This model supports role-based access control and
  * administrator user management.
  *
  * @author Jerald Christopher Bucud
- * @studentId 12301099
- * @course COIT20258 Software Engineering
  */
 public class User {
 

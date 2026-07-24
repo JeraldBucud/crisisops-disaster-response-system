@@ -20,20 +20,20 @@
                        wrapText="true"
                        styleClass="registration-brand-title" />
 
-                <Label text="DRS-Enhanced Disaster Response System"
+                <Label text="CrisisOps"
                        styleClass="login-brand-subtitle" />
 
-                <Label text="Create a public account to report disasters and view public alerts."
+                <Label text="Create a public account to report disasters and view published emergency alerts."
                        wrapText="true"
                        styleClass="login-brand-description" />
 
                 <VBox spacing="8.0" styleClass="login-info-box">
-                    <Label text="Registration rule"
+                    <Label text="Account access"
                            styleClass="login-info-title" />
                     <Label text="This form creates PUBLIC_USER accounts only."
                            wrapText="true"
                            styleClass="login-info-text" />
-                    <Label text="Emergency Control Centre and System Administrator accounts are created by an administrator."
+                    <Label text="Emergency Control Centre and System Administrator accounts are managed by an administrator."
                            wrapText="true"
                            styleClass="login-info-text" />
                 </VBox>
@@ -44,7 +44,7 @@
                   prefWidth="460.0"
                   styleClass="login-card">
 
-                <Label text="Register"
+                <Label text="Create an account"
                        styleClass="login-title" />
 
                 <Label text="Complete the form below."
@@ -92,12 +92,12 @@
                                    styleClass="login-field" />
                 </VBox>
 
-                <Button text="Register Public User"
+                <Button text="Create Public Account"
                         maxWidth="340.0"
                         onAction="#handleRegister"
                         styleClass="login-primary-button" />
 
-                <Button text="Back to Login"
+                <Button text="Back to Sign In"
                         maxWidth="340.0"
                         onAction="#handleBackToLogin"
                         styleClass="login-secondary-button" />

@@ -16,16 +16,13 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 /**
- * Controls the public user registration screen.
+ * Controls the CrisisOps public user registration screen.
  *
  * This controller validates public user registration input and sends
  * the registration request to the backend server through BackendClient.
- *
- * This controller does not connect directly to MySQL.
+ * It does not connect directly to MySQL.
  *
  * @author Jerald Christopher Bucud
- * @studentId 12301099
- * @course COIT20258 Software Engineering
  */
 public class PublicUserRegistrationController {
 
@@ -86,7 +83,7 @@ public class PublicUserRegistrationController {
             return;
         }
 
-        showSuccess("Registration successful. You can now log in.");
+        showSuccess("Registration successful. You can now sign in.");
 
         PauseTransition pause = new PauseTransition(Duration.seconds(1.2));
         pause.setOnFinished(event -> openLoginScreen());
@@ -170,12 +167,12 @@ public class PublicUserRegistrationController {
             Scene scene = new Scene(root);
 
             Stage stage = (Stage) fullNameField.getScene().getWindow();
-            stage.setTitle("DRS-Enhanced Login");
+            stage.setTitle("CrisisOps | Secure Login");
             stage.setScene(scene);
             stage.show();
 
         } catch (IOException exception) {
-            showError("Unable to return to login screen.");
+            showError("Unable to return to the sign-in screen.");
         }
     }
 

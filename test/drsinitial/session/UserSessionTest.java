@@ -9,8 +9,6 @@ import static org.junit.Assert.*;
  * for the Disaster Response System prototype.
  *
  * @author Jerald Christopher Bucud
- * @studentId 12301099
- * @course COIT20258 Software Engineering
  */
 public class UserSessionTest {
 

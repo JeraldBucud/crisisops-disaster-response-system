@@ -11,8 +11,6 @@ import java.time.LocalDateTime;
  * update date and time, and the updated incident status.
  *
  * @author Jerald Christopher Bucud
- * @studentId 12301099
- * @course COIT20258 Software Engineering
  */
 public class IncidentUpdate {
 

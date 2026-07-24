@@ -4,6 +4,7 @@ import drsinitial.client.BackendClient;
 import drsinitial.client.ClientResponse;
 import drsinitial.model.enums.UserRole;
 import drsinitial.session.UserSession;
+import drsinitial.util.BrandingService;
 import java.io.IOException;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -15,14 +16,12 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 /**
- * Controls the login screen for DRS-Enhanced.
+ * Controls the CrisisOps login screen.
  *
  * This controller sends login details to the backend server through
  * BackendClient. It does not connect directly to MySQL.
  *
  * @author Jerald Christopher Bucud
- * @studentId 12301099
- * @course COIT20258 Software Engineering
  */
 public class LoginController {
 
@@ -100,7 +99,7 @@ public class LoginController {
             Scene scene = new Scene(root);
 
             Stage stage = (Stage) usernameField.getScene().getWindow();
-            stage.setTitle("Public User Registration");
+            stage.setTitle("CrisisOps | Public User Registration");
             stage.setScene(scene);
             stage.show();
 
@@ -140,10 +139,11 @@ public class LoginController {
                     getClass().getResource(
                             "/drsinitial/view/MainDashboard.fxml"));
 
+            BrandingService.applyCrisisOpsBranding(root);
             Scene scene = new Scene(root);
 
             Stage stage = (Stage) usernameField.getScene().getWindow();
-            stage.setTitle("DRS-Enhanced Disaster Response System");
+            stage.setTitle("CrisisOps | Emergency Operations Dashboard");
             stage.setScene(scene);
             stage.setMaximized(true);
             stage.show();
