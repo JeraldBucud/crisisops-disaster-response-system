@@ -8,8 +8,6 @@ package drsinitial.model.enums;
  * Disaster Response System.
  *
  * @author Jerald Christopher Bucud
- * @studentId 12301099
- * @course COIT20258 Software Engineering
  */
 public enum AgencyType {
 

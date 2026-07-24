@@ -9,8 +9,6 @@ package drsinitial.model.enums;
  * coordinating emergency responses.
  *
  * @author Jerald Christopher Bucud
- * @studentId 12301099
- * @course COIT20258 Software Engineering
  */
 public enum DisasterType {
 

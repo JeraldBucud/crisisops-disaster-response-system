@@ -13,8 +13,6 @@ import java.time.LocalDateTime;
  * time, and response status.
  *
  * @author Jerald Christopher Bucud
- * @studentId 12301099
- * @course COIT20258 Software Engineering
  */
 public class EmergencyResponse {
 

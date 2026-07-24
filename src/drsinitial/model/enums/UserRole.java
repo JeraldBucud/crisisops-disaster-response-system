@@ -8,8 +8,6 @@ package drsinitial.model.enums;
  * the type of user currently interacting with the system.
  *
  * @author Jerald Christopher Bucud
- * @studentId 12301099
- * @course COIT20258 Software Engineering
  */
 public enum UserRole {
 

@@ -20,8 +20,6 @@ import java.util.Map;
  * This class does not connect directly to MySQL.
  *
  * @author Jerald Christopher Bucud
- * @studentId 12301099
- * @course COIT20258 Software Engineering
  */
 public class BackendClient {
 

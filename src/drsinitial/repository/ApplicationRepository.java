@@ -23,8 +23,6 @@ import javafx.collections.ObservableList;
  * TableView and ComboBox controls can display current backend records.
  *
  * @author Jerald Christopher Bucud
- * @studentId 12301099
- * @course COIT20258 Software Engineering
  */
 public class ApplicationRepository {
 
