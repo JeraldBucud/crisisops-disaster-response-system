@@ -44,6 +44,23 @@ My contributions include:
 
 The final server, database, DAO, testing, and integration work includes collaborative contributions. The original commit history has been preserved so the project's development and contributors remain visible.
 
+## Project Evolution
+
+| Stage | Development type | Outcome |
+| --- | --- | --- |
+| Assessment 1 | Individual | Requirements, use cases, sequence diagrams, MVC architecture, and preliminary interface designs |
+| Assessment 2 | Individual | Working JavaFX prototype, resource availability tracker, incident search and filtering, and JUnit testing |
+| Final group assessment | Collaborative | MySQL-backed client-server application with authentication, role-based access, alerts, shelters, and user management |
+
+<p align="center">
+  <img src="docs/images/project-evolution/assessment-1-context-model.webp" alt="Original Assessment 1 context model" width="48%">
+  <img src="docs/images/project-evolution/assessment-2-resource-availability-tracker.webp" alt="Assessment 2 emergency resource availability tracker" width="48%">
+</p>
+
+These images retain the original **DRS** and **DRS-Initial** branding because they are historical evidence from the individual assessment stages.
+
+[View the complete project evolution and evidence](docs/PROJECT_EVOLUTION.md)
+
 ## Technology Stack
 
 | Area | Technologies |
@@ -131,13 +148,14 @@ These accounts are for local demonstration only and must not be used in a produc
 
 ## Screenshots and Demo
 
-Portfolio screenshots and a short walkthrough will be added after the interface rebrand and final testing are complete.
+The images above document the project's individual development history. Final CrisisOps interface screenshots and a short walkthrough will be added after the rebranded application has been tested locally.
 
 ## Academic Origin and Attribution
 
 CrisisOps originated from the individual assessment stages of **COIT20258: Software Engineering**. The original system was selected as the foundation for the final group assessment in the same class and was subsequently enhanced through collaborative development.
 
-A detailed breakdown of the individual and collaborative stages is available in [docs/ACADEMIC_ORIGIN.md](docs/ACADEMIC_ORIGIN.md).
+- [Project Evolution and Evidence](docs/PROJECT_EVOLUTION.md)
+- [Academic Origin and Attribution](docs/ACADEMIC_ORIGIN.md)
 
 The original academic repository is preserved at:
 
