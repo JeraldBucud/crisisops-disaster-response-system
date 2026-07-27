@@ -41,12 +41,10 @@ public final class BrandingService {
         }
 
         return text
-                .replace("DRS-Enhanced Disaster Response System",
-                        "CrisisOps Emergency Operations System")
+                .replace("DRS-Enhanced Disaster Response System", "CrisisOps")
                 .replace("Disaster Response System",
-                        "Emergency Operations System")
-                .replace("Enhanced Prototype",
-                        "Portfolio Edition")
+                        "Emergency Operations and Disaster Response")
+                .replace("Enhanced Prototype", "Portfolio Edition")
                 .replace("DRS-Enhanced", "CrisisOps")
                 .replace("DRS", "CrisisOps");
     }
