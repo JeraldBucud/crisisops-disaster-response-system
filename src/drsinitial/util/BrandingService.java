@@ -20,7 +20,9 @@ public final class BrandingService {
      * @param root root node of the loaded view
      */
     public static void applyCrisisOpsBranding(Parent root) {
-        updateNode(root);
+        if (root != null) {
+            updateNode(root);
+        }
     }
 
     private static void updateNode(Node node) {
@@ -42,6 +44,7 @@ public final class BrandingService {
 
         return text
                 .replace("DRS-Enhanced Disaster Response System", "CrisisOps")
+                .replace("UCA2-UC1 Report Disaster", "Disaster Reporting")
                 .replace("Disaster Response System",
                         "Emergency Operations and Disaster Response")
                 .replace("Enhanced Prototype", "Portfolio Edition")
