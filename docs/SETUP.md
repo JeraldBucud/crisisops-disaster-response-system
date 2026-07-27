@@ -2,6 +2,8 @@
 
 This guide explains how to run the completed JavaFX client, Java server, and MySQL database locally.
 
+The portfolio repository intentionally preserves the Apache Ant and NetBeans structure used for the academic submission. Some local library paths may therefore need to be adjusted for your computer.
+
 ## Requirements
 
 Install the following before opening the project:
@@ -20,7 +22,7 @@ git clone https://github.com/JeraldBucud/crisisops-disaster-response-system.git
 cd crisisops-disaster-response-system
 ```
 
-For portfolio development, use the `portfolio-rebrand` branch until the rebrand pull request is merged.
+The portfolio rebrand has already been merged. Use the default `main` branch unless you are reviewing a separate pull request.
 
 ## 2. Prepare the MySQL database
 
@@ -30,11 +32,11 @@ For portfolio development, use the `portfolio-rebrand` branch until the rebrand 
 4. Run the complete script.
 5. Confirm that the `drs_enhanced` schema and its tables were created.
 
-The legacy schema name is retained during the portfolio rebrand to avoid breaking the existing database and DAO integration.
+The legacy schema name is retained to avoid breaking the existing database and DAO integration while keeping the portfolio copy close to the submitted assessment.
 
 ## 3. Configure the database connection
 
-CrisisOps reads the database connection from environment variables or Java system properties. Credentials are no longer stored directly in the source code.
+CrisisOps reads the database connection from environment variables or Java system properties. Private MySQL credentials are not stored directly in the Java source code.
 
 ### Environment variables
 
@@ -141,7 +143,7 @@ The database seed data includes:
 | Emergency Control Centre | `ecc` | `ecc123` |
 | Public User | `public` | `public123` |
 
-These credentials are for local demonstration only.
+These credentials are retained for local demonstration of the academic project only.
 
 ## Recommended demonstration flow
 
@@ -176,12 +178,21 @@ These credentials are for local demonstration only.
 - Update the local JavaFX SDK path in NetBeans.
 - Confirm both `javafx.controls` and `javafx.fxml` are included.
 
-## Planned setup improvements
+## Known setup limitations
 
-The portfolio version can later be improved by:
+- The project retains its original NetBeans and Apache Ant configuration.
+- Bundled JavaFX and library files make the repository larger than a modern dependency-managed project.
+- Some configuration values are Windows-oriented and may need local adjustment on macOS or Linux.
+- A packaged desktop installer and automated build workflow are not included.
 
-- Migrating the Ant build to Maven or Gradle
-- Removing the bundled JavaFX SDK from repository history
-- Adding automated database configuration
-- Adding GitHub Actions for build and test checks
-- Producing a packaged desktop release
+## Possible future improvements
+
+A future modernisation branch could:
+
+- Migrate the Ant build to Maven or Gradle
+- Remove the bundled JavaFX SDK from repository history
+- Add automated database configuration
+- Add GitHub Actions for build and test checks
+- Produce a packaged desktop release
+
+These changes are intentionally deferred so the portfolio version remains close to the submitted academic project.
