@@ -149,10 +149,6 @@ public class ClientHandler implements Runnable {
                 return handleAssessIncidentPriority(request.getData());
             }
 
-            if (ClientRequest.ASSESS_INCIDENT_PRIORITY.equals(type)) {
-                return handleAssessIncidentPriority(request.getData());
-            }
-
             if (ClientRequest.GET_PUBLIC_ALERTS.equals(type)
                     || ClientRequest.GET_PUBLIC_ALERTS_FOR_PUBLIC_USER
                             .equals(type)) {
@@ -662,5 +658,4 @@ public class ClientHandler implements Runnable {
                 "Incident registered successfully.",
                 responseData);
     }
-
 }
