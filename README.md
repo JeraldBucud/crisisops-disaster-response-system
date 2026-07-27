@@ -15,12 +15,31 @@ The project began as an individual assessment project for **COIT20258: Software 
 - Emergency dispatch and response logging
 - Public alert creation and publication
 - Evacuation shelter availability management
-- Public user registration and authentication
-- Role-based access for public users, emergency control centre staff, and system administrators
-- Administrative user management
+- Public user registration and authentication interfaces
+- Role-specific dashboards and workflows for public users, emergency control centre staff, and system administrators
+- Administrative user-management interface
 - MySQL persistence through a DAO layer
 - Multi-threaded socket server communication
 - JUnit tests for selected application components
+
+## System Showcase
+
+<p align="center">
+  <img src="docs/images/screenshots/crisis%20ops%20login%20page.png" alt="CrisisOps login screen" width="48%">
+  <img src="docs/images/screenshots/ECC/Crisis%20Ops%20ECC%20Dashboard.png" alt="CrisisOps Emergency Control Centre dashboard" width="48%">
+</p>
+
+<p align="center">
+  <img src="docs/images/screenshots/ECC/Crisis%20Ops%20ECC%20Resource%20Availability.png" alt="CrisisOps emergency resource availability screen" width="48%">
+  <img src="docs/images/screenshots/System%20admin/Crisis%20Ops%20Admin%20User%20Management.png" alt="CrisisOps administrator user-management screen" width="48%">
+</p>
+
+<p align="center">
+  <img src="docs/images/screenshots/public/Crisis%20Ops%20Public%20Report%20Disaster.png" alt="CrisisOps public disaster-reporting screen" width="48%">
+  <img src="docs/images/screenshots/public/Crisis%20Ops%20Public%20Public%20Alerts.png" alt="CrisisOps public alerts screen" width="48%">
+</p>
+
+The screenshots use local demonstration data and show the portfolio branding applied to the completed academic application.
 
 ## My Role
 
@@ -36,7 +55,7 @@ My contributions include:
 - Emergency resource availability tracking
 - Incident search and filtering
 - Login and public-user registration interfaces
-- Role-based dashboard access
+- Role-specific dashboard access
 - Public alert and evacuation shelter interfaces
 - Administrator user-management interface
 - Frontend client communication components
@@ -50,7 +69,7 @@ The final server, database, DAO, testing, and integration work includes collabor
 | --- | --- | --- |
 | Assessment 1 | Individual | Requirements, use cases, sequence diagrams, MVC architecture, and preliminary interface designs |
 | Assessment 2 | Individual | Working JavaFX prototype, resource availability tracker, incident search and filtering, and JUnit testing |
-| Final group assessment | Collaborative | MySQL-backed client-server application with authentication, role-based access, alerts, shelters, and user management |
+| Final group assessment | Collaborative | MySQL-backed client-server application with authentication interfaces, role-specific workflows, alerts, shelters, and user management |
 
 <p align="center">
   <img src="docs/images/project-evolution/assessment-1-context-model.webp" alt="Original Assessment 1 context model" width="48%">
@@ -75,6 +94,8 @@ These images retain the original **DRS** and **DRS-Initial** branding because th
 
 ## System Roles
 
+The JavaFX application presents role-specific dashboards and workflows for the following users:
+
 | Role | Main capabilities |
 | --- | --- |
 | Public User | Register, sign in, report disasters, and view published public alerts |
@@ -83,7 +104,7 @@ These images retain the original **DRS** and **DRS-Initial** branding because th
 
 ## Architecture Overview
 
-CrisisOps uses a JavaFX desktop client connected to a multi-threaded Java server over sockets. The server processes client requests, applies application and security logic, and accesses MySQL through DAO classes.
+CrisisOps uses a JavaFX desktop client connected to a multi-threaded Java server over sockets. The server processes client requests and accesses MySQL through DAO classes.
 
 ```text
 JavaFX Client
@@ -92,7 +113,7 @@ JavaFX Client
      v
 Multi-threaded Java Server
      |
-     | Services, security, and DAO layer
+     | Application logic and DAO layer
      v
 MySQL Database
 ```
@@ -109,7 +130,7 @@ build.xml              Apache Ant build file
 docs/                  Portfolio documentation
 ```
 
-The legacy Java package name `drsinitial` and database schema name `drs_enhanced` are currently retained to avoid breaking FXML controller paths, imports, tests, and database integration during the portfolio rebrand.
+The legacy Java package name `drsinitial` and database schema name `drs_enhanced` are retained to avoid breaking FXML controller paths, imports, tests, and database integration while keeping the portfolio copy close to the submitted assessment.
 
 ## Getting Started
 
@@ -144,11 +165,24 @@ The included seed data provides local demonstration accounts:
 | Emergency Control Centre | `ecc` | `ecc123` |
 | Public User | `public` | `public123` |
 
-These accounts are for local demonstration only and must not be used in a production environment.
+These accounts are retained for local demonstration of the academic project. They must not be reused in a production environment.
+
+## Known Academic Limitations
+
+CrisisOps is presented as a completed academic software-engineering project rather than a production emergency-management platform. The portfolio repository intentionally preserves the submitted architecture and most of its implementation.
+
+- Role separation is primarily implemented through JavaFX dashboards and application workflows; the socket server does not provide a production-grade session-token and per-request authorisation layer.
+- The demonstration password compatibility and seed accounts were retained from the academic build and are not suitable as production security controls.
+- Client-server communication is designed for local demonstration and does not use TLS.
+- The project retains its original Apache Ant and NetBeans structure, including bundled libraries and local configuration requirements.
+- Some administrative account-update behaviour remains limited in the final academic version.
+- Automated continuous-integration checks and a packaged desktop release have not yet been added.
+
+These limitations are documented instead of being hidden so the repository accurately represents the project that was assessed.
 
 ## Screenshots and Demo
 
-The images above document the project's individual development history. Final CrisisOps interface screenshots and a short walkthrough will be added after the rebranded application has been tested locally.
+Current CrisisOps interface screenshots are included in the **System Showcase** above. A short demonstration video has not yet been published.
 
 ## Academic Origin and Attribution
 
@@ -163,7 +197,7 @@ https://github.com/JeraldBucud/DisasterResponseSystem
 
 ## Project Status
 
-The completed academic version is functional as a JavaFX, Java server, and MySQL application. This portfolio branch focuses on professional presentation, clearer attribution, secure local configuration, interface branding, and future build improvements.
+The completed academic version is functional as a JavaFX client, Java server, and MySQL application. This portfolio copy focuses on professional presentation, accurate attribution, secure local database configuration, and interface branding while intentionally avoiding a major redesign of the submitted assessment.
 
 ## Author
 
