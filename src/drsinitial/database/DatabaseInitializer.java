@@ -15,6 +15,7 @@ public class DatabaseInitializer {
     public static void initializeDatabase() {
         createTables();
         seedDefaultData();
+        migrateLegacyBrandingData();
     }
 
     private static void createTables() {
@@ -113,6 +114,32 @@ public class DatabaseInitializer {
 
     private static void seedDefaultData() {
         UserDAOHelper.seedUsers();
+    }
+
+    /**
+     * Updates only the legacy demonstration-account email addresses. User-created
+     * account details are not changed.
+     */
+    private static void migrateLegacyBrandingData() {
+        String[] migrationStatements = new String[] {
+            "UPDATE users SET email = 'admin@crisisops.local' "
+                    + "WHERE username = 'admin' AND email = 'admin@drs.local'",
+            "UPDATE users SET email = 'ecc@crisisops.local' "
+                    + "WHERE username = 'ecc' AND email = 'ecc@drs.local'",
+            "UPDATE users SET email = 'public@crisisops.local' "
+                    + "WHERE username = 'public' AND email = 'public@drs.local'"
+        };
+
+        try (Connection connection = DatabaseConnection.getConnection();
+                Statement statement = connection.createStatement()) {
+            for (String sql : migrationStatements) {
+                statement.executeUpdate(sql);
+            }
+            System.out.println("CrisisOps legacy demonstration data checked.");
+        } catch (SQLException exception) {
+            System.err.println("Legacy branding data migration failed: "
+                    + exception.getMessage());
+        }
     }
 
     private static class UserDAOHelper {
