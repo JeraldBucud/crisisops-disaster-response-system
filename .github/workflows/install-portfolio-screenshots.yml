@@ -1,0 +1,154 @@
+name: Install portfolio screenshots
+
+on:
+  push:
+    branches:
+      - fix-portfolio-screenshots
+
+permissions:
+  contents: write
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Reconstruct and install screenshot assets
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import base64
+          import io
+          import re
+          import zipfile
+
+          repository = Path('.')
+          parts_dir = repository / '.github' / 'screenshot-assets'
+          parts = sorted(parts_dir.glob('part-*.b64'))
+          if not parts:
+              raise SystemExit('No screenshot asset parts were found.')
+
+          encoded = ''.join(part.read_text(encoding='utf-8').strip() for part in parts)
+          archive_bytes = base64.b64decode(encoded, validate=True)
+
+          target = repository / 'docs' / 'images' / 'screenshots'
+          target.mkdir(parents=True, exist_ok=True)
+
+          expected = {
+              'crisisops-login.webp',
+              'admin-dashboard.webp',
+              'admin-user-management.webp',
+              'ecc-dashboard.webp',
+              'ecc-resource-availability.webp',
+              'public-alerts.webp',
+              'public-disaster-reporting.webp',
+              'mysql-schema.webp',
+          }
+
+          installed = set()
+          with zipfile.ZipFile(io.BytesIO(archive_bytes)) as archive:
+              for member in archive.infolist():
+                  name = Path(member.filename).name
+                  if member.is_dir() or name not in expected:
+                      continue
+                  data = archive.read(member)
+                  if not (data.startswith(b'RIFF') and data[8:12] == b'WEBP'):
+                      raise SystemExit(f'{name} is not a valid WebP image.')
+                  (target / name).write_bytes(data)
+                  installed.add(name)
+
+          missing = expected - installed
+          if missing:
+              raise SystemExit(f'Missing screenshot files: {sorted(missing)}')
+
+          gallery = '''# CrisisOps Screenshot Gallery
+
+These screenshots document the tested portfolio version of CrisisOps. The application uses local demonstration data and role-based accounts.
+
+## Secure Login
+
+![CrisisOps secure login](images/screenshots/crisisops-login.webp)
+
+## System Administrator
+
+### Dashboard
+
+![System Administrator dashboard](images/screenshots/admin-dashboard.webp)
+
+### User Management
+
+![Administrator user management](images/screenshots/admin-user-management.webp)
+
+## Emergency Control Centre
+
+### Operational Dashboard
+
+![Emergency Control Centre dashboard](images/screenshots/ecc-dashboard.webp)
+
+### Emergency Resource Availability
+
+![Emergency resource availability tracker](images/screenshots/ecc-resource-availability.webp)
+
+## Public User
+
+### Public Alerts
+
+![Public alerts](images/screenshots/public-alerts.webp)
+
+### Report a Disaster
+
+![Public disaster reporting](images/screenshots/public-disaster-reporting.webp)
+
+## MySQL Database
+
+![CrisisOps MySQL schema](images/screenshots/mysql-schema.webp)
+
+The legacy Java package name `drsinitial` and schema name `drs_enhanced` are retained to preserve compatibility with the completed academic implementation.
+'''
+          (repository / 'docs' / 'SCREENSHOTS.md').write_text(gallery, encoding='utf-8')
+
+          readme_path = repository / 'README.md'
+          readme = readme_path.read_text(encoding='utf-8')
+          showcase = '''## Screenshots and Demo
+
+<p align="center">
+  <img src="docs/images/screenshots/crisisops-login.webp" alt="CrisisOps secure login" width="48%">
+  <img src="docs/images/screenshots/admin-dashboard.webp" alt="CrisisOps system administrator dashboard" width="48%">
+</p>
+
+<p align="center">
+  <img src="docs/images/screenshots/ecc-resource-availability.webp" alt="CrisisOps emergency resource availability tracker" width="48%">
+  <img src="docs/images/screenshots/public-disaster-reporting.webp" alt="CrisisOps public disaster reporting" width="48%">
+</p>
+
+The gallery demonstrates role-based workflows for System Administrators, Emergency Control Centre staff, and Public Users, along with the MySQL schema used by the application.
+
+[View the complete CrisisOps screenshot gallery](docs/SCREENSHOTS.md)
+
+'''
+          pattern = re.compile(r'## Screenshots and Demo\n.*?(?=## Academic Origin and Attribution)', re.DOTALL)
+          updated, count = pattern.subn(showcase, readme, count=1)
+          if count != 1:
+              raise SystemExit('Could not update the README screenshot section.')
+          readme_path.write_text(updated, encoding='utf-8')
+
+          for part in parts:
+              part.unlink()
+          parts_dir.rmdir()
+          workflow = repository / '.github' / 'workflows' / 'install-portfolio-screenshots.yml'
+          workflow.unlink()
+          PY
+
+      - name: Commit installed screenshots
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "docs: install CrisisOps portfolio screenshots"
+          git push origin HEAD:fix-portfolio-screenshots
