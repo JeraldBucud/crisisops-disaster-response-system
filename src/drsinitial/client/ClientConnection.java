@@ -6,7 +6,7 @@ import java.net.Socket;
 
 /**
  * Handles communication between the JavaFX client and the
- * DRS-Enhanced multi-threaded server.
+ * CrisisOps multi-threaded server.
  *
  * This class does not connect directly to MySQL. It sends
  * ClientRequest objects to the backend server and receives
@@ -74,7 +74,7 @@ public class ClientConnection {
         } catch (Exception exception) {
             return ClientResponse.failure(
                     "Backend connection unavailable. "
-                    + "Please confirm that the DRS-Enhanced server is running.");
+                    + "Please confirm that the CrisisOps server is running.");
         }
     }
 

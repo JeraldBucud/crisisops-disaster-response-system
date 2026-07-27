@@ -1,8 +1,8 @@
-# CrisisOps Rebrand Review Checklist
+# CrisisOps Portfolio Review Checklist
 
-Use this checklist before merging the `portfolio-rebrand` branch into `main`.
+Use this checklist when reviewing future portfolio updates. Repository-presentation items can be checked from GitHub, while runtime items should be confirmed manually in the local JavaFX, server, and MySQL environment.
 
-## Branding
+## Branding Verification
 
 - [ ] Login screen displays **CrisisOps**
 - [ ] Registration screen displays **CrisisOps**
@@ -11,7 +11,7 @@ Use this checklist before merging the `portfolio-rebrand` branch into `main`.
 - [ ] Server console output displays **CrisisOps**
 - [ ] Database initialization output displays **CrisisOps**
 
-## Functional Verification
+## Local Functional Verification
 
 - [ ] Project cleans and builds with JDK 17
 - [ ] MySQL schema imports successfully
@@ -31,18 +31,31 @@ Use this checklist before merging the `portfolio-rebrand` branch into `main`.
 
 ## Portfolio Presentation
 
-- [ ] Academic origin and collaboration are clearly disclosed
-- [ ] Personal contributions are accurately described
-- [ ] Student ID is not shown in portfolio-facing documentation
-- [ ] No private credentials are stored in source code
-- [ ] Screenshots use realistic demonstration data
-- [ ] README screenshots are added
+- [x] Academic origin and collaboration are clearly disclosed
+- [x] Personal contributions are accurately described
+- [x] Student ID is not shown in portfolio-facing documentation
+- [x] Private MySQL credentials are not stored in Java source code
+- [x] Screenshots use local demonstration data
+- [x] Current CrisisOps screenshots are displayed in the README
+- [x] Known academic and technical limitations are documented
+- [x] Setup instructions refer to the current default branch
 - [ ] Demonstration video link is added
 
-## Future Cleanup
+## Intentionally Preserved
+
+- [x] Original Git and contributor history
+- [x] Legacy `drsinitial` Java package name
+- [x] Legacy `drs_enhanced` database schema name
+- [x] Original Apache Ant and NetBeans project structure
+- [x] Assessment-era architecture and core workflows
+
+## Possible Future Modernisation
 
 - [ ] Review assessment-only documents before removing them
 - [ ] Remove the bundled JavaFX SDK from Git history
 - [ ] Migrate the Ant project to Maven or Gradle
 - [ ] Add an automated build and test workflow
+- [ ] Improve password storage and backend authorisation in a separate modernisation branch
 - [ ] Create a packaged desktop release
+
+Future modernisation should remain separate from presentation-focused updates so the portfolio repository continues to represent the submitted academic project accurately.
