@@ -35,11 +35,10 @@ public class Main extends Application {
             }
 
             String brandedTitle = newTitle
-                    .replace("DRS-Enhanced Disaster Response System",
-                            "CrisisOps Emergency Operations System")
+                    .replace("DRS-Enhanced Disaster Response System", "CrisisOps")
                     .replace("DRS-Enhanced", "CrisisOps")
                     .replace("Disaster Response System",
-                            "Emergency Operations System");
+                            "Emergency Operations and Disaster Response");
 
             if (!brandedTitle.equals(newTitle)) {
                 stage.setTitle(brandedTitle);
