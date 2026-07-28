@@ -2,27 +2,27 @@
 
 **Emergency Operations and Disaster Response Management System**
 
-CrisisOps is a JavaFX desktop application for reporting disasters, managing incidents, assessing severity and priority, coordinating emergency resources, publishing public alerts, and tracking evacuation shelters.
+CrisisOps is a JavaFX desktop application for reporting disasters, registering incidents, assessing severity and priority, coordinating emergency resources, publishing public alerts and tracking evacuation shelters.
 
-The project began as an individual assessment project for **COIT20258: Software Engineering**, developed by **Jerald Christopher Bucud**. It was later selected as the foundation for the class's final group assessment and expanded collaboratively into a database-backed client-server application.
+The project began as my individual work for **COIT20258: Software Engineering**. It was selected as the foundation for the final group assessment and expanded collaboratively into a MySQL-backed client-server application.
 
-## Project Highlights
+## Main capabilities
 
+- Public user registration and login
 - Disaster reporting and incident registration
-- Severity assessment and incident priority recommendations
-- Incident status tracking, search, and filtering
-- Emergency resource availability management
-- Emergency dispatch and response logging
+- Severity assessment and priority recommendations
+- Incident status updates, search and filtering
+- Emergency-resource availability tracking
+- Resource dispatch and response logging
 - Public alert creation and publication
-- Evacuation shelter availability management
-- Public user registration and authentication interfaces
-- Role-specific dashboards and workflows for public users, emergency control centre staff, and system administrators
-- Administrative user-management interface
-- MySQL persistence through a DAO layer
-- Multi-threaded socket server communication
-- JUnit tests for selected application components
+- Evacuation-shelter management
+- Role-aware JavaFX navigation for public, Emergency Control Centre and administrator users
+- Administrator user-management interface
+- MySQL persistence through JDBC and DAO classes
+- Multi-threaded socket communication
+- JUnit tests for selected models, services, validation rules, session state and repository behaviour
 
-## System Showcase
+## Application preview
 
 <p align="center">
   <img src="docs/images/screenshots/crisis%20ops%20login%20page.png" alt="CrisisOps login screen" width="48%">
@@ -30,109 +30,105 @@ The project began as an individual assessment project for **COIT20258: Software 
 </p>
 
 <p align="center">
-  <img src="docs/images/screenshots/ECC/Crisis%20Ops%20ECC%20Resource%20Availability.png" alt="CrisisOps emergency resource availability screen" width="48%">
+  <img src="docs/images/screenshots/ECC/Crisis%20Ops%20ECC%20Resource%20Availability.png" alt="CrisisOps emergency-resource availability screen" width="48%">
   <img src="docs/images/screenshots/System%20admin/Crisis%20Ops%20Admin%20User%20Management.png" alt="CrisisOps administrator user-management screen" width="48%">
 </p>
 
 <p align="center">
   <img src="docs/images/screenshots/public/Crisis%20Ops%20Public%20Report%20Disaster.png" alt="CrisisOps public disaster-reporting screen" width="48%">
-  <img src="docs/images/screenshots/public/Crisis%20Ops%20Public%20Public%20Alerts.png" alt="CrisisOps public alerts screen" width="48%">
+  <img src="docs/images/screenshots/public/Crisis%20Ops%20Public%20Public%20Alerts.png" alt="CrisisOps public-alert screen" width="48%">
 </p>
 
-The screenshots use local demonstration data and show the portfolio branding applied to the completed academic application.
+The screenshots use local demonstration data.
 
-## My Role
-
-**Original System Developer and JavaFX Integration Contributor**
-
-I designed and developed the original application for the first two individual assessments in **COIT20258: Software Engineering**, including its JavaFX structure and core disaster-response workflows. When the system was selected as the base for the class's final group assessment, I continued contributing to the JavaFX frontend and integration work.
-
-My contributions include:
-
-- Original application architecture and JavaFX interface
-- Disaster reporting and incident-management workflows
-- Severity assessment and priority recommendation features
-- Emergency resource availability tracking
-- Incident search and filtering
-- Login and public-user registration interfaces
-- Role-specific dashboard access
-- Public alert and evacuation shelter interfaces
-- Administrator user-management interface
-- Frontend client communication components
-- Frontend-to-backend integration and interface refinement
-
-The final server, database, DAO, testing, and integration work includes collaborative contributions. The original commit history has been preserved so the project's development and contributors remain visible.
-
-## Project Evolution
+## Project stages
 
 | Stage | Development type | Outcome |
 | --- | --- | --- |
-| Assessment 1 | Individual | Requirements, use cases, sequence diagrams, MVC architecture, and preliminary interface designs |
-| Assessment 2 | Individual | Working JavaFX prototype, resource availability tracker, incident search and filtering, and JUnit testing |
-| Final group assessment | Collaborative | MySQL-backed client-server application with authentication interfaces, role-specific workflows, alerts, shelters, and user management |
+| Assessment 1 | Individual | Requirements, system scope, use cases, sequence diagrams, MVC direction and interface designs |
+| Assessment 2 | Individual | Working JavaFX prototype, report-to-response workflow, resource tracking, search, filtering and JUnit testing |
+| Final group assessment | Collaborative | Socket server, MySQL persistence, authentication interfaces, role-aware workflows, alerts, shelters and user administration |
 
-<p align="center">
-  <img src="docs/images/project-evolution/assessment-1-context-model.webp" alt="Original Assessment 1 context model" width="48%">
-  <img src="docs/images/project-evolution/assessment-2-resource-availability-tracker.webp" alt="Assessment 2 emergency resource availability tracker" width="48%">
-</p>
+The historical Assessment 1 and Assessment 2 images retain the original **DRS** and **DRS-Initial** branding.
 
-These images retain the original **DRS** and **DRS-Initial** branding because they are historical evidence from the individual assessment stages.
+[View the project evolution and evidence](docs/PROJECT_EVOLUTION.md)
 
-[View the complete project evolution and evidence](docs/PROJECT_EVOLUTION.md)
+## My contribution
 
-## Technology Stack
+**Original System Developer and JavaFX Integration Contributor**
 
-| Area | Technologies |
-| --- | --- |
-| Language | Java 17 |
-| Desktop UI | JavaFX, FXML, CSS |
-| Architecture | MVC-style desktop client, multi-threaded client-server communication |
-| Database | MySQL, JDBC, DAO pattern |
-| Testing | JUnit |
-| Build and IDE | Apache Ant, NetBeans, Scene Builder |
-| Collaboration | Git, GitHub branches, pull requests, and code review |
+I completed the original analysis, design and JavaFX prototype individually. My work included:
 
-## System Roles
+- System boundary, actors, requirements and use cases
+- Use-case and sequence diagrams
+- MVC-style application direction
+- Disaster-reporting and incident-management workflows
+- Severity assessment and priority-recommendation behaviour
+- Emergency-resource availability tracking
+- Incident search and filtering
+- JUnit tests for the individual prototype
 
-The JavaFX application presents role-specific dashboards and workflows for the following users:
+During the collaborative stage, I contributed to:
 
-| Role | Main capabilities |
-| --- | --- |
-| Public User | Register, sign in, report disasters, and view published public alerts |
-| Emergency Control Centre | Manage incidents, severity, priority, dispatch, resources, shelters, and alerts |
-| System Administrator | Access emergency-management functions and manage system users |
+- Login and public-registration interfaces
+- Role-aware JavaFX navigation
+- Public-alert and evacuation-shelter interfaces
+- Administrator user-management screens
+- Frontend request components
+- JavaFX-to-server integration for selected workflows
+- Interface consistency, setup documentation and repository preparation
 
-## Architecture Overview
+The final server, database, DAO, testing and integration work includes contributions from the project team. The original commit history remains available.
 
-CrisisOps uses a JavaFX desktop client connected to a multi-threaded Java server over sockets. The server processes client requests and accesses MySQL through DAO classes.
+## Architecture
 
 ```text
 JavaFX Client
      |
-     | Socket requests and responses
+     | Serialised socket requests and responses
      v
 Multi-threaded Java Server
      |
-     | Application logic and DAO layer
+     | Request routing, application logic and DAO calls
      v
 MySQL Database
 ```
 
-## Project Structure
+The server creates a client-handler thread for each accepted connection. DAO classes separate SQL operations from the JavaFX controllers and request-handling code.
+
+### Access model
+
+After login, the JavaFX client stores the returned user role and shows or hides dashboard functions for that role.
+
+This is a client-side academic access model. The socket server does not issue session tokens or enforce the user's role for every request.
+
+## Technology stack
+
+| Area | Technologies |
+| --- | --- |
+| Language | Java 17 |
+| Desktop interface | JavaFX, FXML, CSS |
+| Communication | Java sockets, object streams, multi-threading |
+| Database access | MySQL, JDBC, DAO pattern |
+| Testing | JUnit 4 |
+| Build and IDE | Apache Ant, NetBeans, Scene Builder |
+| Collaboration | Git, GitHub branches, pull requests and review |
+
+## Project structure
 
 ```text
 database/              MySQL schema and seed data
-lib/                   Project libraries used by the original NetBeans build
+lib/                   Libraries used by the NetBeans build
 src/drsinitial/        Java source code and JavaFX resources
 test/drsinitial/       JUnit tests
 nbproject/             NetBeans project configuration
 build.xml              Apache Ant build file
-docs/                  Portfolio documentation
+docs/                  Setup, screenshots and project history
 ```
 
-The legacy Java package name `drsinitial` and database schema name `drs_enhanced` are retained to avoid breaking FXML controller paths, imports, tests, and database integration while keeping the portfolio copy close to the submitted assessment.
+The legacy package name `drsinitial` and schema name `drs_enhanced` remain because changing them would affect FXML controller paths, imports, tests and database integration.
 
-## Getting Started
+## Local setup
 
 ### Requirements
 
@@ -144,20 +140,18 @@ The legacy Java package name `drsinitial` and database schema name `drs_enhanced
 
 ### Run the application
 
-1. Clone this repository.
+1. Clone the repository.
 2. Open the project in NetBeans.
 3. Run `database/drs_enhanced_setup.sql` in MySQL Workbench.
-4. Set `CRISISOPS_DB_USERNAME` and `CRISISOPS_DB_PASSWORD` for your local MySQL account.
-5. Add JavaFX and MySQL Connector/J to the project libraries when required by your NetBeans setup.
+4. Set `CRISISOPS_DB_USERNAME` and `CRISISOPS_DB_PASSWORD` for the local MySQL account.
+5. Add JavaFX and MySQL Connector/J to the project libraries when required.
 6. Run `drsinitial.server.DRSServer`.
 7. Confirm that the server is listening on port `5000`.
-8. Run `drsinitial.Main` to open the JavaFX client.
+8. Run `drsinitial.Main`.
 
 Detailed instructions are available in [docs/SETUP.md](docs/SETUP.md).
 
-## Demonstration Accounts
-
-The included seed data provides local demonstration accounts:
+## Demonstration accounts
 
 | Role | Username | Password |
 | --- | --- | --- |
@@ -165,28 +159,28 @@ The included seed data provides local demonstration accounts:
 | Emergency Control Centre | `ecc` | `ecc123` |
 | Public User | `public` | `public123` |
 
-These accounts are retained for local demonstration of the academic project. They must not be reused in a production environment.
+These accounts are provided only for local demonstration and must not be reused elsewhere.
 
-## Known Academic Limitations
+## Current constraints
 
-CrisisOps is presented as a completed academic software-engineering project rather than a production emergency-management platform. The portfolio repository intentionally preserves the submitted architecture and most of its implementation.
+- The socket protocol has no server-issued session token or per-request role authorisation.
+- Local client-server traffic does not use TLS.
+- Demonstration accounts and password compatibility remain from the academic build.
+- Server-side user-account update handling is not implemented.
+- The Ant and NetBeans project requires local JavaFX and MySQL configuration.
+- No packaged desktop release or automated CI workflow is included.
 
-- Role separation is primarily implemented through JavaFX dashboards and application workflows; the socket server does not provide a production-grade session-token and per-request authorisation layer.
-- The demonstration password compatibility and seed accounts were retained from the academic build and are not suitable as production security controls.
-- Client-server communication is designed for local demonstration and does not use TLS.
-- The project retains its original Apache Ant and NetBeans structure, including bundled libraries and local configuration requirements.
-- Some administrative account-update behaviour remains limited in the final academic version.
-- Automated continuous-integration checks and a packaged desktop release have not yet been added.
+## Next engineering steps
 
-These limitations are documented instead of being hidden so the repository accurately represents the project that was assessed.
+- Migrate the build to Maven or Gradle.
+- Add automated build and test verification through GitHub Actions.
+- Introduce authenticated sessions, request-level authorisation and encrypted communication.
+- Complete account-update behaviour and add server integration tests.
+- Package the JavaFX application for simpler installation.
 
-## Screenshots and Demo
+## Academic origin and attribution
 
-Current CrisisOps interface screenshots are included in the **System Showcase** above. A short demonstration video has not yet been published.
-
-## Academic Origin and Attribution
-
-CrisisOps originated from the individual assessment stages of **COIT20258: Software Engineering**. The original system was selected as the foundation for the final group assessment in the same class and was subsequently enhanced through collaborative development.
+CrisisOps originated from the individual assessment stages of **COIT20258: Software Engineering** and was expanded collaboratively in the final group assessment.
 
 - [Project Evolution and Evidence](docs/PROJECT_EVOLUTION.md)
 - [Academic Origin and Attribution](docs/ACADEMIC_ORIGIN.md)
@@ -195,11 +189,7 @@ The original academic repository is preserved at:
 
 https://github.com/JeraldBucud/DisasterResponseSystem
 
-## Project Status
-
-The completed academic version is functional as a JavaFX client, Java server, and MySQL application. This portfolio copy focuses on professional presentation, accurate attribution, secure local database configuration, and interface branding while intentionally avoiding a major redesign of the submitted assessment.
-
 ## Author
 
 **Jerald Christopher Bucud**  
-Master of Information Technology student majoring in Software Design and Development, with a minor in Artificial Intelligence.
+Master of Information Technology candidate majoring in Software Design and Development, with a minor in Artificial Intelligence.
