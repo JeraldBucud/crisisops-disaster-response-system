@@ -175,9 +175,13 @@ These credentials are retained only for local demonstration and must not be reus
 
 ## Testing evidence
 
-The individual Assessment 2 report recorded **28 passing tests** for the original prototype. The current repository also contains test classes for selected models, services, validation rules, session state and the in-memory repository.
+A full local JUnit 4 run of the current CrisisOps repository completed with **40 tests passing**.
 
-The historical result is documented in [docs/PROJECT_EVOLUTION.md](docs/PROJECT_EVOLUTION.md). It is not presented as a current continuous-integration result for the full client-server application.
+![CrisisOps JUnit run showing 40 passing tests](docs/images/screenshots/Crisisops_40test_Passed.webp)
+
+The current suite covers selected domain models, service rules, validation behaviour, user-session state and the in-memory application repository. The screenshot records a local project test run; no automated continuous-integration workflow is currently configured.
+
+The historical 28-test result for the individual Assessment 2 prototype remains documented in [docs/PROJECT_EVOLUTION.md](docs/PROJECT_EVOLUTION.md) as project-history evidence rather than a current result.
 
 ## Current constraints
 

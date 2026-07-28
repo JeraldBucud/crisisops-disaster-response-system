@@ -2,7 +2,7 @@
 
 CrisisOps evolved through three assessment stages in **COIT20258: Software Engineering**. The first two assessments were completed individually by **Jerald Christopher Bucud**. The original system was then selected as the foundation for the class's final group assessment and enhanced collaboratively.
 
-This page is based on the original Assessment 1 and Assessment 2 reports. The complete reports are not published in this portfolio repository because they contain personal and assessment-specific information.
+This page is based on the original Assessment 1 and Assessment 2 reports. The complete reports are not published in this repository because they contain personal and assessment-specific information.
 
 ## Stage 1: Individual Analysis and Design
 
@@ -53,11 +53,9 @@ Two decision-support features were also implemented individually:
 
 *Historical Assessment 2 evidence showing available, assigned, unavailable, and maintenance units used to support dispatch decisions.*
 
-### Testing evidence
+### Historical prototype testing
 
-![Assessment 2 JUnit results](images/project-evolution/assessment-2-junit-results.webp)
-
-*The Assessment 2 report recorded a complete JUnit run in which all 28 core prototype tests passed.*
+The Assessment 2 report recorded a complete JUnit run in which all **28 core prototype tests passed**. This count applies only to the individual prototype and is retained as project-history evidence.
 
 ## Stage 3: Collaborative Enhancement
 
@@ -71,12 +69,20 @@ Collaborative enhancements included:
 - MySQL database persistence
 - DAO-based data access
 - Authentication and public-user registration
-- Role-based access control
+- Role-aware JavaFX dashboards
 - Public alert management
 - Evacuation shelter management
 - Administrative user management
 - Frontend, backend, and database integration
 - Expanded testing and documentation
+
+### Current repository testing evidence
+
+A full local JUnit 4 run of the current CrisisOps repository completed with **40 tests passing**.
+
+![Current CrisisOps JUnit run showing 40 passing tests](images/screenshots/Crisisops_40test_Passed.webp)
+
+*The screenshot records the current repository's local project test run. It is not an automated continuous-integration result.*
 
 ## My Role in the Completed System
 
@@ -90,7 +96,7 @@ My contributions include:
 - Emergency resource availability tracking
 - Incident search and filtering
 - Login and public-user registration interfaces
-- Role-based dashboard access
+- Role-aware dashboard navigation
 - Public alert and evacuation shelter interfaces
 - Administrator user-management interface
 - Frontend client communication components
@@ -100,4 +106,4 @@ The final completed system contains collaborative contributions. The repository 
 
 ## Historical Evidence Note
 
-The images on this page intentionally retain their original **DRS** and **DRS-Initial** branding. They are historical artefacts showing the system before it was renamed **CrisisOps** for portfolio presentation.
+The historical images on this page intentionally retain their original **DRS** and **DRS-Initial** branding. They document the system before it was renamed **CrisisOps** for its current public presentation.
